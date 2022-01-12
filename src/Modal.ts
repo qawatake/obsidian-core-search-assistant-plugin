@@ -1,10 +1,13 @@
+import { Controller } from 'Controller';
 import { App, Modal, TFile, WorkspaceLeaf } from 'obsidian';
 
 export class ExampleModal extends Modal {
 	file: TFile;
+	controller: Controller;
 
-	constructor(app: App, file: TFile) {
+	constructor(app: App, controller: Controller, file: TFile) {
 		super(app);
+		this.controller = controller;
 		this.file = file;
 	}
 
@@ -22,6 +25,7 @@ export class ExampleModal extends Modal {
 		const { contentEl } = this;
 		contentEl.empty();
 		document.removeEventListener('keydown', this.closeModalKeymapHandler);
+		setTimeout(() => this.controller.focus(), 100);
 	}
 
 	renderPreview() {

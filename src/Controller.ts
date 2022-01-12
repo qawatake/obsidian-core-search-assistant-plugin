@@ -118,7 +118,7 @@ export class Controller {
 			filename as string,
 			'/'
 		);
-		new ExampleModal(this.app, file).open();
+		new ExampleModal(this.app, this, file).open();
 	}
 
 	choose() {
