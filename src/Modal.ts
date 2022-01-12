@@ -1,41 +1,51 @@
-import { App, Modal, TFile, WorkspaceLeaf } from 'obsidian';
+import {
+	App,
+	KeymapEventHandler,
+	KeymapEventListener,
+	Modal,
+	TFile,
+	WorkspaceLeaf,
+} from 'obsidian';
 
 export class ExampleModal extends Modal {
 	previewEl: HTMLElement;
 	file: TFile;
+	// keymapEventListeners: KeymapEventListener[];
+	// backHandler: KeymapEventHandler;
+	closeModalKeymapHandler: EventListener;
 	constructor(app: App, file: TFile) {
 		super(app);
 		this.previewEl = createDiv();
 		this.file = file;
 	}
 
-	onOpen() {
+	async onOpen() {
 		const { contentEl, containerEl } = this;
 		this.renderPreview();
 		contentEl.appendChild(this.previewEl);
-		console.log(contentEl.querySelector('div.workspace-leaf-content'));
 		containerEl.id = 'qawatake';
 
-		// document.addEventListener('keydown', (ev) => {
-		// 	console.log(ev.key);
-		// 	if (ev.key === 'u') {
-		// 		console.log(this.containerEl);
-		// 		this.containerEl.createEl('div', {
-		// 			attr: {
-		// 				class: 'modal',
-		// 				style: 'margin-top:10px',
-		// 			},
-		// 			text: 'XXXXXXXXXXXx',
-		// 		});
-		// 	} else {
-		// 		console.log('error');
-		// 	}
-		// });
+		// to prevent the modal immediately close
+		await new Promise((resolve) => setTimeout(resolve, 1));
+
+		// Scope is not available because it does not listen key events when modal is open
+		this.closeModalKeymapHandler = (evt: Event) => {
+			if (!(evt instanceof KeyboardEvent)) {
+				return;
+			}
+			if (!(evt.ctrlKey && evt.key === 'Enter')) {
+				return;
+			}
+			this.close();
+		};
+
+		document.addEventListener('keydown', this.closeModalKeymapHandler);
 	}
 
 	onClose() {
 		const { contentEl } = this;
 		contentEl.empty();
+		document.removeEventListener('keydown', this.closeModalKeymapHandler);
 	}
 
 	renderPreview() {

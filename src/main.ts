@@ -29,44 +29,10 @@ export default class MyPlugin extends Plugin {
 	settings: MyPluginSettings;
 
 	async onload() {
-		// this.registerEvent(
-		// 	this.app.vault.on('create', (file: TAbstractFile) => {
-		// 		if (file instanceof TFile) {
-		// 			if (file.extension === 'png') {
-		// 				console.log(file.name);
-		// 				this.app.vault.create(
-		// 					`info_of_${file.basename}.md`,
-		// 					`ctime: ${file.stat.ctime}, mtime: ${file.stat.mtime}`
-		// 				);
-		// 			}
-		// 		}
-		// 	})
-		// );
-
 		const app = this.app as AppExtension;
 		console.log(app);
 
-		// const command = await this.waitUntilCommandsFound();
-		// console.log(command);
-
 		await this.loadSettings();
-
-		// this.app.workspace.onLayoutReady(async () => {
-		// 	// console.log(app.workspace.leftSplit);
-		// 	// console.log(this.app.workspace.leftSplit.children);
-		// 	// this.hasFocusOnSearchInput();
-		// 	// console.log(this.findSearchLeaf());
-		// 	const searchLeaf = this.findSearchLeaf();
-		// 	const inputEl = searchLeaf?.querySelector(
-		// 		'input[type="text"]'
-		// 	) as HTMLInputElement;
-		// 	// console.log(inputEl);
-
-		// 	// this.registerDomEvent(inputEl, 'focus', () => {
-		// 	// 	// console.log('a');
-		// 	// 	// console.log(this.hasFocusOnSearchInput());
-		// 	// });
-		// });
 
 		let id = -1;
 		this.app.scope.register(['Ctrl'], 'N', () => {
@@ -138,7 +104,7 @@ export default class MyPlugin extends Plugin {
 			const resultEls = resultsContainerEl?.querySelectorAll(
 				'div.search-result-file-title'
 			);
-			// (resultEls[id] as HTMLElement).click();
+
 			const resultEl = resultEls[id] as HTMLElement;
 			const filenameEl = resultEl.querySelector('div.tree-item-inner');
 			console.log(filenameEl?.textContent);
@@ -169,7 +135,6 @@ export default class MyPlugin extends Plugin {
 			return false;
 		}
 		if (document.activeElement !== inputEl) {
-			console.log(document.activeElement);
 			return false;
 		}
 		return true;
