@@ -1,17 +1,17 @@
-import { Controller } from 'Controller';
+import MyPlugin from 'main';
 import { App, Modal, TFile, WorkspaceLeaf } from 'obsidian';
 
 export class ExampleModal extends Modal {
 	file: TFile;
-	controller: Controller;
+	plugin: MyPlugin;
 
-	constructor(app: App, controller: Controller, file: TFile) {
+	constructor(app: App, plugin: MyPlugin, file: TFile) {
 		super(app);
-		this.controller = controller;
+		this.plugin = plugin;
 		this.file = file;
 	}
 
-	async onOpen() {
+	override async onOpen() {
 		this.renderPreview();
 
 		// to prevent the modal immediately close
@@ -21,11 +21,14 @@ export class ExampleModal extends Modal {
 		document.addEventListener('keydown', this.closeModalKeymapHandler);
 	}
 
-	onClose() {
+	override onClose() {
 		const { contentEl } = this;
 		contentEl.empty();
 		document.removeEventListener('keydown', this.closeModalKeymapHandler);
-		setTimeout(() => this.controller.focus(), 100);
+		setTimeout(() => {
+			this.plugin.controller?.popCurrentFocused();
+			this.plugin.controller?.focus();
+		}, 100);
 	}
 
 	renderPreview() {

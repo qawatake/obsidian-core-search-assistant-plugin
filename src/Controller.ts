@@ -1,14 +1,19 @@
+import MyPlugin from 'main';
 import { ExampleModal } from 'Modal';
 import { App, KeymapEventHandler } from 'obsidian';
 
 export class Controller {
 	private app: App;
+	private plugin: MyPlugin;
 	private currentFocused = -1;
+	private StackedPositions: number[];
 	private keymapHandlers: KeymapEventHandler[];
 
-	constructor(app: App) {
+	constructor(app: App, plugin: MyPlugin) {
 		this.app = app;
+		this.plugin = plugin;
 		this.keymapHandlers = [];
+		this.StackedPositions = [];
 	}
 
 	setup(): Controller {
@@ -48,6 +53,32 @@ export class Controller {
 				this.showPreviewModal();
 			})
 		);
+
+		this.app.workspace.onLayoutReady(() => {
+			const { containerEl } = this.app.workspace.leftSplit;
+			if (!(containerEl instanceof HTMLElement)) {
+				return;
+			}
+			const inputEl = containerEl.querySelector(
+				'div.search-input-container > input'
+			);
+			if (inputEl === null) {
+				return;
+			}
+			this.plugin.registerDomEvent(inputEl as HTMLElement, 'blur', () => {
+				this.pushCurrentFocused();
+				this.unfocus();
+			});
+			this.plugin.registerDomEvent(
+				inputEl as HTMLElement,
+				'input',
+				() => {
+					this.forget();
+					this.unfocus();
+				}
+			);
+		});
+
 		return this;
 	}
 
@@ -59,6 +90,16 @@ export class Controller {
 
 	forget() {
 		this.currentFocused = -1;
+		this.StackedPositions = [];
+	}
+
+	pushCurrentFocused() {
+		this.StackedPositions.push(this.currentFocused);
+		this.currentFocused = -1;
+	}
+
+	popCurrentFocused() {
+		this.currentFocused = this.StackedPositions.pop() ?? -1;
 	}
 
 	navigateForward() {
@@ -102,6 +143,18 @@ export class Controller {
 		});
 	}
 
+	unfocus() {
+		const resultsContainerEl = this.findSearchLeaf()?.querySelector(
+			'div.search-results-children'
+		);
+		const resultEls = resultsContainerEl?.querySelectorAll(
+			'div.search-result-file-title'
+		);
+		resultEls?.forEach((el) => {
+			el.removeClass('fake-hover');
+		});
+	}
+
 	showPreviewModal() {
 		const resultsContainerEl = this.findSearchLeaf()?.querySelector(
 			'div.search-results-children'
@@ -109,6 +162,9 @@ export class Controller {
 		const resultEls = resultsContainerEl?.querySelectorAll(
 			'div.search-result-file-title'
 		);
+		if (resultEls === undefined) {
+			return;
+		}
 
 		const resultEl = resultEls[this.currentFocused] as HTMLElement;
 		const filenameEl = resultEl.querySelector('div.tree-item-inner');
@@ -118,7 +174,10 @@ export class Controller {
 			filename as string,
 			'/'
 		);
-		new ExampleModal(this.app, this, file).open();
+		if (file === null) {
+			return;
+		}
+		new ExampleModal(this.app, this.plugin, file).open();
 	}
 
 	choose() {
@@ -128,7 +187,10 @@ export class Controller {
 		const resultEls = resultsContainerEl?.querySelectorAll(
 			'div.search-result-file-title'
 		);
-		(resultEls[this.currentFocused] as HTMLElement).click();
+		if (resultEls === undefined) {
+			return;
+		}
+		(resultEls[this.currentFocused] as HTMLElement)?.click();
 	}
 
 	hasFocusOnSearchInput(): boolean {
