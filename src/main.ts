@@ -82,7 +82,6 @@ export default class MyPlugin extends Plugin {
 			const numResults = resultEls?.length ?? 0;
 			id++;
 			id = id < numResults ? id : numResults - 1;
-			console.log(id);
 			resultEls?.forEach((el, i) => {
 				if (id === i) {
 					el.addClass('fake-hover');
@@ -113,6 +112,33 @@ export default class MyPlugin extends Plugin {
 					el.removeClass('fake-hover');
 				}
 			});
+		});
+		this.app.scope.register(['Mod', 'Shift'], 'Enter', () => {
+			if (!(this.hasFocusOnSearchInput() && id >= 0)) {
+				return;
+			}
+			const resultsContainerEl = this.findSearchLeaf()?.querySelector(
+				'div.search-results-children'
+			);
+			const resultEls = resultsContainerEl?.querySelectorAll(
+				'div.search-result-file-title'
+			);
+			(resultEls[id] as HTMLElement).click();
+			return;
+		});
+		this.app.scope.register(['Ctrl'], 'Enter', () => {
+			if (!(this.hasFocusOnSearchInput() && id >= 0)) {
+				return;
+			}
+
+			const resultsContainerEl = this.findSearchLeaf()?.querySelector(
+				'div.search-results-children'
+			);
+			const resultEls = resultsContainerEl?.querySelectorAll(
+				'div.search-result-file-title'
+			);
+			(resultEls[id] as HTMLElement).click();
+			return;
 		});
 	}
 
