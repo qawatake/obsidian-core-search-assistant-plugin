@@ -1,3 +1,4 @@
+import { ExampleModal } from 'Modal';
 import {
 	App,
 	Command,
@@ -137,7 +138,16 @@ export default class MyPlugin extends Plugin {
 			const resultEls = resultsContainerEl?.querySelectorAll(
 				'div.search-result-file-title'
 			);
-			(resultEls[id] as HTMLElement).click();
+			// (resultEls[id] as HTMLElement).click();
+			const resultEl = resultEls[id] as HTMLElement;
+			const filenameEl = resultEl.querySelector('div.tree-item-inner');
+			console.log(filenameEl?.textContent);
+			const filename = filenameEl?.textContent;
+			const file = this.app.metadataCache.getFirstLinkpathDest(
+				filename as string,
+				'/'
+			);
+			new ExampleModal(this.app, file).open();
 			return;
 		});
 	}
