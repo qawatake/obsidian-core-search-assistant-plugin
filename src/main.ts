@@ -81,10 +81,12 @@ export default class MyPlugin extends Plugin {
 			);
 			const numResults = resultEls?.length ?? 0;
 			id++;
-			id = id < numResults ? id : numResults;
+			id = id < numResults ? id : numResults - 1;
+			console.log(id);
 			resultEls?.forEach((el, i) => {
 				if (id === i) {
 					el.addClass('fake-hover');
+					el.scrollIntoView({ block: 'center' });
 				} else {
 					el.removeClass('fake-hover');
 				}
@@ -106,6 +108,7 @@ export default class MyPlugin extends Plugin {
 			resultEls?.forEach((el, i) => {
 				if (id === i) {
 					el.addClass('fake-hover');
+					el.scrollIntoView({ block: 'center' });
 				} else {
 					el.removeClass('fake-hover');
 				}
