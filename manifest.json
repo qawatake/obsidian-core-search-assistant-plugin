@@ -1,10 +1,10 @@
 {
-	"id": "obsidian-sample-plugin",
-	"name": "Sample Plugin",
-	"version": "1.0.1",
+	"id": "obsidian-core-search-assistant-plugin",
+	"name": "Core Search Assistant",
+	"version": "0.0.0",
 	"minAppVersion": "0.12.0",
-	"description": "This is a sample plugin for Obsidian. This plugin demonstrates some of the capabilities of the Obsidian API.",
-	"author": "Obsidian",
-	"authorUrl": "https://obsidian.md",
+	"description": "Provides friendly interfaces for then core search plugin",
+	"author": "qawatake",
+	"authorUrl": "https://github.com/qawatake/obsidian-core-search-assistant-plugin",
 	"isDesktopOnly": false
 }
