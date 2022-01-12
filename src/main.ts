@@ -50,20 +50,65 @@ export default class MyPlugin extends Plugin {
 
 		await this.loadSettings();
 
-		this.app.workspace.onLayoutReady(async () => {
-			// console.log(app.workspace.leftSplit);
-			// console.log(this.app.workspace.leftSplit.children);
-			this.hasFocusOnSearchInput();
-			console.log(this.findSearchLeaf());
-			const searchLeaf = this.findSearchLeaf();
-			const inputEl = searchLeaf?.querySelector(
-				'input[type="text"]'
-			) as HTMLInputElement;
-			console.log(inputEl);
+		// this.app.workspace.onLayoutReady(async () => {
+		// 	// console.log(app.workspace.leftSplit);
+		// 	// console.log(this.app.workspace.leftSplit.children);
+		// 	// this.hasFocusOnSearchInput();
+		// 	// console.log(this.findSearchLeaf());
+		// 	const searchLeaf = this.findSearchLeaf();
+		// 	const inputEl = searchLeaf?.querySelector(
+		// 		'input[type="text"]'
+		// 	) as HTMLInputElement;
+		// 	// console.log(inputEl);
 
-			this.registerDomEvent(inputEl, 'focus', () => {
-				console.log('a');
-				console.log(this.hasFocusOnSearchInput());
+		// 	// this.registerDomEvent(inputEl, 'focus', () => {
+		// 	// 	// console.log('a');
+		// 	// 	// console.log(this.hasFocusOnSearchInput());
+		// 	// });
+		// });
+
+		let id = -1;
+		this.app.scope.register(['Ctrl'], 'N', () => {
+			if (!this.hasFocusOnSearchInput()) {
+				return;
+			}
+
+			const resultsContainerEl = this.findSearchLeaf()?.querySelector(
+				'div.search-results-children'
+			);
+			const resultEls = resultsContainerEl?.querySelectorAll(
+				'div.search-result-file-title'
+			);
+			const numResults = resultEls?.length ?? 0;
+			id++;
+			id = id < numResults ? id : numResults;
+			resultEls?.forEach((el, i) => {
+				if (id === i) {
+					el.addClass('fake-hover');
+				} else {
+					el.removeClass('fake-hover');
+				}
+			});
+		});
+		this.app.scope.register(['Ctrl'], 'P', () => {
+			if (!this.hasFocusOnSearchInput()) {
+				return;
+			}
+			id--;
+			id = id >= 0 ? id : 0;
+
+			const resultsContainerEl = this.findSearchLeaf()?.querySelector(
+				'div.search-results-children'
+			);
+			const resultEls = resultsContainerEl?.querySelectorAll(
+				'div.search-result-file-title'
+			);
+			resultEls?.forEach((el, i) => {
+				if (id === i) {
+					el.addClass('fake-hover');
+				} else {
+					el.removeClass('fake-hover');
+				}
 			});
 		});
 	}
