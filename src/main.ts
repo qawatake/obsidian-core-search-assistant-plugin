@@ -1,5 +1,7 @@
 import { Controller } from 'Controller';
 import { Plugin } from 'obsidian';
+import { searchAnalyzer } from 'searchAnalyzer';
+import { findPropertyOwnerRecursively } from 'Util';
 import { AppExtension } from './uncover';
 
 // Remember to rename these classes and interfaces!
@@ -18,7 +20,15 @@ export default class MyPlugin extends Plugin {
 
 	override async onload() {
 		const app = this.app as AppExtension;
+
+		this.app.workspace.onLayoutReady(() => {
+			// console.log(new searchAnalyzer(this.app).getInputEl());
+		});
+
 		console.log(app);
+		// console.log(findPropertyOwnerRecursively(app, 'setConfig'));
+		// console.log(findPropertyOwnerRecursively(app, 'sortOrder'));
+		console.log(this.app.vault.getConfig('fileSortOrder'));
 
 		await this.loadSettings();
 
