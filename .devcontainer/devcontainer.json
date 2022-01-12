@@ -1,0 +1,10 @@
+{
+	"name": "node & typescript",
+	"context": "..",
+	"dockerFile": "../Dockerfile",
+	"settings": {},
+	"extensions": [
+        "oderwat.indent-rainbow",
+		"mhutchie.git-graph"
+    ]
+}
