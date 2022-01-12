@@ -1,9 +1,9 @@
 # vscode
-# .vscode
-# .devcontainer
+.vscode
+.devcontainer
 
 # Dockerfile
-# Dockerfile
+Dockerfile
 
 # npm
 node_modules
