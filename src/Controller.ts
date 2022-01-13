@@ -14,72 +14,25 @@ export class Controller {
 		this.StackedPositions = [];
 	}
 
-	setup(): Controller {
-		this.app.workspace.onLayoutReady(() => {
-			const inputEl = this.plugin.coreSearchInterface?.getSearchInput();
-			if (!inputEl) {
-				return;
-			}
-			this.plugin.registerDomEvent(inputEl as HTMLElement, 'blur', () => {
-				if (this.scope) {
-					this.app.keymap.popScope(this.scope);
-					this.scope = undefined;
-				}
-				this.pushCurrentFocused();
-				this.unfocus();
-			});
-			this.plugin.registerDomEvent(
-				inputEl as HTMLElement,
-				'input',
-				() => {
-					this.forget();
-					this.unfocus();
-				}
-			);
-			this.plugin.registerDomEvent(
-				inputEl as HTMLElement,
-				'focus',
-				() => {
-					this.setKeymap();
-				}
-			);
-		});
-
-		return this;
-	}
-
-	setKeymap() {
+	enter() {
 		if (!this.scope) {
 			this.scope = new Scope();
 		}
 		this.app.keymap.pushScope(this.scope);
 
 		this.scope.register(['Ctrl'], 'N', () => {
-			if (!this.hasFocusOnSearchInput()) {
-				return;
-			}
 			this.navigateForward();
 		});
 		this.scope.register(['Ctrl'], 'P', () => {
-			if (!this.hasFocusOnSearchInput()) {
-				return;
-			}
 			this.navigateBack();
 		});
 		this.scope.register(['Mod'], 'Enter', () => {
-			if (!(this.hasFocusOnSearchInput() && this.currentFocused >= 0)) {
-				return;
-			}
-			this.choose();
+			this.open();
 		});
 		this.scope.register(['Ctrl'], 'Enter', () => {
-			if (!(this.hasFocusOnSearchInput() && this.currentFocused >= 0)) {
-				return;
-			}
-			this.showPreviewModal();
+			this.preview();
 		});
 		this.scope.register([], 'Escape', () => {
-			console.log('a');
 			const inputEl = this.plugin.coreSearchInterface?.getSearchInput();
 			if (!inputEl) {
 				return;
@@ -88,7 +41,19 @@ export class Controller {
 		});
 	}
 
-	clean() {}
+	reset() {
+		this.forget();
+		this.unfocus();
+	}
+
+	exit() {
+		if (this.scope) {
+			this.app.keymap.popScope(this.scope);
+			this.scope = undefined;
+		}
+		this.pushCurrentFocused();
+		this.unfocus();
+	}
 
 	forget() {
 		this.currentFocused = -1;
@@ -130,25 +95,11 @@ export class Controller {
 		this.plugin.coreSearchInterface?.unfocus();
 	}
 
-	showPreviewModal() {
+	preview() {
 		this.plugin.coreSearchInterface?.preview(this.currentFocused);
 	}
 
-	choose() {
+	open() {
 		this.plugin.coreSearchInterface?.open(this.currentFocused);
-	}
-
-	hasFocusOnSearchInput(): boolean {
-		const inputEl = this.plugin.coreSearchInterface?.getSearchInput();
-		if (!inputEl) {
-			return false;
-		}
-		if (!document.hasFocus()) {
-			return false;
-		}
-		if (document.activeElement !== inputEl) {
-			return false;
-		}
-		return true;
 	}
 }
