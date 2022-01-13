@@ -1,5 +1,4 @@
 import MyPlugin from 'main';
-import { ExampleModal } from 'Modal';
 import { App, KeymapEventHandler } from 'obsidian';
 
 export class Controller {
@@ -55,14 +54,8 @@ export class Controller {
 		);
 
 		this.app.workspace.onLayoutReady(() => {
-			const { containerEl } = this.app.workspace.leftSplit;
-			if (!(containerEl instanceof HTMLElement)) {
-				return;
-			}
-			const inputEl = containerEl.querySelector(
-				'div.search-input-container > input'
-			);
-			if (inputEl === null) {
+			const inputEl = this.plugin.coreSearchInterface?.getSearchInput();
+			if (!inputEl) {
 				return;
 			}
 			this.plugin.registerDomEvent(inputEl as HTMLElement, 'blur', () => {
@@ -103,13 +96,7 @@ export class Controller {
 	}
 
 	navigateForward() {
-		const resultsContainerEl = this.findSearchLeaf()?.querySelector(
-			'div.search-results-children'
-		);
-		const resultEls = resultsContainerEl?.querySelectorAll(
-			'div.search-result-file-title'
-		);
-		const numResults = resultEls?.length ?? 0;
+		const numResults = this.plugin.coreSearchInterface?.count() ?? 0;
 		this.currentFocused++;
 		this.currentFocused =
 			this.currentFocused < numResults
@@ -127,81 +114,24 @@ export class Controller {
 	}
 
 	focus() {
-		const resultsContainerEl = this.findSearchLeaf()?.querySelector(
-			'div.search-results-children'
-		);
-		const resultEls = resultsContainerEl?.querySelectorAll(
-			'div.search-result-file-title'
-		);
-		resultEls?.forEach((el, i) => {
-			if (this.currentFocused === i) {
-				el.addClass('fake-hover');
-				el.scrollIntoView({ block: 'center' });
-			} else {
-				el.removeClass('fake-hover');
-			}
-		});
+		this.plugin.coreSearchInterface?.focusOn(this.currentFocused);
 	}
 
 	unfocus() {
-		const resultsContainerEl = this.findSearchLeaf()?.querySelector(
-			'div.search-results-children'
-		);
-		const resultEls = resultsContainerEl?.querySelectorAll(
-			'div.search-result-file-title'
-		);
-		resultEls?.forEach((el) => {
-			el.removeClass('fake-hover');
-		});
+		this.plugin.coreSearchInterface?.unfocus();
 	}
 
 	showPreviewModal() {
-		const resultsContainerEl = this.findSearchLeaf()?.querySelector(
-			'div.search-results-children'
-		);
-		const resultEls = resultsContainerEl?.querySelectorAll(
-			'div.search-result-file-title'
-		);
-		if (resultEls === undefined) {
-			return;
-		}
-
-		const resultEl = resultEls[this.currentFocused] as HTMLElement;
-		const filenameEl = resultEl.querySelector('div.tree-item-inner');
-		console.log(filenameEl?.textContent);
-		const filename = filenameEl?.textContent;
-		const file = this.app.metadataCache.getFirstLinkpathDest(
-			filename as string,
-			'/'
-		);
-		if (file === null) {
-			return;
-		}
-		new ExampleModal(this.app, this.plugin, file).open();
+		this.plugin.coreSearchInterface?.preview(this.currentFocused);
 	}
 
 	choose() {
-		const resultsContainerEl = this.findSearchLeaf()?.querySelector(
-			'div.search-results-children'
-		);
-		const resultEls = resultsContainerEl?.querySelectorAll(
-			'div.search-result-file-title'
-		);
-		if (resultEls === undefined) {
-			return;
-		}
-		(resultEls[this.currentFocused] as HTMLElement)?.click();
+		this.plugin.coreSearchInterface?.open(this.currentFocused);
 	}
 
 	hasFocusOnSearchInput(): boolean {
-		const { containerEl } = this.app.workspace.leftSplit;
-		if (!(containerEl instanceof HTMLElement)) {
-			return false;
-		}
-		const inputEl = containerEl.querySelector(
-			'div.search-input-container > input'
-		);
-		if (inputEl === null) {
+		const inputEl = this.plugin.coreSearchInterface?.getSearchInput();
+		if (!inputEl) {
 			return false;
 		}
 		if (!document.hasFocus()) {
@@ -211,18 +141,5 @@ export class Controller {
 			return false;
 		}
 		return true;
-	}
-
-	findSearchLeaf(): HTMLElement | undefined {
-		const leafs = this.app.workspace.leftSplit.children[0].children as {
-			containerEl: HTMLElement;
-		}[];
-		return leafs.find((leaf) => {
-			const { containerEl } = leaf;
-			const inputEl = containerEl.querySelector(
-				'div.workspace-leaf-content[data-type="search"]'
-			);
-			return inputEl !== null;
-		})?.containerEl;
 	}
 }

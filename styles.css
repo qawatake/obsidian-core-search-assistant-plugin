@@ -1,8 +1,8 @@
-.fake-hover.tree-item-self {
+.fake-hover .tree-item-self {
 	background-color: var(--background-secondary-alt);
 	color: var(--text-normal);
 }
-.fake-hover.tree-item-self .tree-item-flair {
+.fake-hover .tree-item-self .tree-item-flair {
 	background-color: var(--interactive-accent);
 	color: var(--text-on-accent);
 }

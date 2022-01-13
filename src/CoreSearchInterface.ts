@@ -1,10 +1,14 @@
+import MyPlugin from 'main';
+import { ExampleModal } from 'Modal';
 import { App, SearchComponent, TFile, View, WorkspaceLeaf } from 'obsidian';
 
 export class CoreSearchInterface {
 	app: App;
+	plugin: MyPlugin;
 
-	constructor(app: App) {
+	constructor(app: App, plugin: MyPlugin) {
 		this.app = app;
+		this.plugin = plugin;
 	}
 
 	toggleMatchingCase() {
@@ -28,18 +32,44 @@ export class CoreSearchInterface {
 	}
 
 	focusOn(pos: number) {
+		this.unfocus();
+
+		const item = this.getResultItemAt(pos);
+		if (!item) {
+			return;
+		}
+		item.containerEl.addClass('fake-hover');
+		item.containerEl.scrollIntoView({ block: 'center' });
 		console.log('focus on', pos);
 	}
 
 	unfocus() {
+		const items = this.getResultItems();
+		items.forEach((item) => {
+			item.containerEl.removeClass('fake-hover');
+		});
 		console.log('unfocus');
 	}
 
 	open(pos: number) {
+		const item = this.getResultItemAt(pos);
+		if (!item) {
+			return;
+		}
+		const fileNameEl = item.containerEl.querySelector('div.tree-item-self');
+		if (fileNameEl === null) {
+			return;
+		}
+		(fileNameEl as HTMLElement).click();
 		console.log('open', pos);
 	}
 
 	preview(pos: number) {
+		const item = this.getResultItemAt(pos);
+		if (!item) {
+			return;
+		}
+		new ExampleModal(this.app, this.plugin, item.file).open();
 		console.log('preview', pos);
 	}
 
@@ -58,6 +88,10 @@ export class CoreSearchInterface {
 			return 0;
 		}
 		return results.length;
+	}
+
+	getResultItems(): SearchResultItem[] {
+		return this.getSearchView()?.dom.children ?? [];
 	}
 
 	getResultItemAt(pos: number): SearchResultItem | undefined {
@@ -115,6 +149,7 @@ interface SearchDom {
 
 interface SearchResultItem {
 	file: TFile;
+	containerEl: HTMLElement;
 }
 
 type UnknownObject<T extends object> = {

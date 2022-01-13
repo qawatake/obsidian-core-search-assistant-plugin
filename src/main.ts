@@ -23,7 +23,7 @@ export default class MyPlugin extends Plugin {
 		const app = this.app as AppExtension;
 
 		this.controller = new Controller(this.app, this).setup();
-		this.coreSearchInterface = new CoreSearchInterface(this.app);
+		this.coreSearchInterface = new CoreSearchInterface(this.app, this);
 
 		this.app.workspace.onLayoutReady(() => {
 			console.log(this.coreSearchInterface?.getSearchLeaf());
