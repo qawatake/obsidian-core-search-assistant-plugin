@@ -40,7 +40,6 @@ export class CoreSearchInterface {
 		}
 		item.containerEl.addClass('fake-hover');
 		item.containerEl.scrollIntoView({ block: 'center' });
-		console.log('focus on', pos);
 	}
 
 	unfocus() {
@@ -48,7 +47,6 @@ export class CoreSearchInterface {
 		items.forEach((item) => {
 			item.containerEl.removeClass('fake-hover');
 		});
-		console.log('unfocus');
 	}
 
 	open(pos: number) {
@@ -61,7 +59,6 @@ export class CoreSearchInterface {
 			return;
 		}
 		(fileNameEl as HTMLElement).click();
-		console.log('open', pos);
 	}
 
 	preview(pos: number) {
@@ -70,7 +67,6 @@ export class CoreSearchInterface {
 			return;
 		}
 		new ExampleModal(this.app, this.plugin, item.file).open();
-		console.log('preview', pos);
 	}
 
 	getSearchLeaf(): WorkspaceLeaf | undefined {
