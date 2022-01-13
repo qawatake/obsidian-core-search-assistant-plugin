@@ -30,55 +30,55 @@ export default class MyPlugin extends Plugin {
 			console.log(this.coreSearchInterface?.getSearchView());
 		});
 
-		this.app.scope.register(['Ctrl'], '1', () => {
-			this.coreSearchInterface?.toggleMatchingCase();
-		});
-		this.app.scope.register(['Ctrl'], '2', () => {
-			this.coreSearchInterface?.toggleExplainSearch();
-		});
-		this.app.scope.register(['Ctrl'], '3', () => {
-			this.coreSearchInterface?.toggleCollapseAll();
-		});
-		this.app.scope.register(['Ctrl'], '4', () => {
-			this.coreSearchInterface?.toggleExtraContext();
-		});
-		this.app.scope.register(['Ctrl'], '5', () => {
-			this.coreSearchInterface
-				?.getSearchView()
-				?.setSortOrder('byCreatedTime');
-		});
-		this.app.scope.register(['Ctrl'], '6', () => {
-			this.coreSearchInterface
-				?.getSearchView()
-				?.setSortOrder('byModifiedTime');
-		});
-		this.app.scope.register(['Ctrl'], '7', () => {
-			console.log(
-				this.coreSearchInterface?.getSearchView()?.dom.children
-			);
-		});
-		this.app.scope.register(['Ctrl'], '8', (evt) => {
-			const child = this.coreSearchInterface?.getSearchView()?.dom
-				.children[0] as any;
-			console.log(
-				this.coreSearchInterface?.getSearchView()?.dom.children
-			);
-			console.log(
-				this.coreSearchInterface?.getSearchView()?.dom.children[0]
-			);
-			// console.log('getNextPos', child.getNextPos());
-			// console.log('getPrevPos', child.getPrevPos());
-			// evt.defaultPrevented = false;
-			// console.log('onResultClick', child.onResultClick(evt, true));
-		});
-
-		// this.app.workspace.onLayoutReady(() => {
+		// this.app.scope.register(['Ctrl'], '1', () => {
+		// 	this.coreSearchInterface?.toggleMatchingCase();
+		// });
+		// this.app.scope.register(['Ctrl'], '2', () => {
+		// 	this.coreSearchInterface?.toggleExplainSearch();
+		// });
+		// this.app.scope.register(['Ctrl'], '3', () => {
+		// 	this.coreSearchInterface?.toggleCollapseAll();
+		// });
+		// this.app.scope.register(['Ctrl'], '4', () => {
+		// 	this.coreSearchInterface?.toggleExtraContext();
+		// });
+		// this.app.scope.register(['Ctrl'], '5', () => {
+		// 	this.coreSearchInterface
+		// 		?.getSearchView()
+		// 		?.setSortOrder('byCreatedTime');
+		// });
+		// this.app.scope.register(['Ctrl'], '6', () => {
+		// 	this.coreSearchInterface
+		// 		?.getSearchView()
+		// 		?.setSortOrder('byModifiedTime');
+		// });
+		// this.app.scope.register(['Ctrl'], '7', () => {
+		// 	console.log(
+		// 		this.coreSearchInterface?.getSearchView()?.dom.children
+		// 	);
+		// });
+		// this.app.scope.register(['Ctrl'], '8', (evt) => {
 		// 	const child = this.coreSearchInterface?.getSearchView()?.dom
 		// 		.children[0] as any;
-		// 	console.log('getNextPos', child.getNextPos());
-		// 	console.log('getPrevPos', child.getPrevPos());
-		// 	console.log('renderContentMatches', child.renderContentMatches());
+		// 	console.log(
+		// 		this.coreSearchInterface?.getSearchView()?.dom.children
+		// 	);
+		// 	console.log(
+		// 		this.coreSearchInterface?.getSearchView()?.dom.children[0]
+		// 	);
+		// 	// console.log('getNextPos', child.getNextPos());
+		// 	// console.log('getPrevPos', child.getPrevPos());
+		// 	// evt.defaultPrevented = false;
+		// 	// console.log('onResultClick', child.onResultClick(evt, true));
 		// });
+
+		// // this.app.workspace.onLayoutReady(() => {
+		// // 	const child = this.coreSearchInterface?.getSearchView()?.dom
+		// // 		.children[0] as any;
+		// // 	console.log('getNextPos', child.getNextPos());
+		// // 	console.log('getPrevPos', child.getPrevPos());
+		// // 	console.log('renderContentMatches', child.renderContentMatches());
+		// // });
 
 		console.log(app);
 

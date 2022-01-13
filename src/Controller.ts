@@ -1,64 +1,30 @@
 import MyPlugin from 'main';
-import { App, KeymapEventHandler } from 'obsidian';
+import { App, Scope } from 'obsidian';
 
 export class Controller {
 	private app: App;
 	private plugin: MyPlugin;
+	private scope: Scope | undefined;
 	private currentFocused = -1;
 	private StackedPositions: number[];
-	private keymapHandlers: KeymapEventHandler[];
 
 	constructor(app: App, plugin: MyPlugin) {
 		this.app = app;
 		this.plugin = plugin;
-		this.keymapHandlers = [];
 		this.StackedPositions = [];
 	}
 
 	setup(): Controller {
-		this.keymapHandlers.push(
-			this.app.scope.register(['Ctrl'], 'N', () => {
-				if (!this.hasFocusOnSearchInput()) {
-					return;
-				}
-				this.navigateForward();
-			})
-		);
-		this.keymapHandlers.push(
-			this.app.scope.register(['Ctrl'], 'P', () => {
-				if (!this.hasFocusOnSearchInput()) {
-					return;
-				}
-				this.navigateBack();
-			})
-		);
-		this.keymapHandlers.push(
-			this.app.scope.register(['Mod', 'Shift'], 'Enter', () => {
-				if (
-					!(this.hasFocusOnSearchInput() && this.currentFocused >= 0)
-				) {
-					return;
-				}
-				this.choose();
-			})
-		);
-		this.keymapHandlers.push(
-			this.app.scope.register(['Ctrl'], 'Enter', () => {
-				if (
-					!(this.hasFocusOnSearchInput() && this.currentFocused >= 0)
-				) {
-					return;
-				}
-				this.showPreviewModal();
-			})
-		);
-
 		this.app.workspace.onLayoutReady(() => {
 			const inputEl = this.plugin.coreSearchInterface?.getSearchInput();
 			if (!inputEl) {
 				return;
 			}
 			this.plugin.registerDomEvent(inputEl as HTMLElement, 'blur', () => {
+				if (this.scope) {
+					this.app.keymap.popScope(this.scope);
+					this.scope = undefined;
+				}
 				this.pushCurrentFocused();
 				this.unfocus();
 			});
@@ -70,16 +36,59 @@ export class Controller {
 					this.unfocus();
 				}
 			);
+			this.plugin.registerDomEvent(
+				inputEl as HTMLElement,
+				'focus',
+				() => {
+					this.setKeymap();
+				}
+			);
 		});
 
 		return this;
 	}
 
-	clean() {
-		this.keymapHandlers.forEach((handler) => {
-			this.app.scope.unregister(handler);
+	setKeymap() {
+		if (!this.scope) {
+			this.scope = new Scope();
+		}
+		this.app.keymap.pushScope(this.scope);
+
+		this.scope.register(['Ctrl'], 'N', () => {
+			if (!this.hasFocusOnSearchInput()) {
+				return;
+			}
+			this.navigateForward();
+		});
+		this.scope.register(['Ctrl'], 'P', () => {
+			if (!this.hasFocusOnSearchInput()) {
+				return;
+			}
+			this.navigateBack();
+		});
+		this.scope.register(['Mod'], 'Enter', () => {
+			if (!(this.hasFocusOnSearchInput() && this.currentFocused >= 0)) {
+				return;
+			}
+			this.choose();
+		});
+		this.scope.register(['Ctrl'], 'Enter', () => {
+			if (!(this.hasFocusOnSearchInput() && this.currentFocused >= 0)) {
+				return;
+			}
+			this.showPreviewModal();
+		});
+		this.scope.register([], 'Escape', () => {
+			console.log('a');
+			const inputEl = this.plugin.coreSearchInterface?.getSearchInput();
+			if (!inputEl) {
+				return;
+			}
+			inputEl.blur();
 		});
 	}
+
+	clean() {}
 
 	forget() {
 		this.currentFocused = -1;
