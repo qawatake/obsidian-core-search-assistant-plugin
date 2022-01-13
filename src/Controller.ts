@@ -5,13 +5,13 @@ export class Controller {
 	private app: App;
 	private plugin: MyPlugin;
 	private scope: Scope | undefined;
-	private currentFocused = -1;
-	private StackedPositions: number[];
+	private currentPos = -1;
+	private stackedPositions: number[];
 
 	constructor(app: App, plugin: MyPlugin) {
 		this.app = app;
 		this.plugin = plugin;
-		this.StackedPositions = [];
+		this.stackedPositions = [];
 	}
 
 	enter() {
@@ -51,55 +51,57 @@ export class Controller {
 			this.app.keymap.popScope(this.scope);
 			this.scope = undefined;
 		}
-		this.pushCurrentFocused();
+		this.pushCurrentPos();
 		this.unfocus();
 	}
 
 	forget() {
-		this.currentFocused = -1;
-		this.StackedPositions = [];
+		this.currentPos = -1;
+		this.stackedPositions = [];
 	}
 
-	pushCurrentFocused() {
-		this.StackedPositions.push(this.currentFocused);
-		this.currentFocused = -1;
+	recall() {
+		this.popCurrentPos();
+		this.focus();
 	}
 
-	popCurrentFocused() {
-		this.currentFocused = this.StackedPositions.pop() ?? -1;
+	private pushCurrentPos() {
+		this.stackedPositions.push(this.currentPos);
+		this.currentPos = -1;
 	}
 
-	navigateForward() {
+	private popCurrentPos() {
+		this.currentPos = this.stackedPositions.pop() ?? -1;
+	}
+
+	private navigateForward() {
 		const numResults = this.plugin.coreSearchInterface?.count() ?? 0;
-		this.currentFocused++;
-		this.currentFocused =
-			this.currentFocused < numResults
-				? this.currentFocused
-				: numResults - 1;
+		this.currentPos++;
+		this.currentPos =
+			this.currentPos < numResults ? this.currentPos : numResults - 1;
 		this.focus();
 	}
 
-	navigateBack() {
-		this.currentFocused--;
-		this.currentFocused =
-			this.currentFocused >= 0 ? this.currentFocused : 0;
+	private navigateBack() {
+		this.currentPos--;
+		this.currentPos = this.currentPos >= 0 ? this.currentPos : 0;
 
 		this.focus();
 	}
 
-	focus() {
-		this.plugin.coreSearchInterface?.focusOn(this.currentFocused);
+	private focus() {
+		this.plugin.coreSearchInterface?.focusOn(this.currentPos);
 	}
 
-	unfocus() {
+	private unfocus() {
 		this.plugin.coreSearchInterface?.unfocus();
 	}
 
-	preview() {
-		this.plugin.coreSearchInterface?.preview(this.currentFocused);
+	private preview() {
+		this.plugin.coreSearchInterface?.preview(this.currentPos);
 	}
 
-	open() {
-		this.plugin.coreSearchInterface?.open(this.currentFocused);
+	private open() {
+		this.plugin.coreSearchInterface?.open(this.currentPos);
 	}
 }

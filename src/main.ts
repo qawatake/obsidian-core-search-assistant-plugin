@@ -25,11 +25,6 @@ export default class MyPlugin extends Plugin {
 		this.controller = new Controller(this.app, this);
 		this.coreSearchInterface = new CoreSearchInterface(this.app, this);
 
-		// this.app.workspace.onLayoutReady(() => {
-		// 	console.log(this.coreSearchInterface?.getSearchLeaf());
-		// 	console.log(this.coreSearchInterface?.getSearchView());
-		// });
-
 		this.app.workspace.onLayoutReady(() => {
 			const inputEl = this.coreSearchInterface?.getSearchInput();
 			if (!inputEl) {

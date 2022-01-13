@@ -30,8 +30,7 @@ export class ExampleModal extends Modal {
 		this.leaf.detach();
 
 		setTimeout(() => {
-			this.plugin.controller?.popCurrentFocused();
-			this.plugin.controller?.focus();
+			this.plugin.controller?.recall();
 		}, 100);
 	}
 
