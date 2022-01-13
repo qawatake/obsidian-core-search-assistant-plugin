@@ -1,7 +1,7 @@
 import { Controller } from 'Controller';
+import { CoreSearchInterface } from 'CoreSearchInterface';
 import { Plugin } from 'obsidian';
-import { SearchAnalyzer, searchAnalyzer } from 'searchAnalyzer';
-import { findPropertyOwnerRecursively } from 'Util';
+
 import { AppExtension } from './uncover';
 
 // Remember to rename these classes and interfaces!
@@ -17,42 +17,70 @@ const DEFAULT_SETTINGS: MyPluginSettings = {
 export default class MyPlugin extends Plugin {
 	settings: MyPluginSettings | undefined;
 	controller: Controller | undefined;
-	searchAnalyzer: SearchAnalyzer | undefined;
+	coreSearchInterface: CoreSearchInterface | undefined;
 
 	override async onload() {
 		const app = this.app as AppExtension;
 
 		this.controller = new Controller(this.app, this).setup();
-		this.searchAnalyzer = new SearchAnalyzer(this.app);
+		this.coreSearchInterface = new CoreSearchInterface(this.app);
+
+		this.app.workspace.onLayoutReady(() => {
+			console.log(this.coreSearchInterface?.getSearchLeaf());
+			console.log(this.coreSearchInterface?.getSearchView());
+		});
+
+		this.app.scope.register(['Ctrl'], '1', () => {
+			this.coreSearchInterface?.toggleMatchingCase();
+		});
+		this.app.scope.register(['Ctrl'], '2', () => {
+			this.coreSearchInterface?.toggleExplainSearch();
+		});
+		this.app.scope.register(['Ctrl'], '3', () => {
+			this.coreSearchInterface?.toggleCollapseAll();
+		});
+		this.app.scope.register(['Ctrl'], '4', () => {
+			this.coreSearchInterface?.toggleExtraContext();
+		});
+		this.app.scope.register(['Ctrl'], '5', () => {
+			this.coreSearchInterface
+				?.getSearchView()
+				?.setSortOrder('byCreatedTime');
+		});
+		this.app.scope.register(['Ctrl'], '6', () => {
+			this.coreSearchInterface
+				?.getSearchView()
+				?.setSortOrder('byModifiedTime');
+		});
+		this.app.scope.register(['Ctrl'], '7', () => {
+			console.log(
+				this.coreSearchInterface?.getSearchView()?.dom.children
+			);
+		});
+		this.app.scope.register(['Ctrl'], '8', (evt) => {
+			const child = this.coreSearchInterface?.getSearchView()?.dom
+				.children[0] as any;
+			console.log(
+				this.coreSearchInterface?.getSearchView()?.dom.children
+			);
+			console.log(
+				this.coreSearchInterface?.getSearchView()?.dom.children[0]
+			);
+			// console.log('getNextPos', child.getNextPos());
+			// console.log('getPrevPos', child.getPrevPos());
+			// evt.defaultPrevented = false;
+			// console.log('onResultClick', child.onResultClick(evt, true));
+		});
 
 		// this.app.workspace.onLayoutReady(() => {
-		// 	console.log(new SearchAnalyzer(this.app).getSearchView());
-		// 	console.log(this.searchAnalyzer.collapseAll);
-		// });
-
-		// this.app.scope.register(['Ctrl'], '1', () => {
-		// 	this.searchAnalyzer?.getSearchView()?.setMatchingCase(true);
-		// });
-		// this.app.scope.register(['Ctrl'], '2', () => {
-		// 	this.searchAnalyzer?.getSearchView()?.setExplainSearch(true);
-		// });
-		// this.app.scope.register(['Ctrl'], '3', () => {
-		// 	this.searchAnalyzer?.getSearchView()?.setCollapseAll(true);
-		// });
-		// this.app.scope.register(['Ctrl'], '4', () => {
-		// 	this.searchAnalyzer.getSearchView()?.setExtraContext(true);
-		// });
-		// this.app.scope.register(['Ctrl'], '5', () => {
-		// 	this.searchAnalyzer.getSearchView()?.setSortOrder('byCreatedTime');
-		// });
-		// this.app.scope.register(['Ctrl'], '6', () => {
-		// 	this.searchAnalyzer.getSearchView()?.setSortOrder('byModifiedTime');
+		// 	const child = this.coreSearchInterface?.getSearchView()?.dom
+		// 		.children[0] as any;
+		// 	console.log('getNextPos', child.getNextPos());
+		// 	console.log('getPrevPos', child.getPrevPos());
+		// 	console.log('renderContentMatches', child.renderContentMatches());
 		// });
 
 		console.log(app);
-		// console.log(findPropertyOwnerRecursively(app, 'setConfig'));
-		// console.log(findPropertyOwnerRecursively(app, 'sortOrder'));
-		// console.log(this.app.vault.getConfig('fileSortOrder'));
 
 		await this.loadSettings();
 	}

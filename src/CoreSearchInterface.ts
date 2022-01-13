@@ -1,10 +1,46 @@
-import { App, View, WorkspaceLeaf } from 'obsidian';
+import { App, SearchComponent, TFile, View, WorkspaceLeaf } from 'obsidian';
 
-export class SearchAnalyzer {
+export class CoreSearchInterface {
 	app: App;
 
 	constructor(app: App) {
 		this.app = app;
+	}
+
+	toggleMatchingCase() {
+		const view = this.getSearchView();
+		view?.setMatchingCase(!view.matchingCase);
+	}
+
+	toggleExplainSearch() {
+		const view = this.getSearchView();
+		view?.setExplainSearch(!view.explainSearch);
+	}
+
+	toggleCollapseAll() {
+		const view = this.getSearchView();
+		view?.setCollapseAll(!view.dom.collapseAll);
+	}
+
+	toggleExtraContext() {
+		const view = this.getSearchView();
+		view?.setExtraContext(!view.dom.extraContext);
+	}
+
+	focusOn(pos: number) {
+		console.log('focus on', pos);
+	}
+
+	unfocus() {
+		console.log('unfocus');
+	}
+
+	open(pos: number) {
+		console.log('open', pos);
+	}
+
+	preview(pos: number) {
+		console.log('preview', pos);
 	}
 
 	getSearchLeaf(): WorkspaceLeaf | undefined {
@@ -16,7 +52,21 @@ export class SearchAnalyzer {
 		});
 	}
 
-	// getSearchInput():
+	count(): number {
+		const results = this.getSearchView()?.dom.children;
+		if (!results) {
+			return 0;
+		}
+		return results.length;
+	}
+
+	getResultItemAt(pos: number): SearchResultItem | undefined {
+		return this.getSearchView()?.dom.children[pos];
+	}
+
+	getSearchInput(): HTMLInputElement | undefined {
+		return this.getSearchView()?.searchComponent.inputEl;
+	}
 
 	getSearchView(): SearchView | undefined {
 		const leaf = this.getSearchLeaf();
@@ -52,12 +102,19 @@ interface SearchView extends View {
 	): void;
 
 	dom: SearchDom;
+
+	searchComponent: SearchComponent;
 }
 
 interface SearchDom {
 	extraContext: boolean;
 	collapseAll: boolean;
 	sortOrder: string;
+	children: SearchResultItem[];
+}
+
+interface SearchResultItem {
+	file: TFile;
 }
 
 type UnknownObject<T extends object> = {
@@ -81,6 +138,7 @@ function isSearchView(view: unknown): view is SearchView {
 		setExtraContext,
 		setMatchingCase,
 		setSortOrder,
+		searchComponent,
 	} = view as UnknownObject<SearchView>;
 
 	if (typeof matchingCase !== 'boolean') {
@@ -92,6 +150,13 @@ function isSearchView(view: unknown): view is SearchView {
 	if (!isSearchDom(dom)) {
 		return false;
 	}
+	if (typeof searchComponent !== 'object') {
+		return false;
+	}
+	// SearchComponent is undefined at obsidian 0.13.19 (installer version 0.11.13)
+	// if (!(searchComponent instanceof SearchComponent)) {
+	// 	return false;
+	// }
 	if (!(setCollapseAll instanceof Function)) {
 		return false;
 	}
@@ -119,7 +184,7 @@ function isSearchDom(obj: unknown): obj is SearchDom {
 		return false;
 	}
 
-	const { extraContext, collapseAll, sortOrder } =
+	const { extraContext, collapseAll, sortOrder, children } =
 		obj as UnknownObject<SearchDom>;
 
 	if (typeof extraContext !== 'boolean') {
@@ -143,5 +208,12 @@ function isSearchDom(obj: unknown): obj is SearchDom {
 	) {
 		return false;
 	}
+	if (typeof children !== 'object') {
+		return false;
+	}
+	if (!(children instanceof Array)) {
+		return false;
+	}
+
 	return true;
 }
