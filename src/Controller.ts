@@ -1,24 +1,21 @@
-import MyPlugin from 'main';
+import CoreSearchAssistantPlugin from 'main';
 import { App, Scope } from 'obsidian';
 import { OptionModal } from 'OptionModal';
+import { validOutlineWidth } from 'Setting';
 
 export class Controller {
 	private app: App;
-	private plugin: MyPlugin;
+	private plugin: CoreSearchAssistantPlugin;
 	private scope: Scope | undefined;
 	private currentPos = -1;
 	private stackedPositions: number[];
 	private coverEl: HTMLElement;
 
-	constructor(app: App, plugin: MyPlugin) {
+	constructor(app: App, plugin: CoreSearchAssistantPlugin) {
 		this.app = app;
 		this.plugin = plugin;
 		this.stackedPositions = [];
-		this.coverEl = document.body.createEl(
-			'div',
-			'core-search-assistant_enter-mode'
-		);
-		this.coverEl.style.display = 'none';
+		this.coverEl = this.createOutline();
 	}
 
 	enter() {
@@ -50,7 +47,7 @@ export class Controller {
 			inputEl.blur();
 		});
 
-		this.coverEl.style.display = 'initial';
+		this.showOutline();
 	}
 
 	reset() {
@@ -66,7 +63,7 @@ export class Controller {
 		this.pushCurrentPos();
 		this.unfocus();
 
-		this.coverEl.style.display = 'none';
+		this.hideOutline();
 	}
 
 	forget() {
@@ -77,6 +74,10 @@ export class Controller {
 	recall() {
 		this.popCurrentPos();
 		this.focus();
+	}
+
+	clean() {
+		this.coverEl.remove();
 	}
 
 	private pushCurrentPos() {
@@ -117,5 +118,26 @@ export class Controller {
 
 	private open() {
 		this.plugin.coreSearchInterface?.open(this.currentPos);
+	}
+
+	private createOutline(): HTMLElement {
+		const coverEl = document.body.createEl('div', {
+			cls: 'core-search-assistant_enter-mode',
+		});
+		coverEl.style.display = 'none';
+		return coverEl;
+	}
+
+	private showOutline() {
+		const outlineWidth = validOutlineWidth(
+			this.plugin.settings?.outlineWidth
+		);
+		this.coverEl.style.outline = `${outlineWidth}px solid var(--interactive-accent)`;
+		this.coverEl.style.outlineOffset = `-${outlineWidth}px`;
+		this.coverEl.style.display = 'initial';
+	}
+
+	private hideOutline() {
+		this.coverEl.style.display = 'none';
 	}
 }

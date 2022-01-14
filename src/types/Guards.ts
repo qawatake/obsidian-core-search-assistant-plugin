@@ -2,7 +2,7 @@ import {
 	SearchDom,
 	SearchResultItem,
 	SearchView,
-	SortOrderTypeInSearch,
+	SortOrderInSearch,
 	TFile,
 } from 'obsidian';
 
@@ -10,7 +10,7 @@ type UnknownObject<T extends object> = {
 	[P in keyof T]: unknown;
 };
 
-export const sortOrderTypesInSearch = [
+export const SORT_ORDER_IN_SEARCH = [
 	'alphabeticalReverse',
 	'alphabetical',
 	'byModifiedTime',
@@ -94,7 +94,7 @@ function isSearchDom(obj: unknown): obj is SearchDom {
 	if (typeof sortOrder !== 'string') {
 		return false;
 	}
-	if (!sortOrderTypesInSearch.includes(sortOrder as SortOrderTypeInSearch)) {
+	if (!SORT_ORDER_IN_SEARCH.includes(sortOrder as SortOrderInSearch)) {
 		return false;
 	}
 	if (typeof children !== 'object') {

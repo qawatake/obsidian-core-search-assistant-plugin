@@ -39,8 +39,8 @@ div.core-search-assistant_preview-modal-leaf-container.modal-content {
 /* body border when entering search mode */
 
 div.core-search-assistant_enter-mode {
-	outline: 5px solid var(--interactive-accent);
-	outline-offset: -5px;
+	/* outline: 5px solid var(--interactive-accent);
+	outline-offset: -5px; */
 	position: absolute;
 	top: 0;
 	left: 0;
@@ -61,7 +61,6 @@ div.core-search-assistant_enter-mode {
 	margin-right: 10px;
 	padding: 0 10px;
 	font-size: 12px;
-	font-family: -apple-system, BlinkMacSystemFont, var(--font-monospace);
 }
 
 .option-modal .suggestion-item {

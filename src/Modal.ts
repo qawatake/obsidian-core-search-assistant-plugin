@@ -1,12 +1,12 @@
-import MyPlugin from 'main';
+import CoreSearchAssistantPlugin from 'main';
 import { App, Modal, TFile, WorkspaceLeaf } from 'obsidian';
 
 export class ExampleModal extends Modal {
 	file: TFile;
-	plugin: MyPlugin;
+	plugin: CoreSearchAssistantPlugin;
 	leaf: WorkspaceLeaf;
 
-	constructor(app: App, plugin: MyPlugin, file: TFile) {
+	constructor(app: App, plugin: CoreSearchAssistantPlugin, file: TFile) {
 		super(app);
 		this.plugin = plugin;
 		this.file = file;

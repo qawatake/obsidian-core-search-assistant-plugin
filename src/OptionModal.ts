@@ -1,4 +1,4 @@
-import MyPlugin from 'main';
+import CoreSearchAssistantPlugin from 'main';
 import { App, Modal } from 'obsidian';
 
 interface OptionItem {
@@ -8,11 +8,11 @@ interface OptionItem {
 }
 
 export class OptionModal extends Modal {
-	plugin: MyPlugin;
+	plugin: CoreSearchAssistantPlugin;
 	items: OptionItem[];
 	shouldRecall = true;
 
-	constructor(app: App, plugin: MyPlugin) {
+	constructor(app: App, plugin: CoreSearchAssistantPlugin) {
 		super(app);
 		this.plugin = plugin;
 

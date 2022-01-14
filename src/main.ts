@@ -1,88 +1,16 @@
 import { Controller } from 'Controller';
 import { CoreSearchInterface } from 'CoreSearchInterface';
 import { Plugin } from 'obsidian';
+import {
+	CoreSearchAssistantPluginSettings,
+	CoreSearchAssistantSettingTab,
+	DEFAULT_SETTINGS,
+} from 'Setting';
 
 import { AppExtension } from './uncover';
 
-const keys = [
-	'a',
-	'b',
-	'c',
-	'd',
-	'e',
-	'f',
-	'g',
-	'h',
-	'i',
-	'j',
-	'k',
-	'l',
-	'm',
-	'n',
-	'o',
-	'p',
-	'q',
-	'r',
-	's',
-	't',
-	'u',
-	'v',
-	'x',
-	'y',
-	'z',
-	'0',
-	'1',
-	'2',
-	'3',
-	'4',
-	'5',
-	'6',
-	'7',
-	'8',
-	'9',
-	'-',
-	';',
-	"'",
-	'[',
-	']',
-] as const;
-
-type AvailableKey = typeof keys[number];
-
-interface MyPluginSettings {
-	mySetting: string;
-	keymapInSearchOptionMode: {
-		toggleMatchingCase: AvailableKey;
-		toggleExplainSearch: AvailableKey;
-		toggleCollapseAll: AvailableKey;
-		toggleExtraContext: AvailableKey;
-		alphabeticalSort: AvailableKey;
-		alphabeticalReverseSort: AvailableKey;
-		sortByModifiedTime: AvailableKey;
-		sortByModifiedTimeReverse: AvailableKey;
-		sortByCreatedTime: AvailableKey;
-		sortbyCreatedTimeReverse: AvailableKey;
-	};
-}
-
-const DEFAULT_SETTINGS: MyPluginSettings = {
-	mySetting: 'default',
-	keymapInSearchOptionMode: {
-		toggleMatchingCase: 'a',
-		toggleExplainSearch: 's',
-		toggleCollapseAll: 'd',
-		toggleExtraContext: 'f',
-		alphabeticalSort: 'g',
-		alphabeticalReverseSort: 'h',
-		sortByModifiedTime: 'j',
-		sortByModifiedTimeReverse: 'k',
-		sortByCreatedTime: 'l',
-		sortbyCreatedTimeReverse: ';',
-	},
-};
-
-export default class MyPlugin extends Plugin {
-	settings: MyPluginSettings | undefined;
+export default class CoreSearchAssistantPlugin extends Plugin {
+	settings: CoreSearchAssistantPluginSettings | undefined;
 	controller: Controller | undefined;
 	coreSearchInterface: CoreSearchInterface | undefined;
 
@@ -91,6 +19,10 @@ export default class MyPlugin extends Plugin {
 
 		this.controller = new Controller(this.app, this);
 		this.coreSearchInterface = new CoreSearchInterface(this.app, this);
+
+		await this.loadSettings();
+
+		this.addSettingTab(new CoreSearchAssistantSettingTab(this.app, this));
 
 		this.app.workspace.onLayoutReady(() => {
 			const inputEl = this.coreSearchInterface?.getSearchInput();
@@ -110,11 +42,11 @@ export default class MyPlugin extends Plugin {
 		});
 
 		console.log(app);
-
-		await this.loadSettings();
 	}
 
-	// onunload() {}
+	override onunload() {
+		this.controller?.clean();
+	}
 
 	async loadSettings() {
 		this.settings = Object.assign(

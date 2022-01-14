@@ -1,4 +1,4 @@
-import { sortOrderTypesInSearch } from 'types/Guards';
+import { SORT_ORDER_IN_SEARCH } from 'types/Guards';
 
 export * from 'obsidian';
 
@@ -28,20 +28,14 @@ declare module 'obsidian' {
 
 		setMatchingCase(matchingCase: boolean): void;
 
-		setSortOrder(sortOrder: SortOrderTypeInSearch): void;
+		setSortOrder(sortOrder: SortOrderInSearch): void;
 
 		dom: SearchDom;
 
 		searchComponent: SearchComponent;
 	}
 
-	type SortOrderTypeInSearch = typeof sortOrderTypesInSearch[number];
-	// | 'alphabetical'
-	// | 'alphabeticalReverse'
-	// | 'byModifiedTime'
-	// | 'byModifiedTimeReverse'
-	// | 'byCreatedTime'
-	// | 'byCreatedTimeReverse';
+	type SortOrderInSearch = typeof SORT_ORDER_IN_SEARCH[number];
 
 	interface SearchDom {
 		extraContext: boolean;

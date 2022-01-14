@@ -1,10 +1,10 @@
-import MyPlugin from 'main';
+import CoreSearchAssistantPlugin from 'main';
 import { ExampleModal } from 'Modal';
 import {
 	App,
 	SearchResultItem,
 	SearchView,
-	SortOrderTypeInSearch,
+	SortOrderInSearch,
 	WorkspaceLeaf,
 	WorkspaceSidedock,
 } from 'obsidian';
@@ -12,9 +12,9 @@ import { isSearchView } from 'types/Guards';
 
 export class CoreSearchInterface {
 	app: App;
-	plugin: MyPlugin;
+	plugin: CoreSearchAssistantPlugin;
 
-	constructor(app: App, plugin: MyPlugin) {
+	constructor(app: App, plugin: CoreSearchAssistantPlugin) {
 		this.app = app;
 		this.plugin = plugin;
 	}
@@ -39,7 +39,7 @@ export class CoreSearchInterface {
 		view?.setExtraContext(!view.dom.extraContext);
 	}
 
-	setSortOrder(sortOrderType: SortOrderTypeInSearch) {
+	setSortOrder(sortOrderType: SortOrderInSearch) {
 		const view = this.getSearchView();
 		view?.setSortOrder(sortOrderType);
 	}
