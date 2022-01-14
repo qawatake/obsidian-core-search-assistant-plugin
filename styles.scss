@@ -1,0 +1,72 @@
+/* search result item */
+.core-search-assistant_search_result_items {
+	.tree-item-self {
+		background-color: var(--background-secondary-alt);
+		color: var(--text-normal);
+	}
+	.tree-item-flair {
+		background-color: var(--interactive-accent);
+		color: var(--text-on-accent);
+	}
+}
+
+/* preview modal */
+.core-search-assistant_preview-modal-leaf-container {
+	div.workspace-leaf {
+		contain: initial !important;
+	}
+
+	div.workspace-leaf-resize-handle {
+		display: none;
+	}
+
+	div.view-header {
+		display: none;
+	}
+
+	div.markdown-preview-view {
+		padding: 0;
+	}
+
+	div.modal-content {
+		margin: 0;
+	}
+}
+
+/* outline on search mode */
+div.core-search-assistant_enter-mode {
+	/* outline: 5px solid var(--interactive-accent);
+	outline-offset: -5px; */
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	z-index: var(--layer-modal);
+}
+
+/* option modal */
+.core-search-assistant_option_modal {
+	div.modal {
+		background-color: var(--background-primary);
+	}
+
+	kbd.suggestion-hotkey {
+		float: left;
+		margin-left: 0;
+		margin-right: 10px;
+		padding: 0 10px;
+		font-size: 12px;
+	}
+
+	div.suggestion-item {
+		position: relative;
+		padding-left: 34px;
+		cursor: default;
+		white-space: pre-wrap;
+	}
+
+	div.suggestion-item.is-selected {
+		background-color: var(--background-secondary);
+	}
+}

@@ -51,7 +51,7 @@ export class CoreSearchInterface {
 		if (!item) {
 			return;
 		}
-		item.containerEl.addClass('fake-hover');
+		item.containerEl.addClass('core-search-assistant_search_result_items');
 		item.containerEl.scrollIntoView(
 			this.plugin.settings?.keepSelectedItemsCentered
 				? { block: 'center' }
@@ -62,7 +62,9 @@ export class CoreSearchInterface {
 	unfocus() {
 		const items = this.getResultItems();
 		items.forEach((item) => {
-			item.containerEl.removeClass('fake-hover');
+			item.containerEl.removeClass(
+				'core-search-assistant_search_result_items'
+			);
 		});
 	}
 
