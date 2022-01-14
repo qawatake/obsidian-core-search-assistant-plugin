@@ -1,6 +1,13 @@
 import MyPlugin from 'main';
 import { ExampleModal } from 'Modal';
-import { App, SearchComponent, TFile, View, WorkspaceLeaf } from 'obsidian';
+import {
+	App,
+	SearchResultItem,
+	SearchView,
+	WorkspaceLeaf,
+	WorkspaceSidedock,
+} from 'obsidian';
+import { isSearchView } from 'types/Guards';
 
 export class CoreSearchInterface {
 	app: App;
@@ -70,8 +77,11 @@ export class CoreSearchInterface {
 	}
 
 	getSearchLeaf(): WorkspaceLeaf | undefined {
-		const leafs = this.app.workspace.leftSplit.children[0]
-			.children as WorkspaceLeaf[];
+		const sideDock = this.app.workspace.leftSplit;
+		if (!(sideDock instanceof WorkspaceSidedock)) {
+			return undefined;
+		}
+		const leafs = sideDock.children[0]?.children as WorkspaceLeaf[];
 
 		return leafs.find((leaf) => {
 			return leaf.view.getViewType() === 'search';
@@ -107,144 +117,4 @@ export class CoreSearchInterface {
 		const view = leaf.view;
 		return isSearchView(view) ? view : undefined;
 	}
-}
-
-interface SearchView extends View {
-	matchingCase: boolean;
-	explainSearch: boolean;
-
-	setCollapseAll(collapseAll: boolean): void;
-
-	setExplainSearch(explainSearch: boolean): void;
-
-	setExtraContext(extraContext: boolean): void;
-
-	setMatchingCase(matchingCase: boolean): void;
-
-	setSortOrder(
-		sortOrder:
-			| 'alphabeticalReverse'
-			| 'alphabetical'
-			| 'byModifiedTime'
-			| 'byModifiedTimeReverse'
-			| 'byCreatedTime'
-			| 'byCreatedTimeReverse'
-	): void;
-
-	dom: SearchDom;
-
-	searchComponent: SearchComponent;
-}
-
-interface SearchDom {
-	extraContext: boolean;
-	collapseAll: boolean;
-	sortOrder: string;
-	children: SearchResultItem[];
-}
-
-interface SearchResultItem {
-	file: TFile;
-	containerEl: HTMLElement;
-}
-
-type UnknownObject<T extends object> = {
-	[P in keyof T]: unknown;
-};
-
-function isSearchView(view: unknown): view is SearchView {
-	if (typeof view !== 'object') {
-		return false;
-	}
-	if (view === null) {
-		return false;
-	}
-
-	const {
-		matchingCase,
-		explainSearch,
-		dom,
-		setCollapseAll,
-		setExplainSearch,
-		setExtraContext,
-		setMatchingCase,
-		setSortOrder,
-		searchComponent,
-	} = view as UnknownObject<SearchView>;
-
-	if (typeof matchingCase !== 'boolean') {
-		return false;
-	}
-	if (typeof explainSearch !== 'boolean') {
-		return false;
-	}
-	if (!isSearchDom(dom)) {
-		return false;
-	}
-	if (typeof searchComponent !== 'object') {
-		return false;
-	}
-	// SearchComponent is undefined at obsidian 0.13.19 (installer version 0.11.13)
-	// if (!(searchComponent instanceof SearchComponent)) {
-	// 	return false;
-	// }
-	if (!(setCollapseAll instanceof Function)) {
-		return false;
-	}
-	if (!(setExplainSearch instanceof Function)) {
-		return false;
-	}
-	if (!(setExtraContext instanceof Function)) {
-		return false;
-	}
-	if (!(setMatchingCase instanceof Function)) {
-		return false;
-	}
-	if (!(setSortOrder instanceof Function)) {
-		return false;
-	}
-
-	return true;
-}
-
-function isSearchDom(obj: unknown): obj is SearchDom {
-	if (typeof obj !== 'object') {
-		return false;
-	}
-	if (obj === null) {
-		return false;
-	}
-
-	const { extraContext, collapseAll, sortOrder, children } =
-		obj as UnknownObject<SearchDom>;
-
-	if (typeof extraContext !== 'boolean') {
-		return false;
-	}
-	if (typeof collapseAll !== 'boolean') {
-		return false;
-	}
-	if (typeof sortOrder !== 'string') {
-		return false;
-	}
-	if (
-		![
-			'alphabeticalReverse',
-			'alphabetical',
-			'byModifiedTime',
-			'byModifiedTimeReverse',
-			'byCreatedTime',
-			'byCreatedTimeReverse',
-		].includes(sortOrder)
-	) {
-		return false;
-	}
-	if (typeof children !== 'object') {
-		return false;
-	}
-	if (!(children instanceof Array)) {
-		return false;
-	}
-
-	return true;
 }
