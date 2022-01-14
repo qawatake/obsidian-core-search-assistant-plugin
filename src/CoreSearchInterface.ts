@@ -55,7 +55,7 @@ export class CoreSearchInterface {
 		item.containerEl.scrollIntoView(
 			this.plugin.settings?.keepSelectedItemsCentered
 				? { block: 'center' }
-				: undefined
+				: { block: 'nearest' }
 		);
 	}
 
