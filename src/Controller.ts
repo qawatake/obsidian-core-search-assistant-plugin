@@ -8,11 +8,17 @@ export class Controller {
 	private scope: Scope | undefined;
 	private currentPos = -1;
 	private stackedPositions: number[];
+	private coverEl: HTMLElement;
 
 	constructor(app: App, plugin: MyPlugin) {
 		this.app = app;
 		this.plugin = plugin;
 		this.stackedPositions = [];
+		this.coverEl = document.body.createEl(
+			'div',
+			'core-search-assistant_enter-mode'
+		);
+		this.coverEl.style.display = 'none';
 	}
 
 	enter() {
@@ -43,6 +49,8 @@ export class Controller {
 			}
 			inputEl.blur();
 		});
+
+		this.coverEl.style.display = 'initial';
 	}
 
 	reset() {
@@ -57,6 +65,8 @@ export class Controller {
 		}
 		this.pushCurrentPos();
 		this.unfocus();
+
+		this.coverEl.style.display = 'none';
 	}
 
 	forget() {
