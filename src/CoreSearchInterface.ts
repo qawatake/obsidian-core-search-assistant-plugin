@@ -52,7 +52,11 @@ export class CoreSearchInterface {
 			return;
 		}
 		item.containerEl.addClass('fake-hover');
-		item.containerEl.scrollIntoView({ block: 'center' });
+		item.containerEl.scrollIntoView(
+			this.plugin.settings?.keepSelectedItemsCentered
+				? { block: 'center' }
+				: undefined
+		);
 	}
 
 	unfocus() {
