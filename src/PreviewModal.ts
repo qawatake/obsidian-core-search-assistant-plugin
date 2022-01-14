@@ -1,7 +1,7 @@
 import CoreSearchAssistantPlugin from 'main';
 import { App, Modal, TFile, WorkspaceLeaf } from 'obsidian';
 
-export class ExampleModal extends Modal {
+export class PreviewModal extends Modal {
 	file: TFile;
 	plugin: CoreSearchAssistantPlugin;
 	leaf: WorkspaceLeaf;

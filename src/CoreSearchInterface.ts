@@ -1,5 +1,5 @@
 import CoreSearchAssistantPlugin from 'main';
-import { ExampleModal } from 'Modal';
+import { PreviewModal } from 'Modal';
 import {
 	App,
 	SearchResultItem,
@@ -83,7 +83,7 @@ export class CoreSearchInterface {
 		if (!item) {
 			return;
 		}
-		new ExampleModal(this.app, this.plugin, item.file).open();
+		new PreviewModal(this.app, this.plugin, item.file).open();
 	}
 
 	getSearchLeaf(): WorkspaceLeaf | undefined {
