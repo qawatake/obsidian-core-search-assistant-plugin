@@ -1,5 +1,5 @@
 import CoreSearchAssistantPlugin from 'main';
-import { PreviewModal } from 'Modal';
+import { PreviewModal } from 'PreviewModal';
 import {
 	App,
 	SearchResultItem,
