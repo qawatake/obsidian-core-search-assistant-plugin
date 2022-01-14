@@ -10,7 +10,8 @@ export class ExampleModal extends Modal {
 		super(app);
 		this.plugin = plugin;
 		this.file = file;
-		this.leaf = new WorkspaceLeaf(app);
+		// this.leaf = new WorkspaceLeaf(app);
+		this.leaf = this.app.workspace.getLeaf(true);
 	}
 
 	override onOpen() {
@@ -41,7 +42,7 @@ export class ExampleModal extends Modal {
 			'core-search-assistant_preview-modal-leaf-container'
 		);
 
-		contentEl.appendChild(this.leaf.containerEl);
 		this.leaf.openFile(this.file, { state: { mode: 'preview' } });
+		contentEl.appendChild(this.leaf.containerEl);
 	}
 }
