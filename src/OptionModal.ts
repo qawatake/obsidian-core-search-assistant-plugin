@@ -10,6 +10,7 @@ interface OptionItem {
 export class OptionModal extends Modal {
 	plugin: MyPlugin;
 	items: OptionItem[];
+	shouldRecall = true;
 
 	constructor(app: App, plugin: MyPlugin) {
 		super(app);
@@ -21,6 +22,7 @@ export class OptionModal extends Modal {
 				description: 'Toggle matching case',
 				onChoose: () => {
 					this.plugin.coreSearchInterface?.toggleMatchingCase();
+					this.shouldRecall = false;
 				},
 			},
 			{
@@ -51,6 +53,7 @@ export class OptionModal extends Modal {
 					this.plugin.coreSearchInterface?.setSortOrder(
 						'alphabetical'
 					);
+					this.shouldRecall = false;
 				},
 			},
 			{
@@ -60,6 +63,7 @@ export class OptionModal extends Modal {
 					this.plugin.coreSearchInterface?.setSortOrder(
 						'alphabeticalReverse'
 					);
+					this.shouldRecall = false;
 				},
 			},
 			{
@@ -69,6 +73,7 @@ export class OptionModal extends Modal {
 					this.plugin.coreSearchInterface?.setSortOrder(
 						'byModifiedTime'
 					);
+					this.shouldRecall = false;
 				},
 			},
 			{
@@ -78,6 +83,7 @@ export class OptionModal extends Modal {
 					this.plugin.coreSearchInterface?.setSortOrder(
 						'byModifiedTimeReverse'
 					);
+					this.shouldRecall = false;
 				},
 			},
 			{
@@ -87,6 +93,7 @@ export class OptionModal extends Modal {
 					this.plugin.coreSearchInterface?.setSortOrder(
 						'byCreatedTime'
 					);
+					this.shouldRecall = false;
 				},
 			},
 			{
@@ -96,6 +103,7 @@ export class OptionModal extends Modal {
 					this.plugin.coreSearchInterface?.setSortOrder(
 						'byCreatedTimeReverse'
 					);
+					this.shouldRecall = false;
 				},
 			},
 		];
@@ -118,7 +126,7 @@ export class OptionModal extends Modal {
 				cls: 'suggestion-item',
 			});
 			entryEl.createEl('kbd', {
-				text: item.key,
+				text: item.key.toUpperCase(),
 				cls: 'suggestion-hotkey',
 			});
 			entryEl.createEl('span', {
@@ -128,5 +136,11 @@ export class OptionModal extends Modal {
 		});
 	}
 
-	override onClose() {}
+	override onClose() {
+		if (this.shouldRecall) {
+			setTimeout(() => {
+				this.plugin.controller?.recall();
+			}, 100);
+		}
+	}
 }
