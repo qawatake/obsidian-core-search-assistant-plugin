@@ -9,7 +9,7 @@ import {
 	WorkspaceSidedock,
 } from 'obsidian';
 import { isSearchView } from 'types/Guards';
-import { searchOptions } from 'Option';
+import { searchOptions } from 'types/Option';
 
 export class CoreSearchInterface {
 	app: App;

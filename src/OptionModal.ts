@@ -1,6 +1,6 @@
 import CoreSearchAssistantPlugin from 'main';
 import { App, Modal, setIcon } from 'obsidian';
-import { SearchOptionId, searchOptions } from 'Option';
+import { SearchOptionId, searchOptions } from 'types/Option';
 
 interface OptionItem {
 	id: SearchOptionId;
