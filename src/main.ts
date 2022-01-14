@@ -7,16 +7,12 @@ import {
 	DEFAULT_SETTINGS,
 } from 'Setting';
 
-import { AppExtension } from './uncover';
-
 export default class CoreSearchAssistantPlugin extends Plugin {
 	settings: CoreSearchAssistantPluginSettings | undefined;
 	controller: Controller | undefined;
 	coreSearchInterface: CoreSearchInterface | undefined;
 
 	override async onload() {
-		const app = this.app as AppExtension;
-
 		this.controller = new Controller(this.app, this);
 		this.coreSearchInterface = new CoreSearchInterface(this.app, this);
 
@@ -40,8 +36,6 @@ export default class CoreSearchAssistantPlugin extends Plugin {
 				this.controller?.enter();
 			});
 		});
-
-		console.log(app);
 	}
 
 	override onunload() {
