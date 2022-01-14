@@ -52,11 +52,25 @@ div.core-search-assistant_enter-mode {
 	}
 
 	kbd.suggestion-hotkey {
-		float: left;
+		float: right;
 		margin-left: 0;
 		margin-right: 10px;
 		padding: 0 10px;
 		font-size: 12px;
+		border-radius: 4px;
+		background-color: var(--background-secondary);
+	}
+
+	span.suggestion-icon {
+		float: left;
+		margin-left: 0;
+		// margin-right: 10px;
+		padding: 0 10px;
+		// border-radius: 4px;
+		// background-color: var(--background-secondary);
+		height: 1.5em;
+		display: flex;
+		align-items: center;
 	}
 
 	div.suggestion-item {

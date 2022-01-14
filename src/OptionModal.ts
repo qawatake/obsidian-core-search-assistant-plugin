@@ -1,8 +1,9 @@
 import CoreSearchAssistantPlugin from 'main';
-import { App, Modal } from 'obsidian';
+import { App, Modal, setIcon } from 'obsidian';
 
 interface OptionItem {
 	key: string;
+	iconId: string;
 	description: string;
 	onChoose: () => void;
 }
@@ -19,6 +20,7 @@ export class OptionModal extends Modal {
 		this.items = [
 			{
 				key: 'a',
+				iconId: 'uppercase-lowercase-a',
 				description: 'Toggle matching case',
 				onChoose: () => {
 					this.plugin.coreSearchInterface?.toggleMatchingCase();
@@ -27,6 +29,7 @@ export class OptionModal extends Modal {
 			},
 			{
 				key: 's',
+				iconId: 'info',
 				description: 'Toggle explanation of search term',
 				onChoose: () => {
 					this.plugin.coreSearchInterface?.toggleExplainSearch();
@@ -34,6 +37,7 @@ export class OptionModal extends Modal {
 			},
 			{
 				key: 'd',
+				iconId: 'bullet-list',
 				description: 'Toggle collapsing results',
 				onChoose: () => {
 					this.plugin.coreSearchInterface?.toggleCollapseAll();
@@ -41,6 +45,7 @@ export class OptionModal extends Modal {
 			},
 			{
 				key: 'f',
+				iconId: 'expand-vertically',
 				description: 'Toggle showing more context',
 				onChoose: () => {
 					this.plugin.coreSearchInterface?.toggleExtraContext();
@@ -48,6 +53,7 @@ export class OptionModal extends Modal {
 			},
 			{
 				key: 'g',
+				iconId: 'down-arrow-with-tail',
 				description: 'Sort by file name (A → Z)',
 				onChoose: () => {
 					this.plugin.coreSearchInterface?.setSortOrder(
@@ -58,6 +64,7 @@ export class OptionModal extends Modal {
 			},
 			{
 				key: 'h',
+				iconId: 'up-arrow-with-tail',
 				description: 'Sort by file name (Z → A)',
 				onChoose: () => {
 					this.plugin.coreSearchInterface?.setSortOrder(
@@ -68,6 +75,7 @@ export class OptionModal extends Modal {
 			},
 			{
 				key: 'j',
+				iconId: 'down-arrow-with-tail',
 				description: 'Sort by modified time (new → old)',
 				onChoose: () => {
 					this.plugin.coreSearchInterface?.setSortOrder(
@@ -78,6 +86,7 @@ export class OptionModal extends Modal {
 			},
 			{
 				key: 'k',
+				iconId: 'up-arrow-with-tail',
 				description: 'Sort by modified time (old → new)',
 				onChoose: () => {
 					this.plugin.coreSearchInterface?.setSortOrder(
@@ -88,6 +97,7 @@ export class OptionModal extends Modal {
 			},
 			{
 				key: 'l',
+				iconId: 'down-arrow-with-tail',
 				description: 'Sort by created time (new → old)',
 				onChoose: () => {
 					this.plugin.coreSearchInterface?.setSortOrder(
@@ -98,6 +108,7 @@ export class OptionModal extends Modal {
 			},
 			{
 				key: ';',
+				iconId: 'up-arrow-with-tail',
 				description: 'Sort by created time (old → new)',
 				onChoose: () => {
 					this.plugin.coreSearchInterface?.setSortOrder(
@@ -125,13 +136,17 @@ export class OptionModal extends Modal {
 			const entryEl = contentEl.createEl('div', {
 				cls: 'suggestion-item',
 			});
-			entryEl.createEl('kbd', {
-				text: item.key.toUpperCase(),
-				cls: 'suggestion-hotkey',
+			const iconEl = entryEl.createEl('span', {
+				cls: 'suggestion-icon',
 			});
+			setIcon(iconEl, item.iconId);
 			entryEl.createEl('span', {
 				text: item.description,
 				cls: 'suggestion-content',
+			});
+			entryEl.createEl('kbd', {
+				text: item.key.toUpperCase(),
+				cls: 'suggestion-hotkey',
 			});
 		});
 	}
