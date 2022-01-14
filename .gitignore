@@ -21,3 +21,6 @@ data.json
 
 # other
 .DS_Store
+
+# code for dev
+src/obsidiandev.ts
