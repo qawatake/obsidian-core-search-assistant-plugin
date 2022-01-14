@@ -1,5 +1,6 @@
 import MyPlugin from 'main';
 import { App, Scope } from 'obsidian';
+import { OptionModal } from 'OptionModal';
 
 export class Controller {
 	private app: App;
@@ -31,6 +32,9 @@ export class Controller {
 		});
 		this.scope.register(['Ctrl'], 'Enter', () => {
 			this.preview();
+		});
+		this.scope.register(['Mod'], 'P', () => {
+			new OptionModal(this.app, this.plugin).open();
 		});
 		this.scope.register([], 'Escape', () => {
 			const inputEl = this.plugin.coreSearchInterface?.getSearchInput();

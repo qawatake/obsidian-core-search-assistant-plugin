@@ -4,6 +4,7 @@ import {
 	App,
 	SearchResultItem,
 	SearchView,
+	SortOrderTypeInSearch,
 	WorkspaceLeaf,
 	WorkspaceSidedock,
 } from 'obsidian';
@@ -36,6 +37,11 @@ export class CoreSearchInterface {
 	toggleExtraContext() {
 		const view = this.getSearchView();
 		view?.setExtraContext(!view.dom.extraContext);
+	}
+
+	setSortOrder(sortOrderType: SortOrderTypeInSearch) {
+		const view = this.getSearchView();
+		view?.setSortOrder(sortOrderType);
 	}
 
 	focusOn(pos: number) {

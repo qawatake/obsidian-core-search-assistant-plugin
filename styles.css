@@ -35,3 +35,29 @@ div.core-search-assistant_preview-modal-leaf-container
 div.core-search-assistant_preview-modal-leaf-container.modal-content {
 	margin: 0;
 }
+
+/* option modal */
+
+.option-modal > .modal {
+	background-color: var(--background-primary);
+}
+
+.option-modal kbd.suggestion-hotkey {
+	float: left;
+	margin-left: 0;
+	margin-right: 10px;
+	padding: 0 10px;
+	font-size: 12px;
+	font-family: -apple-system, BlinkMacSystemFont, var(--font-monospace);
+}
+
+.option-modal .suggestion-item {
+	position: relative;
+	padding-left: 34px;
+	cursor: pointer;
+	white-space: pre-wrap;
+}
+
+.option-modal .suggestion-item.is-selected {
+	background-color: var(--background-secondary);
+}
