@@ -32,6 +32,8 @@ declare module 'obsidian' {
 
 		dom: SearchDom;
 
+		searchInfoEl: HTMLElement;
+
 		searchComponent: SearchComponent;
 	}
 
@@ -40,7 +42,7 @@ declare module 'obsidian' {
 	interface SearchDom {
 		extraContext: boolean;
 		collapseAll: boolean;
-		sortOrder: string;
+		sortOrder: SortOrderInSearch;
 		children: SearchResultItem[];
 	}
 

@@ -40,6 +40,7 @@ export default class CoreSearchAssistantPlugin extends Plugin {
 
 	override onunload() {
 		this.controller?.clean();
+		this.coreSearchInterface?.clean();
 	}
 
 	async loadSettings() {

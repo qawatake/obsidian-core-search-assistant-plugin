@@ -36,6 +36,7 @@ export function isSearchView(view: unknown): view is SearchView {
 		setExtraContext,
 		setMatchingCase,
 		setSortOrder,
+		searchInfoEl,
 		searchComponent,
 	} = view as UnknownObject<SearchView>;
 
@@ -49,6 +50,12 @@ export function isSearchView(view: unknown): view is SearchView {
 		return false;
 	}
 	if (typeof searchComponent !== 'object') {
+		return false;
+	}
+	if (typeof searchInfoEl !== 'object') {
+		return false;
+	}
+	if (!(searchInfoEl instanceof HTMLDivElement)) {
 		return false;
 	}
 	// SearchComponent is undefined at obsidian 0.13.19 (installer version 0.11.13)

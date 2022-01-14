@@ -1,10 +1,10 @@
 import CoreSearchAssistantPlugin from 'main';
 import { App, Modal, setIcon } from 'obsidian';
+import { SearchOptionId, searchOptions } from 'Option';
 
 interface OptionItem {
+	id: SearchOptionId;
 	key: string;
-	iconId: string;
-	description: string;
 	onChoose: () => void;
 }
 
@@ -19,101 +19,97 @@ export class OptionModal extends Modal {
 
 		this.items = [
 			{
+				id: 'matchingCase',
 				key: 'a',
-				iconId: 'uppercase-lowercase-a',
-				description: 'Toggle matching case',
 				onChoose: () => {
 					this.plugin.coreSearchInterface?.toggleMatchingCase();
 					this.shouldRecall = false;
 				},
 			},
 			{
+				id: 'explainSearch',
 				key: 's',
-				iconId: 'info',
-				description: 'Toggle explanation of search term',
 				onChoose: () => {
 					this.plugin.coreSearchInterface?.toggleExplainSearch();
 				},
 			},
 			{
+				id: 'collapseAll',
 				key: 'd',
-				iconId: 'bullet-list',
-				description: 'Toggle collapsing results',
 				onChoose: () => {
 					this.plugin.coreSearchInterface?.toggleCollapseAll();
 				},
 			},
 			{
+				id: 'extraContext',
 				key: 'f',
-				iconId: 'expand-vertically',
-				description: 'Toggle showing more context',
 				onChoose: () => {
 					this.plugin.coreSearchInterface?.toggleExtraContext();
 				},
 			},
 			{
+				id: 'alphabetical',
 				key: 'g',
-				iconId: 'down-arrow-with-tail',
-				description: 'Sort by file name (A → Z)',
 				onChoose: () => {
 					this.plugin.coreSearchInterface?.setSortOrder(
 						'alphabetical'
 					);
+					this.plugin.coreSearchInterface?.updateSortOrderEl();
 					this.shouldRecall = false;
 				},
 			},
 			{
+				id: 'alphabeticalReverse',
 				key: 'h',
-				iconId: 'up-arrow-with-tail',
-				description: 'Sort by file name (Z → A)',
 				onChoose: () => {
 					this.plugin.coreSearchInterface?.setSortOrder(
 						'alphabeticalReverse'
 					);
+					this.plugin.coreSearchInterface?.updateSortOrderEl();
 					this.shouldRecall = false;
 				},
 			},
 			{
+				id: 'byModifiedTime',
 				key: 'j',
-				iconId: 'down-arrow-with-tail',
-				description: 'Sort by modified time (new → old)',
 				onChoose: () => {
 					this.plugin.coreSearchInterface?.setSortOrder(
 						'byModifiedTime'
 					);
+					this.plugin.coreSearchInterface?.updateSortOrderEl();
 					this.shouldRecall = false;
 				},
 			},
 			{
+				id: 'byModifiedTimeReverse',
 				key: 'k',
-				iconId: 'up-arrow-with-tail',
-				description: 'Sort by modified time (old → new)',
 				onChoose: () => {
 					this.plugin.coreSearchInterface?.setSortOrder(
 						'byModifiedTimeReverse'
 					);
+					this.plugin.coreSearchInterface?.updateSortOrderEl();
 					this.shouldRecall = false;
 				},
 			},
 			{
+				id: 'byCreatedTime',
 				key: 'l',
-				iconId: 'down-arrow-with-tail',
-				description: 'Sort by created time (new → old)',
 				onChoose: () => {
 					this.plugin.coreSearchInterface?.setSortOrder(
 						'byCreatedTime'
 					);
+					this.plugin.coreSearchInterface?.updateSortOrderEl();
 					this.shouldRecall = false;
 				},
 			},
 			{
+				id: 'byCreatedTimeReverse',
 				key: ';',
-				iconId: 'up-arrow-with-tail',
-				description: 'Sort by created time (old → new)',
 				onChoose: () => {
 					this.plugin.coreSearchInterface?.setSortOrder(
 						'byCreatedTimeReverse'
 					);
+					this.plugin.coreSearchInterface?.updateSortOrderEl();
 					this.shouldRecall = false;
 				},
 			},
@@ -139,9 +135,9 @@ export class OptionModal extends Modal {
 			const iconEl = entryEl.createEl('span', {
 				cls: 'suggestion-icon',
 			});
-			setIcon(iconEl, item.iconId);
+			setIcon(iconEl, searchOptions[item.id].iconId);
 			entryEl.createEl('span', {
-				text: item.description,
+				text: searchOptions[item.id].description,
 				cls: 'suggestion-content',
 			});
 			entryEl.createEl('kbd', {

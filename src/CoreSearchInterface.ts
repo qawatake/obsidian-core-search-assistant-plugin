@@ -9,14 +9,20 @@ import {
 	WorkspaceSidedock,
 } from 'obsidian';
 import { isSearchView } from 'types/Guards';
+import { searchOptions } from 'Option';
 
 export class CoreSearchInterface {
 	app: App;
 	plugin: CoreSearchAssistantPlugin;
+	sortOrderEl: HTMLDivElement | undefined;
 
 	constructor(app: App, plugin: CoreSearchAssistantPlugin) {
 		this.app = app;
 		this.plugin = plugin;
+		this.app.workspace.onLayoutReady(() => {
+			this.sortOrderEl = this.createSortOrderEl();
+			this.updateSortOrderEl();
+		});
 	}
 
 	toggleMatchingCase() {
@@ -39,9 +45,9 @@ export class CoreSearchInterface {
 		view?.setExtraContext(!view.dom.extraContext);
 	}
 
-	setSortOrder(sortOrderType: SortOrderInSearch) {
+	setSortOrder(sortOrder: SortOrderInSearch) {
 		const view = this.getSearchView();
-		view?.setSortOrder(sortOrderType);
+		view?.setSortOrder(sortOrder);
 	}
 
 	focusOn(pos: number) {
@@ -98,6 +104,38 @@ export class CoreSearchInterface {
 		return leafs.find((leaf) => {
 			return leaf.view.getViewType() === 'search';
 		});
+	}
+
+	clean() {
+		this.removeSortOrderEl();
+	}
+
+	createSortOrderEl(): HTMLDivElement | undefined {
+		this.removeSortOrderEl();
+		const view = this.getSearchView();
+		if (!view) {
+			return undefined;
+		}
+		return view.searchInfoEl.createEl('div');
+	}
+
+	updateSortOrderEl(): void {
+		const view = this.getSearchView();
+		if (!view) {
+			return;
+		}
+		const sortOrder = view.dom.sortOrder;
+		if (!this.sortOrderEl) {
+			return;
+		}
+		this.sortOrderEl.textContent = searchOptions[sortOrder].description;
+	}
+
+	removeSortOrderEl(): void {
+		if (!this.sortOrderEl) {
+			return;
+		}
+		this.sortOrderEl.remove();
 	}
 
 	count(): number {
