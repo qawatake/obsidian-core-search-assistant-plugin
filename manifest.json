@@ -3,7 +3,7 @@
 	"name": "Core Search Assistant",
 	"version": "0.0.0",
 	"minAppVersion": "0.12.0",
-	"description": "Provides friendly interfaces for then core search plugin",
+	"description": "Keyboard interface, bigger and auto preview for the built-in search",
 	"author": "qawatake",
 	"authorUrl": "https://github.com/qawatake/obsidian-core-search-assistant-plugin",
 	"isDesktopOnly": false
