@@ -174,4 +174,27 @@ export class CoreSearchInterface {
 		const view = leaf.view;
 		return isSearchView(view) ? view : undefined;
 	}
+
+	async watchSortOrderChangeByClick() {
+		const callback = async (_: MouseEvent) => {
+			this.renewSortOrderInfo();
+			document.removeEventListener('click', callback);
+		};
+		await new Promise((resolve) => setTimeout(resolve, 1)); // prevent callback from being called immediately
+		document.addEventListener('click', callback);
+	}
+
+	getSortOrderSettingButton(): HTMLElement | undefined {
+		const view = this.getSearchView();
+		const buttonsEl = view?.headerDom.navButtonsEl;
+		if (!buttonsEl) {
+			return undefined;
+		}
+		const sortOrderSettingButtonEl = buttonsEl.querySelector(
+			'div.nav-action-button[aria-label="Change sort order"]'
+		);
+		return sortOrderSettingButtonEl
+			? (sortOrderSettingButtonEl as HTMLElement)
+			: undefined;
+	}
 }

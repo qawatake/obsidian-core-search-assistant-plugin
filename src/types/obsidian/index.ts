@@ -35,6 +35,7 @@ declare module 'obsidian' {
 		searchInfoEl: HTMLElement;
 
 		searchComponent: SearchComponent;
+		headerDom: SearchHeaderDom;
 	}
 
 	type SortOrderInSearch = typeof SORT_ORDER_IN_SEARCH[number];
@@ -49,5 +50,9 @@ declare module 'obsidian' {
 	interface SearchResultItem {
 		file: TFile;
 		containerEl: HTMLElement;
+	}
+
+	interface SearchHeaderDom {
+		navButtonsEl: HTMLDivElement;
 	}
 }

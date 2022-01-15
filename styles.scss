@@ -43,6 +43,7 @@ div.core-search-assistant_enter-mode {
 	width: 100%;
 	height: 100%;
 	z-index: var(--layer-modal);
+	pointer-events: none;
 }
 
 /* option modal */

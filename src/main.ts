@@ -26,14 +26,23 @@ export default class CoreSearchAssistantPlugin extends Plugin {
 				return;
 			}
 
-			this.registerDomEvent(inputEl as HTMLElement, 'blur', () => {
+			this.registerDomEvent(inputEl, 'blur', () => {
 				this.controller?.exit();
 			});
-			this.registerDomEvent(inputEl as HTMLElement, 'input', () => {
+			this.registerDomEvent(inputEl, 'input', () => {
 				this.controller?.reset();
 			});
-			this.registerDomEvent(inputEl as HTMLElement, 'focus', () => {
+			this.registerDomEvent(inputEl, 'focus', () => {
 				this.controller?.enter();
+			});
+
+			const sortOrderSettingButtonEl =
+				this.coreSearchInterface?.getSortOrderSettingButton();
+			if (!sortOrderSettingButtonEl) {
+				return;
+			}
+			this.registerDomEvent(sortOrderSettingButtonEl, 'click', () => {
+				this.coreSearchInterface?.watchSortOrderChangeByClick();
 			});
 		});
 	}
