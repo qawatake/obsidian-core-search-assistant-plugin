@@ -55,4 +55,8 @@ declare module 'obsidian' {
 	interface SearchHeaderDom {
 		navButtonsEl: HTMLDivElement;
 	}
+
+	interface WorkspaceSplit {
+		containerEl: HTMLElement;
+	}
 }

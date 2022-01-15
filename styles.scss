@@ -85,3 +85,36 @@ div.core-search-assistant_enter-mode {
 		background-color: var(--background-secondary);
 	}
 }
+
+/* preview covering workspace */
+// ↓ class is not sufficient to override width: 0 specified by default
+#core-search-assistant_workspace-preview-cover {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	z-index: var(--layer-modal);
+	pointer-events: none;
+	background-color: var(--background-primary);
+
+	div.workspace-leaf {
+		contain: initial !important;
+	}
+
+	div.workspace-leaf-resize-handle {
+		display: none;
+	}
+
+	div.view-header {
+		display: none;
+	}
+
+	div.markdown-preview-view {
+		padding: 0;
+	}
+
+	div.modal-content {
+		margin: 0;
+	}
+}

@@ -26,9 +26,11 @@ export class Controller {
 
 		this.scope.register(['Ctrl'], 'N', () => {
 			this.navigateForward();
+			this.showWorkspacePreview();
 		});
 		this.scope.register(['Ctrl'], 'P', () => {
 			this.navigateBack();
+			this.showWorkspacePreview();
 		});
 		this.scope.register(['Mod'], 'Enter', () => {
 			this.open();
@@ -62,6 +64,7 @@ export class Controller {
 		}
 		this.pushCurrentPos();
 		this.unfocus();
+		this.plugin?.workspacePreview?.hide();
 
 		this.hideOutline();
 	}
@@ -78,6 +81,18 @@ export class Controller {
 
 	clean() {
 		this.coverEl.remove();
+	}
+
+	showWorkspacePreview() {
+		this.plugin?.workspacePreview?.hide();
+		const item = this.plugin.coreSearchInterface?.getResultItemAt(
+			this.currentPos
+		);
+		if (!item) {
+			return;
+		}
+		console.log(item.file);
+		this.plugin?.workspacePreview?.renew(item.file);
 	}
 
 	private pushCurrentPos() {

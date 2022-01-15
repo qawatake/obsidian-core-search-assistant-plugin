@@ -6,15 +6,18 @@ import {
 	CoreSearchAssistantSettingTab,
 	DEFAULT_SETTINGS,
 } from 'Setting';
+import { WorkspacePreview } from 'WorkspacePreview';
 
 export default class CoreSearchAssistantPlugin extends Plugin {
 	settings: CoreSearchAssistantPluginSettings | undefined;
 	controller: Controller | undefined;
 	coreSearchInterface: CoreSearchInterface | undefined;
+	workspacePreview: WorkspacePreview | undefined;
 
 	override async onload() {
 		this.controller = new Controller(this.app, this);
 		this.coreSearchInterface = new CoreSearchInterface(this.app, this);
+		this.workspacePreview = new WorkspacePreview(this.app, this);
 
 		await this.loadSettings();
 
@@ -50,6 +53,7 @@ export default class CoreSearchAssistantPlugin extends Plugin {
 	override onunload() {
 		this.controller?.clean();
 		this.coreSearchInterface?.clean();
+		this.workspacePreview?.clean();
 	}
 
 	async loadSettings() {
