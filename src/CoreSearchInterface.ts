@@ -14,14 +14,14 @@ import { searchOptions } from 'types/Option';
 export class CoreSearchInterface {
 	app: App;
 	plugin: CoreSearchAssistantPlugin;
-	sortOrderEl: HTMLDivElement | undefined;
+	sortOrderContainerEl: HTMLElement | undefined;
+	sortOrderContentEl: HTMLElement | undefined;
 
 	constructor(app: App, plugin: CoreSearchAssistantPlugin) {
 		this.app = app;
 		this.plugin = plugin;
 		this.app.workspace.onLayoutReady(() => {
-			this.sortOrderEl = this.createSortOrderEl();
-			this.updateSortOrderEl();
+			this.renewSortOrderInfo();
 		});
 	}
 
@@ -107,35 +107,42 @@ export class CoreSearchInterface {
 	}
 
 	clean() {
-		this.removeSortOrderEl();
+		this.removeSortOrderContainerEl();
 	}
 
-	createSortOrderEl(): HTMLDivElement | undefined {
-		this.removeSortOrderEl();
+	createSortOrderEls(): void {
+		// create element
+		this.sortOrderContainerEl = createEl('div', {
+			cls: 'search-info-container',
+		});
+		this.sortOrderContentEl = this.sortOrderContainerEl.createEl('div');
+
+		// insert created element
 		const view = this.getSearchView();
 		if (!view) {
 			return undefined;
 		}
-		return view.searchInfoEl.createEl('div');
+		this.sortOrderContainerEl.insertAfter(view.searchInfoEl);
 	}
 
-	updateSortOrderEl(): void {
+	renewSortOrderInfo(): void {
+		if (!this.sortOrderContainerEl) {
+			this.createSortOrderEls();
+		}
 		const view = this.getSearchView();
 		if (!view) {
 			return;
 		}
 		const sortOrder = view.dom.sortOrder;
-		if (!this.sortOrderEl) {
+		if (!this.sortOrderContentEl) {
 			return;
 		}
-		this.sortOrderEl.textContent = searchOptions[sortOrder].description;
+		this.sortOrderContentEl.textContent =
+			searchOptions[sortOrder].description;
 	}
 
-	removeSortOrderEl(): void {
-		if (!this.sortOrderEl) {
-			return;
-		}
-		this.sortOrderEl.remove();
+	removeSortOrderContainerEl(): void {
+		this.sortOrderContainerEl?.remove();
 	}
 
 	count(): number {

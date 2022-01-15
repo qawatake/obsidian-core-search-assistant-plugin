@@ -54,7 +54,7 @@ export class OptionModal extends Modal {
 					this.plugin.coreSearchInterface?.setSortOrder(
 						'alphabetical'
 					);
-					this.plugin.coreSearchInterface?.updateSortOrderEl();
+					this.plugin.coreSearchInterface?.renewSortOrderInfo();
 					this.shouldRecall = false;
 				},
 			},
@@ -65,7 +65,7 @@ export class OptionModal extends Modal {
 					this.plugin.coreSearchInterface?.setSortOrder(
 						'alphabeticalReverse'
 					);
-					this.plugin.coreSearchInterface?.updateSortOrderEl();
+					this.plugin.coreSearchInterface?.renewSortOrderInfo();
 					this.shouldRecall = false;
 				},
 			},
@@ -76,7 +76,7 @@ export class OptionModal extends Modal {
 					this.plugin.coreSearchInterface?.setSortOrder(
 						'byModifiedTime'
 					);
-					this.plugin.coreSearchInterface?.updateSortOrderEl();
+					this.plugin.coreSearchInterface?.renewSortOrderInfo();
 					this.shouldRecall = false;
 				},
 			},
@@ -87,7 +87,7 @@ export class OptionModal extends Modal {
 					this.plugin.coreSearchInterface?.setSortOrder(
 						'byModifiedTimeReverse'
 					);
-					this.plugin.coreSearchInterface?.updateSortOrderEl();
+					this.plugin.coreSearchInterface?.renewSortOrderInfo();
 					this.shouldRecall = false;
 				},
 			},
@@ -98,7 +98,7 @@ export class OptionModal extends Modal {
 					this.plugin.coreSearchInterface?.setSortOrder(
 						'byCreatedTime'
 					);
-					this.plugin.coreSearchInterface?.updateSortOrderEl();
+					this.plugin.coreSearchInterface?.renewSortOrderInfo();
 					this.shouldRecall = false;
 				},
 			},
@@ -109,7 +109,7 @@ export class OptionModal extends Modal {
 					this.plugin.coreSearchInterface?.setSortOrder(
 						'byCreatedTimeReverse'
 					);
-					this.plugin.coreSearchInterface?.updateSortOrderEl();
+					this.plugin.coreSearchInterface?.renewSortOrderInfo();
 					this.shouldRecall = false;
 				},
 			},
