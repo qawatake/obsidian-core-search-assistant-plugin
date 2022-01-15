@@ -78,6 +78,7 @@ export class Controller {
 
 	recall() {
 		this.popCurrentPos();
+		this.showWorkspacePreview();
 		this.focus();
 	}
 
