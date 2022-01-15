@@ -12,7 +12,7 @@ const AVAILABLE_OUTLINE_WIDTHS = [0, 3, 5, 7, 10] as const;
 const DEFAULT_OUTLINE_WIDTH = AVAILABLE_OUTLINE_WIDTHS[2];
 
 export const DEFAULT_SETTINGS: CoreSearchAssistantPluginSettings = {
-	keepSelectedItemsCentered: true,
+	keepSelectedItemsCentered: false,
 	outlineWidth: DEFAULT_OUTLINE_WIDTH,
 	autoPreview: true,
 };
