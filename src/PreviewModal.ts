@@ -11,8 +11,7 @@ export class PreviewModal extends Modal {
 		super(app);
 		this.plugin = plugin;
 		this.file = file;
-		// this.leaf = new WorkspaceLeaf(app);
-		this.leaf = this.app.workspace.getLeaf(true);
+		this.leaf = new (WorkspaceLeaf as any)(app) as WorkspaceLeaf;
 	}
 
 	override onOpen() {
