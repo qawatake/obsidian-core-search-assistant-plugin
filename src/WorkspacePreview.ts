@@ -56,7 +56,7 @@ export class WorkspacePreview {
 	}
 
 	hide() {
-		this.leaf?.detach();
+		this.detachLater(INTERVAL_MILLISECOND_TO_BE_DETACHED);
 		this.workspaceCoverEl.style.display = 'none';
 	}
 
