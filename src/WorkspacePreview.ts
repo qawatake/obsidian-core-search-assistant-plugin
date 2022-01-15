@@ -1,6 +1,8 @@
 import CoreSearchAssistantPlugin from 'main';
 import { App, TFile, WorkspaceLeaf } from 'obsidian';
 
+export const INTERVAL_MILLISECOND_TO_BE_DETACHED = 1000;
+
 export class WorkspacePreview {
 	app: App;
 	plugin: CoreSearchAssistantPlugin;
@@ -29,7 +31,7 @@ export class WorkspacePreview {
 	}
 
 	renew(file: TFile) {
-		this.leaf?.detach();
+		this.detachLater(INTERVAL_MILLISECOND_TO_BE_DETACHED);
 		this.show(file);
 	}
 
@@ -41,6 +43,18 @@ export class WorkspacePreview {
 		this.reveal();
 	}
 
+	// delay detachment because otherwise ↓ occur
+	// "Uncaught TypeError: Cannot read property 'onResize' of null"
+	private detachLater(millisecond: number) {
+		if (!this.leaf) {
+			return;
+		}
+		const leafToBeDetached = this.leaf;
+		setTimeout(() => {
+			leafToBeDetached.detach();
+		}, millisecond);
+	}
+
 	hide() {
 		this.leaf?.detach();
 		this.workspaceCoverEl.style.display = 'none';
@@ -49,6 +63,5 @@ export class WorkspacePreview {
 	clean() {
 		this.leaf?.detach();
 		this.workspaceCoverEl.remove();
-		console.log(this.workspaceCoverEl);
 	}
 }

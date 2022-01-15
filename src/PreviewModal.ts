@@ -1,5 +1,6 @@
 import CoreSearchAssistantPlugin from 'main';
 import { App, Modal, TFile, WorkspaceLeaf } from 'obsidian';
+import { INTERVAL_MILLISECOND_TO_BE_DETACHED } from 'WorkspacePreview';
 
 export class PreviewModal extends Modal {
 	file: TFile;
@@ -28,11 +29,22 @@ export class PreviewModal extends Modal {
 	override onClose() {
 		const { contentEl } = this;
 		contentEl.empty();
-		this.leaf.detach();
+		this.detachLater(INTERVAL_MILLISECOND_TO_BE_DETACHED);
 
+		// too fast to focus the selected item
 		setTimeout(() => {
 			this.plugin.controller?.recall();
 		}, 100);
+	}
+
+	private detachLater(millisecond: number) {
+		if (!this.leaf) {
+			return;
+		}
+		const leafToBeDetached = this.leaf;
+		setTimeout(() => {
+			leafToBeDetached.detach();
+		}, millisecond);
 	}
 
 	renderPreview() {

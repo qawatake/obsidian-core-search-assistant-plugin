@@ -88,14 +88,12 @@ export class Controller {
 			return;
 		}
 
-		this.plugin?.workspacePreview?.hide();
 		const item = this.plugin.coreSearchInterface?.getResultItemAt(
 			this.currentPos
 		);
 		if (!item) {
 			return;
 		}
-		console.log(item.file);
 		this.plugin?.workspacePreview?.renew(item.file);
 	}
 
