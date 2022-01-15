@@ -120,3 +120,54 @@ div.core-search-assistant_enter-mode {
 		margin: 0;
 	}
 }
+
+/* card view */
+#core-search-assistant_card-view-cover {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	z-index: var(--layer-modal);
+	// pointer-events: none; // to scroll
+	background-color: var(--background-primary);
+	padding: 20px 30px;
+	overflow: auto; // show scroll bar
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: space-around;
+
+	&.core-search-assistant_hide {
+		display: none;
+	}
+
+	div.workspace-leaf {
+		contain: initial !important;
+	}
+
+	div.workspace-leaf-resize-handle {
+		display: none;
+	}
+
+	div.view-header {
+		display: none;
+	}
+
+	div.markdown-preview-view {
+		padding: 0;
+	}
+
+	div.modal-content {
+		margin: 0;
+	}
+
+	.core-search-assistant_card-view-item-container {
+		overflow: hidden;
+		display: inline-block;
+		width: 300px;
+		height: 400px;
+		margin: 20px;
+		border: 2px solid var(--interactive-accent);
+		border-radius: 5px;
+	}
+}
