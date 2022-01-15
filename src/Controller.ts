@@ -84,6 +84,10 @@ export class Controller {
 	}
 
 	showWorkspacePreview() {
+		if (!this.plugin.settings?.autoPreview) {
+			return;
+		}
+
 		this.plugin?.workspacePreview?.hide();
 		const item = this.plugin.coreSearchInterface?.getResultItemAt(
 			this.currentPos

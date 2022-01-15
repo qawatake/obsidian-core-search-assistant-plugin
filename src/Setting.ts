@@ -4,6 +4,7 @@ import { App, PluginSettingTab, Setting } from 'obsidian';
 export interface CoreSearchAssistantPluginSettings {
 	keepSelectedItemsCentered: boolean;
 	outlineWidth: number;
+	autoPreview: boolean;
 }
 
 const AVAILABLE_OUTLINE_WIDTHS = [0, 3, 5, 7, 10] as const;
@@ -13,6 +14,7 @@ const DEFAULT_OUTLINE_WIDTH = AVAILABLE_OUTLINE_WIDTHS[2];
 export const DEFAULT_SETTINGS: CoreSearchAssistantPluginSettings = {
 	keepSelectedItemsCentered: true,
 	outlineWidth: DEFAULT_OUTLINE_WIDTH,
+	autoPreview: true,
 };
 
 export class CoreSearchAssistantSettingTab extends PluginSettingTab {
@@ -33,7 +35,8 @@ export class CoreSearchAssistantSettingTab extends PluginSettingTab {
 			.addToggle((component) => {
 				component
 					.setValue(
-						this.plugin.settings?.keepSelectedItemsCentered ?? true
+						this.plugin.settings?.keepSelectedItemsCentered ??
+							DEFAULT_SETTINGS.keepSelectedItemsCentered
 					)
 					.onChange((value) => {
 						if (!this.plugin.settings) {
@@ -65,6 +68,24 @@ export class CoreSearchAssistantSettingTab extends PluginSettingTab {
 						}
 						this.plugin.settings.outlineWidth =
 							Number.parseInt(value);
+						this.plugin.saveSettings();
+					});
+			});
+
+		new Setting(containerEl)
+			.setName('Auto preview')
+			.setDesc('Preview automatically appears when selected')
+			.addToggle((component) => {
+				component
+					.setValue(
+						this.plugin.settings?.autoPreview ??
+							DEFAULT_SETTINGS.autoPreview
+					)
+					.onChange((value) => {
+						if (!this.plugin.settings) {
+							return;
+						}
+						this.plugin.settings.autoPreview = value;
 						this.plugin.saveSettings();
 					});
 			});
