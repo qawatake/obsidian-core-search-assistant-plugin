@@ -97,6 +97,7 @@ div.core-search-assistant_enter-mode {
 	z-index: var(--layer-modal);
 	pointer-events: none;
 	background-color: var(--background-primary);
+	padding: 20px 30px;
 
 	div.workspace-leaf {
 		contain: initial !important;
