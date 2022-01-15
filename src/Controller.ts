@@ -24,11 +24,13 @@ export class Controller {
 		}
 		this.app.keymap.pushScope(this.scope);
 
-		this.scope.register(['Ctrl'], 'N', () => {
+		this.scope.register(['Ctrl'], 'N', (evt: KeyboardEvent) => {
+			evt.preventDefault();
 			this.navigateForward();
 			this.showWorkspacePreview();
 		});
-		this.scope.register(['Ctrl'], 'P', () => {
+		this.scope.register(['Ctrl'], 'P', (evt: KeyboardEvent) => {
+			evt.preventDefault();
 			this.navigateBack();
 			this.showWorkspacePreview();
 		});
