@@ -6,5 +6,5 @@
 	"description": "Keyboard interface, bigger and auto preview for the built-in search",
 	"author": "qawatake",
 	"authorUrl": "https://github.com/qawatake/obsidian-core-search-assistant-plugin",
-	"isDesktopOnly": false
+	"isDesktopOnly": true
 }
