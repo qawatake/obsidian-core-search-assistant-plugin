@@ -95,9 +95,10 @@ div.core-search-assistant_enter-mode {
 	width: 100%;
 	height: 100%;
 	z-index: var(--layer-modal);
-	pointer-events: none;
+	// pointer-events: none; to scroll
 	background-color: var(--background-primary);
 	padding: 20px 30px;
+	overflow: auto; // show scroll bar
 
 	div.workspace-leaf {
 		contain: initial !important;
