@@ -22,7 +22,10 @@ module.exports = {
 		'no-console': process.env.NODE_ENV === 'production' ? 2 : 0,
 		'@typescript-eslint/explicit-module-boundary-types': 0,
 		'no-unused-vars': 'off',
-		'@typescript-eslint/no-unused-vars': ['error'],
+		'@typescript-eslint/no-unused-vars': [
+			'error',
+			{ argsIgnorePattern: '^_' },
+		],
 	},
 	settings: {
 		react: {
