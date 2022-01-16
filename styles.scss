@@ -133,10 +133,6 @@ div.core-search-assistant_enter-mode {
 	background-color: var(--background-primary);
 	padding: 20px 30px;
 	overflow-y: auto; // show scroll bar
-	// display: flex;
-	// flex-direction: column;
-	// flex-wrap: wrap;
-	// justify-content: space-around;
 
 	&.core-search-assistant_hide {
 		display: none;
@@ -162,46 +158,12 @@ div.core-search-assistant_enter-mode {
 		margin: 0;
 	}
 
-	// &:last-child::after {
-	// 	height: 100px;
-	// 	top: 100%;
-	// 	width: 1px;
-	// 	position: absolute;
-	// 	background-color: red;
-	// }
-
-	// ↓ effective!
-	// &::after {
-	// 	display: block;
-	// 	// width: 100px;
-	// 	height: 30px;
-	// 	content: '';
-	// }
-
 	.core-search-assistant_card-view-cover-content {
-		// display: flex;
-		// flex-wrap: wrap;
-		// justify-content: space-around;
-		// width: 100%;
 		max-width: 1000px;
-		// max-width: 100%;
-		// margin: 0 auto;
-		// margin-top: 15px;
-		// margin-bottom: 5px;
-		// position: relative;
 		display: grid;
-		// grid-template-columns: repeat(3, 1fr);
 		grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-		// grid-template-columns: 1fr;
 		grid-template-rows: auto;
 		grid-gap: 20px;
-
-		// &::after {
-		// 	display: block;
-		// 	width: 1px;
-		// 	height: 100px;
-		// 	content: '';
-		// }
 
 		.core-search-assistant_card-view-item-container-aspect-ratio {
 			position: relative;
@@ -212,33 +174,8 @@ div.core-search-assistant_enter-mode {
 			overflow: hidden;
 			display: flex;
 			flex-direction: column;
-			// width: 300px;
-			// height: 400px;
-			// margin: 20px;
-			// border: 2px solid var(--interactive-accent);
-			// outline: 2px solid var(--interactive-accent);
-			// min-height: 300px;
-			// max-height: 400px;
-			// padding: 10px;
-
-			// box-shadow: 0 2px 2px var(--interactive-accent);
 			box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-			// display: flex;
-			// flex-direction: column;
-			// min-height: 100%;
-			// position: relative;
-			// top: 0;
-			// transition: all 0.1s ease-in;
 			border-radius: 10px;
-			// text-decoration: none !important;
-
-			// &:last-child::after {
-			// 	display: block;
-			// 	width: 100px;
-			// 	height: 30px;
-			// 	content: '';
-			// 	flex-grow: 0;
-			// }
 			position: absolute;
 			top: 0;
 			right: 0;
@@ -259,7 +196,6 @@ div.core-search-assistant_enter-mode {
 				color: var(--text-muted);
 				overflow-wrap: break-word;
 				flex-grow: 0;
-				// flex-basis: ;
 			}
 
 			.core-search-assistant_card-view-item-preview-margin {
@@ -269,19 +205,8 @@ div.core-search-assistant_enter-mode {
 			}
 
 			.core-search-assistant_card-view-item-preview-container {
-				// padding: 5px;
 				overflow: hidden;
-				// background-color: var(--background-modifier-success);
 				height: 100%;
-				// flex: 1;
-
-				// &::after {
-				// 	display: block;
-				// 	width: 100px;
-				// 	height: 30px;
-				// 	content: '';
-				// 	flex-grow: 0;
-				// }
 
 				p {
 					font-size: 0.8rem;
