@@ -11,6 +11,10 @@ export class Controller {
 	private stackedPositions: number[];
 	private coverEl: HTMLElement;
 	private cardViewDisplayed: boolean;
+	private searchResultsObserver: MutationObserver | undefined; // listen the search results rendered events
+	private readonly observationConfig: MutationObserverInit = {
+		childList: true,
+	};
 
 	constructor(app: App, plugin: CoreSearchAssistantPlugin) {
 		this.app = app;
@@ -18,6 +22,11 @@ export class Controller {
 		this.stackedPositions = [];
 		this.coverEl = this.createOutline();
 		this.cardViewDisplayed = false;
+		this.app.workspace.onLayoutReady(() => {
+			this.searchResultsObserver = new MutationObserver(
+				this.OnObservedCallback.bind(this)
+			);
+		});
 	}
 
 	enter() {
@@ -54,6 +63,20 @@ export class Controller {
 			}
 			inputEl.blur();
 		});
+
+		// const callback: MutationCallback = (
+		// 	mutations: MutationRecord[],
+		// 	_observer: MutationObserver
+		// ) => {
+		// 	for (const mutation of mutations) {
+		// 		console.log(mutation.addedNodes);
+		// 	}
+		// };
+		// const config: MutationObserverInit = { childList: true };
+		// const observer = new MutationObserver(callback);
+		const childrenEl = this.plugin.coreSearchInterface?.getSearchView()?.dom
+			.childrenEl as HTMLElement;
+		this.searchResultsObserver?.observe(childrenEl, this.observationConfig);
 
 		this.showOutline();
 	}
@@ -184,4 +207,28 @@ export class Controller {
 	private hideOutline() {
 		this.coverEl.style.display = 'none';
 	}
+
+	private OnObservedCallback: MutationCallback = (
+		mutations: MutationRecord[],
+		_observer: MutationObserver
+	) => {
+		for (const mutation of mutations) {
+			if (mutation.addedNodes.length === 0) {
+				return;
+			}
+			mutation.addedNodes.forEach((node) => {
+				if (!(node instanceof HTMLElement)) {
+					return;
+				}
+				const isSearchResultItem =
+					node.tagName === 'DIV' &&
+					node.hasClass('tree-item') &&
+					node.hasClass('search-result');
+				if (!isSearchResultItem) {
+					return;
+				}
+				console.log('good!');
+			});
+		}
+	};
 }
