@@ -7,6 +7,7 @@ export class CardView {
 	plugin: CoreSearchAssistantPlugin;
 	leafs: WorkspaceLeaf[];
 	workspaceCoverEl: HTMLElement;
+	contentEl: HTMLElement;
 
 	constructor(app: App, plugin: CoreSearchAssistantPlugin) {
 		this.app = app;
@@ -14,6 +15,9 @@ export class CardView {
 		this.leafs = [];
 		this.workspaceCoverEl = createEl('div', {
 			attr: { id: `core-search-assistant_card-view-cover` },
+		});
+		this.contentEl = this.workspaceCoverEl.createEl('div', {
+			cls: 'core-search-assistant_card-view-cover-content',
 		});
 		this.app.workspace.onLayoutReady(() => {
 			this.app.workspace.rootSplit.containerEl.appendChild(
@@ -30,13 +34,13 @@ export class CardView {
 
 	renderFiles() {
 		this.leafs = [];
-		this.workspaceCoverEl.empty();
+		this.contentEl.empty();
 		const items = this.plugin.coreSearchInterface?.getResultItems();
 		if (!items) {
 			return;
 		}
 		items.forEach((item) => {
-			const itemContainerEl = this.workspaceCoverEl.createEl('div', {
+			const itemContainerEl = this.contentEl.createEl('div', {
 				cls: 'core-search-assistant_card-view-item-container',
 			});
 
