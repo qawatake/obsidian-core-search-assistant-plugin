@@ -34,19 +34,27 @@ export class CardView {
 
 	renderFiles() {
 		this.leafs = [];
-		this.contentEl.empty();
+		const { contentEl } = this;
+		contentEl.empty();
 		const items = this.plugin.coreSearchInterface?.getResultItems();
 		if (!items) {
 			return;
 		}
 		items.forEach((item) => {
-			const itemContainerEl = this.contentEl.createEl('div', {
+			const itemContainerEl = contentEl.createEl('div', {
 				cls: 'core-search-assistant_card-view-item-container',
+			});
+			itemContainerEl.createEl('div', {
+				cls: 'core-search-assistant_card_view-item-file-name-container',
+				text: item.file.name,
+			});
+			const previewContainerEl = itemContainerEl.createEl('div', {
+				cls: 'core-search-assistant_card-view-item-preview-container',
 			});
 
 			const leaf = new (WorkspaceLeaf as any)(this.app) as WorkspaceLeaf;
 			leaf.openFile(item.file, { state: { mode: 'preview' } });
-			itemContainerEl.appendChild(leaf.containerEl);
+			previewContainerEl.appendChild(leaf.containerEl);
 
 			this.leafs.push(leaf);
 		});
