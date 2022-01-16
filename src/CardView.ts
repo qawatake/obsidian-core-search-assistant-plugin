@@ -1,5 +1,5 @@
 import CoreSearchAssistantPlugin from 'main';
-import { App, WorkspaceLeaf } from 'obsidian';
+import { App, SearchResultItem, WorkspaceLeaf } from 'obsidian';
 import { INTERVAL_MILLISECOND_TO_BE_DETACHED } from 'WorkspacePreview';
 
 export class CardView {
@@ -41,16 +41,17 @@ export class CardView {
 			return;
 		}
 		items.forEach((item) => {
-			const itemContainerEl = contentEl.createEl('div', {
-				cls: 'core-search-assistant_card-view-item-container',
-			});
-			itemContainerEl.createEl('div', {
-				cls: 'core-search-assistant_card_view-item-file-name-container',
-				text: item.file.name,
-			});
-			const previewContainerEl = itemContainerEl.createEl('div', {
-				cls: 'core-search-assistant_card-view-item-preview-container',
-			});
+			// const itemContainerEl = contentEl.createEl('div', {
+			// 	cls: 'core-search-assistant_card-view-item-container',
+			// });
+			// itemContainerEl.createEl('div', {
+			// 	cls: 'core-search-assistant_card_view-item-file-name-container',
+			// 	text: item.file.name,
+			// });
+			// const previewContainerEl = itemContainerEl.createEl('div', {
+			// 	cls: 'core-search-assistant_card-view-item-preview-container',
+			// });
+			const previewContainerEl = this.createPreviewContainerEl(item);
 
 			const leaf = new (WorkspaceLeaf as any)(this.app) as WorkspaceLeaf;
 			leaf.openFile(item.file, { state: { mode: 'preview' } });
@@ -69,6 +70,24 @@ export class CardView {
 				leaf.detach();
 			});
 		}, INTERVAL_MILLISECOND_TO_BE_DETACHED);
+	}
+
+	createPreviewContainerEl(item: SearchResultItem): HTMLElement {
+		const { contentEl } = this;
+		const itemContainerEl = contentEl.createEl('div', {
+			cls: 'core-search-assistant_card-view-item-container',
+		});
+		itemContainerEl.createEl('div', {
+			cls: 'core-search-assistant_card_view-item-file-name-container',
+			text: item.file.name,
+		});
+		const previewMarginEl = itemContainerEl.createEl('div', {
+			cls: 'core-search-assistant_card-view-item-preview-margin',
+		});
+		const previewContainerEl = previewMarginEl.createEl('div', {
+			cls: 'core-search-assistant_card-view-item-preview-container',
+		});
+		return previewContainerEl;
 	}
 
 	hide() {
