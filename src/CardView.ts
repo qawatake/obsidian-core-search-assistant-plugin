@@ -27,30 +27,19 @@ export class CardView {
 		});
 	}
 
-	renew() {
+	renew(items: SearchResultItem[]) {
 		this.detachLeafsLater();
-		this.renderFiles();
+		this.renderFiles(items);
 	}
 
-	renderFiles() {
+	renderFiles(items: SearchResultItem[]) {
+		if (items.length === 0) {
+			return;
+		}
 		this.leafs = [];
 		const { contentEl } = this;
 		contentEl.empty();
-		const items = this.plugin.coreSearchInterface?.getResultItems();
-		if (!items) {
-			return;
-		}
 		items.forEach((item) => {
-			// const itemContainerEl = contentEl.createEl('div', {
-			// 	cls: 'core-search-assistant_card-view-item-container',
-			// });
-			// itemContainerEl.createEl('div', {
-			// 	cls: 'core-search-assistant_card_view-item-file-name-container',
-			// 	text: item.file.name,
-			// });
-			// const previewContainerEl = itemContainerEl.createEl('div', {
-			// 	cls: 'core-search-assistant_card-view-item-preview-container',
-			// });
 			const previewContainerEl = this.createPreviewContainerEl(item);
 
 			const leaf = new (WorkspaceLeaf as any)(this.app) as WorkspaceLeaf;
@@ -96,11 +85,10 @@ export class CardView {
 	hide() {
 		this.detachLeafsLater();
 		this.workspaceCoverEl.addClass('core-search-assistant_hide');
-		// this.workspaceCoverEl.style.display = 'none';
+		this.contentEl.empty();
 	}
 
 	reveal() {
 		this.workspaceCoverEl.removeClass('core-search-assistant_hide');
-		// this.workspaceCoverEl.style.display = 'initial';
 	}
 }

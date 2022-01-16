@@ -22,13 +22,6 @@ export default class CoreSearchAssistantPlugin extends Plugin {
 		this.workspacePreview = new WorkspacePreview(this.app, this);
 		this.cardView = new CardView(this.app, this);
 
-		this.app.scope.register(['Ctrl'], 'i', () => {
-			this.cardView?.renew();
-		});
-		this.app.scope.register([], 'Escape', () => {
-			this.cardView?.hide();
-		});
-
 		await this.loadSettings();
 
 		this.addSettingTab(new CoreSearchAssistantSettingTab(this.app, this));

@@ -10,12 +10,14 @@ export class Controller {
 	private currentPos = -1;
 	private stackedPositions: number[];
 	private coverEl: HTMLElement;
+	private cardViewDisplayed: boolean;
 
 	constructor(app: App, plugin: CoreSearchAssistantPlugin) {
 		this.app = app;
 		this.plugin = plugin;
 		this.stackedPositions = [];
 		this.coverEl = this.createOutline();
+		this.cardViewDisplayed = false;
 	}
 
 	enter() {
@@ -28,11 +30,13 @@ export class Controller {
 			evt.preventDefault();
 			this.navigateForward();
 			this.showWorkspacePreview();
+			this.showCardView();
 		});
 		this.scope.register(['Ctrl'], 'P', (evt: KeyboardEvent) => {
 			evt.preventDefault();
 			this.navigateBack();
 			this.showWorkspacePreview();
+			this.showCardView();
 		});
 		this.scope.register(['Mod'], 'Enter', () => {
 			this.open();
@@ -57,6 +61,8 @@ export class Controller {
 	reset() {
 		this.forget();
 		this.unfocus();
+		this.plugin.cardView?.hide();
+		this.cardViewDisplayed = false;
 	}
 
 	exit() {
@@ -67,6 +73,8 @@ export class Controller {
 		this.pushCurrentPos();
 		this.unfocus();
 		this.plugin?.workspacePreview?.hide();
+		this.plugin.cardView?.hide();
+		this.cardViewDisplayed = false;
 
 		this.hideOutline();
 	}
@@ -86,8 +94,24 @@ export class Controller {
 		this.coverEl.remove();
 	}
 
+	showCardView() {
+		if (this.cardViewDisplayed) {
+			return;
+		}
+		if (this.plugin.settings?.autoPreviewMode !== 'cardView') {
+			return;
+		}
+		const items = this.plugin.coreSearchInterface?.getResultItems();
+		if (items === undefined) {
+			console.log('a');
+			return;
+		}
+		this.plugin.cardView?.renew(items);
+		this.cardViewDisplayed = true;
+	}
+
 	showWorkspacePreview() {
-		if (!this.plugin.settings?.autoPreview) {
+		if (this.plugin.settings?.autoPreviewMode !== 'singleView') {
 			return;
 		}
 

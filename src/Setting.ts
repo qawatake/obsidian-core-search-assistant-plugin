@@ -3,18 +3,32 @@ import { App, PluginSettingTab, Setting } from 'obsidian';
 
 export interface CoreSearchAssistantPluginSettings {
 	keepSelectedItemsCentered: boolean;
-	outlineWidth: number;
-	autoPreview: boolean;
+	outlineWidth: AvailableOutlineWidth;
+	autoPreviewMode: AutoPreviewMode;
 }
 
 const AVAILABLE_OUTLINE_WIDTHS = [0, 3, 5, 7, 10] as const;
 
+type AvailableOutlineWidth = typeof AVAILABLE_OUTLINE_WIDTHS[number];
+
 const DEFAULT_OUTLINE_WIDTH = AVAILABLE_OUTLINE_WIDTHS[2];
+
+const AUTO_PREVIEW_MODE_IDS = ['none', 'singleView', 'cardView'] as const;
+
+type AutoPreviewMode = typeof AUTO_PREVIEW_MODE_IDS[number];
+
+const autoPreviewModeInfos: Record<AutoPreviewMode, string> = {
+	none: 'none',
+	singleView: 'single view',
+	cardView: 'card view',
+};
+
+const DEFAULT_AUTO_VIEW_MODE: AutoPreviewMode = 'singleView';
 
 export const DEFAULT_SETTINGS: CoreSearchAssistantPluginSettings = {
 	keepSelectedItemsCentered: false,
 	outlineWidth: DEFAULT_OUTLINE_WIDTH,
-	autoPreview: true,
+	autoPreviewMode: 'singleView',
 };
 
 export class CoreSearchAssistantSettingTab extends PluginSettingTab {
@@ -63,29 +77,41 @@ export class CoreSearchAssistantSettingTab extends PluginSettingTab {
 						).toString()
 					)
 					.onChange((value) => {
+						const width = Number.parseInt(value);
 						if (!this.plugin.settings) {
 							return;
 						}
+						if (!AVAILABLE_OUTLINE_WIDTHS.includes(width as any)) {
+							return;
+						}
 						this.plugin.settings.outlineWidth =
-							Number.parseInt(value);
+							width as AvailableOutlineWidth;
 						this.plugin.saveSettings();
 					});
 			});
 
 		new Setting(containerEl)
-			.setName('Auto preview')
-			.setDesc('Preview automatically appears when selected')
-			.addToggle((component) => {
+			.setName('Auto preview mode')
+			.addDropdown((component) => {
 				component
+					.addOptions(autoPreviewModeInfos)
 					.setValue(
-						this.plugin.settings?.autoPreview ??
-							DEFAULT_SETTINGS.autoPreview
+						this.plugin.settings?.autoPreviewMode ??
+							DEFAULT_AUTO_VIEW_MODE
 					)
-					.onChange((value) => {
+					.onChange((id) => {
 						if (!this.plugin.settings) {
 							return;
 						}
-						this.plugin.settings.autoPreview = value;
+						if (
+							!AUTO_PREVIEW_MODE_IDS.includes(
+								id as AutoPreviewMode
+							)
+						) {
+							return;
+						}
+						this.plugin.settings.autoPreviewMode =
+							id as AutoPreviewMode;
 						this.plugin.saveSettings();
 					});
 			});
