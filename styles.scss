@@ -189,6 +189,7 @@ div.core-search-assistant_enter-mode {
 		// outline: 2px solid var(--interactive-accent);
 		// min-width: 300px;
 		min-height: 400px;
+		padding: 10px;
 
 		// box-shadow: 0 2px 2px var(--interactive-accent);
 		box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
@@ -199,5 +200,21 @@ div.core-search-assistant_enter-mode {
 		// top: 0;
 		// transition: all 0.1s ease-in;
 		border-radius: 10px;
+
+		p {
+			font-size: 1rem;
+			line-height: 1.2;
+		}
+
+		h1,
+		h2,
+		h3,
+		h4,
+		h5,
+		h6 {
+			font-size: 1.2rem;
+			line-height: 1.2;
+			margin: 5px;
+		}
 	}
 }
