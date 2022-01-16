@@ -45,6 +45,7 @@ declare module 'obsidian' {
 		collapseAll: boolean;
 		sortOrder: SortOrderInSearch;
 		children: SearchResultItem[];
+		childrenEl: HTMLElement;
 	}
 
 	interface SearchResultItem {

@@ -20,9 +20,6 @@ export class CoreSearchInterface {
 	constructor(app: App, plugin: CoreSearchAssistantPlugin) {
 		this.app = app;
 		this.plugin = plugin;
-		this.app.workspace.onLayoutReady(() => {
-			this.renewSortOrderInfo();
-		});
 	}
 
 	toggleMatchingCase() {

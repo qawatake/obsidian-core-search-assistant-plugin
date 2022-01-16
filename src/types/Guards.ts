@@ -94,7 +94,7 @@ function isSearchDom(obj: unknown): obj is SearchDom {
 		return false;
 	}
 
-	const { extraContext, collapseAll, sortOrder, children } =
+	const { extraContext, collapseAll, sortOrder, children, childrenEl } =
 		obj as UnknownObject<SearchDom>;
 
 	if (typeof extraContext !== 'boolean') {
@@ -119,6 +119,12 @@ function isSearchDom(obj: unknown): obj is SearchDom {
 		if (!isSearchResultItem(child)) {
 			return false;
 		}
+	}
+	if (typeof childrenEl !== 'object') {
+		return false;
+	}
+	if (!(childrenEl instanceof HTMLElement)) {
+		return false;
 	}
 
 	return true;

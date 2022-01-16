@@ -37,6 +37,20 @@ export default class CoreSearchAssistantPlugin extends Plugin {
 			});
 			this.registerDomEvent(inputEl, 'input', () => {
 				this.controller?.reset();
+				let dispatched = false;
+				document.addEventListener('shouldRenderSearch', () => {
+					if (!dispatched) {
+						this.controller?.showCardView();
+						dispatched = true;
+					}
+				});
+				setTimeout(
+					() =>
+						document.dispatchEvent(
+							new CustomEvent('shouldRenderSearch')
+						),
+					1000
+				);
 			});
 			this.registerDomEvent(inputEl, 'focus', () => {
 				this.controller?.enter();

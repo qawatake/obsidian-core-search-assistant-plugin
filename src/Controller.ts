@@ -24,7 +24,7 @@ export class Controller {
 		this.cardViewDisplayed = false;
 		this.app.workspace.onLayoutReady(() => {
 			this.searchResultsObserver = new MutationObserver(
-				this.OnObservedCallback.bind(this)
+				this.onObservedCallback.bind(this)
 			);
 		});
 	}
@@ -64,16 +64,6 @@ export class Controller {
 			inputEl.blur();
 		});
 
-		// const callback: MutationCallback = (
-		// 	mutations: MutationRecord[],
-		// 	_observer: MutationObserver
-		// ) => {
-		// 	for (const mutation of mutations) {
-		// 		console.log(mutation.addedNodes);
-		// 	}
-		// };
-		// const config: MutationObserverInit = { childList: true };
-		// const observer = new MutationObserver(callback);
 		const childrenEl = this.plugin.coreSearchInterface?.getSearchView()?.dom
 			.childrenEl as HTMLElement;
 		this.searchResultsObserver?.observe(childrenEl, this.observationConfig);
@@ -126,7 +116,6 @@ export class Controller {
 		}
 		const items = this.plugin.coreSearchInterface?.getResultItems();
 		if (items === undefined) {
-			console.log('a');
 			return;
 		}
 		this.plugin.cardView?.renew(items);
@@ -208,7 +197,7 @@ export class Controller {
 		this.coverEl.style.display = 'none';
 	}
 
-	private OnObservedCallback: MutationCallback = (
+	private onObservedCallback: MutationCallback = async (
 		mutations: MutationRecord[],
 		_observer: MutationObserver
 	) => {
@@ -216,7 +205,7 @@ export class Controller {
 			if (mutation.addedNodes.length === 0) {
 				return;
 			}
-			mutation.addedNodes.forEach((node) => {
+			for (const node of Array.from(mutation.addedNodes)) {
 				if (!(node instanceof HTMLElement)) {
 					return;
 				}
@@ -227,8 +216,9 @@ export class Controller {
 				if (!isSearchResultItem) {
 					return;
 				}
-				console.log('good!');
-			});
+				document.dispatchEvent(new CustomEvent('shouldRenderSearch'));
+				return;
+			}
 		}
 	};
 }
