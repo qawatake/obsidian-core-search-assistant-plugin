@@ -74,7 +74,10 @@ export class CardView {
 
 	createPreviewContainerEl(item: SearchResultItem): HTMLElement {
 		const { contentEl } = this;
-		const itemContainerEl = contentEl.createEl('div', {
+		const aspectRatioEl = contentEl.createEl('div', {
+			cls: 'core-search-assistant_card-view-item-container-aspect-ratio',
+		});
+		const itemContainerEl = aspectRatioEl.createEl('div', {
 			cls: 'core-search-assistant_card-view-item-container',
 		});
 		itemContainerEl.createEl('div', {

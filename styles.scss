@@ -182,9 +182,9 @@ div.core-search-assistant_enter-mode {
 		// display: flex;
 		// flex-wrap: wrap;
 		// justify-content: space-around;
-		width: 100%;
+		// width: 100%;
 		max-width: 1000px;
-		max-width: 100%;
+		// max-width: 100%;
 		// margin: 0 auto;
 		// margin-top: 15px;
 		// margin-bottom: 5px;
@@ -203,6 +203,11 @@ div.core-search-assistant_enter-mode {
 		// 	content: '';
 		// }
 
+		.core-search-assistant_card-view-item-container-aspect-ratio {
+			position: relative;
+			padding-top: 125%;
+		}
+
 		.core-search-assistant_card-view-item-container {
 			overflow: hidden;
 			display: flex;
@@ -212,8 +217,8 @@ div.core-search-assistant_enter-mode {
 			// margin: 20px;
 			// border: 2px solid var(--interactive-accent);
 			// outline: 2px solid var(--interactive-accent);
-			min-height: 300px;
-			max-height: 400px;
+			// min-height: 300px;
+			// max-height: 400px;
 			// padding: 10px;
 
 			// box-shadow: 0 2px 2px var(--interactive-accent);
@@ -221,7 +226,7 @@ div.core-search-assistant_enter-mode {
 			// display: flex;
 			// flex-direction: column;
 			// min-height: 100%;
-			position: relative;
+			// position: relative;
 			// top: 0;
 			// transition: all 0.1s ease-in;
 			border-radius: 10px;
@@ -234,6 +239,11 @@ div.core-search-assistant_enter-mode {
 			// 	content: '';
 			// 	flex-grow: 0;
 			// }
+			position: absolute;
+			top: 0;
+			right: 0;
+			width: 100%;
+			height: 100%;
 
 			&:hover {
 				top: -2px;
