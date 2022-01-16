@@ -196,10 +196,17 @@ div.core-search-assistant_enter-mode {
 		// display: flex;
 		// flex-direction: column;
 		// min-height: 100%;
-		// position: relative;
+		position: relative;
 		// top: 0;
 		// transition: all 0.1s ease-in;
 		border-radius: 10px;
+		// text-decoration: none !important;
+
+		&:hover {
+			top: -2px;
+			// box-shadow: 0 4px 5px rgba(0, 0, 0, 0.2);
+			box-shadow: 0 4px 5px var(--interactive-accent);
+		}
 
 		p {
 			font-size: 1rem;
