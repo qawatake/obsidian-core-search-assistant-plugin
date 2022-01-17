@@ -7,7 +7,7 @@ import {
 	TFile,
 } from 'obsidian';
 
-type UnknownObject<T extends object> = {
+export type UnknownObject<T extends object> = {
 	[P in keyof T]: unknown;
 };
 

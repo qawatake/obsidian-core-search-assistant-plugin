@@ -50,20 +50,6 @@ export default class CoreSearchAssistantPlugin extends Plugin {
 			this.registerDomEvent(sortOrderSettingButtonEl, 'click', () => {
 				this.coreSearchInterface?.watchSortOrderChangeByClick();
 			});
-
-			document.addEventListener('shouldRenderSearch', () => {
-				if (!this.controller) {
-					return;
-				}
-				if (!this.controller.inSearchMode) {
-					return;
-				}
-				if (this.controller.cardViewDisplayed) {
-					return;
-				}
-				this.controller.showCardView();
-				this.controller.cardViewDisplayed = true;
-			});
 		});
 	}
 
