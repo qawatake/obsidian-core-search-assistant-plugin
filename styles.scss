@@ -198,6 +198,7 @@ div.core-search-assistant_enter-mode {
 				color: var(--text-muted);
 				overflow-wrap: break-word;
 				flex-grow: 0;
+				border-radius: 10px;
 			}
 
 			.core-search-assistant_card-view-item-preview-margin {
@@ -224,6 +225,10 @@ div.core-search-assistant_enter-mode {
 					font-size: 1rem;
 					line-height: 1.2;
 					margin: 5px;
+				}
+
+				a {
+					pointer-events: none;
 				}
 			}
 		}
