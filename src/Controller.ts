@@ -55,14 +55,16 @@ export class Controller {
 			inputEl.blur();
 		});
 
-		this.plugin.coreSearchInterface?.startWatching();
+		if (this.plugin.settings?.autoPreviewMode === 'cardView') {
+			this.plugin.coreSearchInterface?.startWatching();
 
-		document.addEventListener(
-			EVENT_SEARCH_RESULT_ITEM_DETECTED,
-			this.callbackOnSearchResultItemDetected
-		);
+			document.addEventListener(
+				EVENT_SEARCH_RESULT_ITEM_DETECTED,
+				this.callbackOnSearchResultItemDetected
+			);
 
-		this.plugin.cardView?.watchClickedCardItem();
+			this.plugin.cardView?.watchClickedCardItem();
+		}
 
 		this.showOutline();
 	}
