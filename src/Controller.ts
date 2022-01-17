@@ -105,6 +105,7 @@ export class Controller {
 	recall() {
 		this.popCurrentPos();
 		this.showWorkspacePreview();
+		this.showCardView();
 		this.focus();
 	}
 
@@ -114,6 +115,15 @@ export class Controller {
 			EVENT_SEARCH_RESULT_ITEM_DETECTED,
 			this.callbackOnSearchResultItemDetected
 		);
+	}
+
+	showCardView() {
+		const items = this.plugin.coreSearchInterface?.getResultItems();
+		if (!items) {
+			return;
+		}
+		this.plugin.cardView?.renderItems(items);
+		this.plugin.cardView?.reveal();
 	}
 
 	showWorkspacePreview() {
