@@ -37,6 +37,11 @@ export class CoreSearchInterface {
 		this.observer = new MutationObserver(
 			this.onObservedCallback.bind(this)
 		);
+
+		// ↓ necessary to display sort order info at start up
+		this.app.workspace.onLayoutReady(() => {
+			this.renewSortOrderInfo();
+		});
 	}
 
 	toggleMatchingCase() {
