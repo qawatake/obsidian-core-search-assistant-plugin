@@ -136,6 +136,7 @@ div.core-search-assistant_enter-mode {
 
 	&.core-search-assistant_hide {
 		opacity: 0; // to catch click event (x display:none, x visibility:hidden)
+		pointer-events: none;
 	}
 
 	div.workspace-leaf {
@@ -210,6 +211,9 @@ div.core-search-assistant_enter-mode {
 			.core-search-assistant_card-view-item-preview-container {
 				overflow: hidden;
 				height: 100%;
+
+				font-size: 0.8rem;
+				line-height: 1.2;
 
 				p {
 					font-size: 0.8rem;
