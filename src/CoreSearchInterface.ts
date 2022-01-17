@@ -191,9 +191,12 @@ export class CoreSearchInterface {
 	}
 
 	async watchSortOrderChangeByClick() {
-		const callback = async (_: MouseEvent) => {
+		const callback = async (evt: Event) => {
 			this.renewSortOrderInfo();
-			document.removeEventListener('click', callback);
+			if (evt.currentTarget === null) {
+				return;
+			}
+			evt.currentTarget.removeEventListener('click', callback);
 		};
 		await new Promise((resolve) => setTimeout(resolve, 1)); // prevent callback from being called immediately
 		document.addEventListener('click', callback);

@@ -135,7 +135,7 @@ div.core-search-assistant_enter-mode {
 	overflow-y: scroll; // show scroll bar
 
 	&.core-search-assistant_hide {
-		display: none;
+		opacity: 0; // to catch click event (x display:none, x visibility:hidden)
 	}
 
 	div.workspace-leaf {

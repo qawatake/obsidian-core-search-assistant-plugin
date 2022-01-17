@@ -27,20 +27,44 @@ export class CardView {
 		});
 	}
 
-	renew(items: SearchResultItem[]) {
-		this.detachLeafsLater();
-		this.renderFiles(items);
+	watchClickedCardItem() {
+		const callback: EventListener = (evt: Event) => {
+			if (!(evt.target instanceof HTMLElement)) {
+				return;
+			}
+			const cardEl = this.getSelectedCardEl(evt.target);
+			if (!cardEl) {
+				return;
+			}
+			const id = cardEl.dataset['id'];
+			if (id === undefined) {
+				return;
+			}
+			this.plugin.coreSearchInterface?.open(Number.parseInt(id));
+			evt.currentTarget?.removeEventListener('click', callback);
+		};
+		this.contentEl.addEventListener('click', callback);
 	}
 
-	renderFiles(items: SearchResultItem[]) {
+	// id is necessary to open the selected item when clicked
+	renderItem(item: SearchResultItem, id: number) {
+		const previewContainerEl = this.createPreviewContainerEl(item, id);
+		const leaf = new (WorkspaceLeaf as any)(this.app) as WorkspaceLeaf;
+		leaf.openFile(item.file, { state: { mode: 'preview' } });
+		previewContainerEl.appendChild(leaf.containerEl);
+
+		this.leafs.push(leaf);
+	}
+
+	renderItems(items: SearchResultItem[]) {
 		if (items.length === 0) {
 			return;
 		}
 		this.leafs = [];
 		const { contentEl } = this;
 		contentEl.empty();
-		items.forEach((item) => {
-			const previewContainerEl = this.createPreviewContainerEl(item);
+		items.forEach((item, id) => {
+			const previewContainerEl = this.createPreviewContainerEl(item, id);
 
 			const leaf = new (WorkspaceLeaf as any)(this.app) as WorkspaceLeaf;
 			leaf.openFile(item.file, { state: { mode: 'preview' } });
@@ -49,15 +73,6 @@ export class CardView {
 			this.leafs.push(leaf);
 		});
 		this.reveal();
-	}
-
-	renderItem(item: SearchResultItem) {
-		const previewContainerEl = this.createPreviewContainerEl(item);
-		const leaf = new (WorkspaceLeaf as any)(this.app) as WorkspaceLeaf;
-		leaf.openFile(item.file, { state: { mode: 'preview' } });
-		previewContainerEl.appendChild(leaf.containerEl);
-
-		this.leafs.push(leaf);
 	}
 
 	detachLeafsLater() {
@@ -70,10 +85,13 @@ export class CardView {
 		}, INTERVAL_MILLISECOND_TO_BE_DETACHED);
 	}
 
-	createPreviewContainerEl(item: SearchResultItem): HTMLElement {
+	createPreviewContainerEl(item: SearchResultItem, id: number): HTMLElement {
 		const { contentEl } = this;
 		const aspectRatioEl = contentEl.createEl('div', {
 			cls: 'core-search-assistant_card-view-item-container-aspect-ratio',
+			attr: {
+				'data-id': id,
+			},
 		});
 		const itemContainerEl = aspectRatioEl.createEl('div', {
 			cls: 'core-search-assistant_card-view-item-container',
@@ -137,7 +155,32 @@ export class CardView {
 		this.contentEl.empty();
 	}
 
+	close() {
+		this.workspaceCoverEl.addClass('core-search-assistant_hide');
+		this.detachLeafsLater();
+		// ↓ why do not empty immediately ← to open selected item when clicked
+		this.emptyLater();
+	}
+
+	emptyLater() {
+		setTimeout(
+			() => this.contentEl.empty(),
+			INTERVAL_MILLISECOND_TO_BE_DETACHED
+		);
+	}
+
 	reveal() {
 		this.workspaceCoverEl.removeClass('core-search-assistant_hide');
+	}
+
+	getSelectedCardEl(el: HTMLElement): HTMLElement | undefined {
+		const parentEl = el.parentElement;
+		if (el.tagName === 'DIV' && parentEl === this.contentEl) {
+			return el;
+		}
+		if (parentEl === null) {
+			return undefined;
+		}
+		return this.getSelectedCardEl(parentEl);
 	}
 }

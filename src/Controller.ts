@@ -62,6 +62,8 @@ export class Controller {
 			this.callbackOnSearchResultItemDetected
 		);
 
+		this.plugin.cardView?.watchClickedCardItem();
+
 		this.showOutline();
 	}
 
@@ -80,7 +82,7 @@ export class Controller {
 		this.pushCurrentPos();
 		this.unfocus();
 		this.plugin?.workspacePreview?.hide();
-		this.plugin.cardView?.hide();
+		this.plugin.cardView?.close();
 		this.idToBeDisplayedNextInCardView = 0;
 
 		this.plugin.coreSearchInterface?.stopWatching();
@@ -201,8 +203,11 @@ export class Controller {
 		if (!item) {
 			return;
 		}
-		this.idToBeDisplayedNextInCardView++;
 		this.plugin.cardView?.reveal();
-		this.plugin.cardView?.renderItem(item);
+		this.plugin.cardView?.renderItem(
+			item,
+			this.idToBeDisplayedNextInCardView
+		);
+		this.idToBeDisplayedNextInCardView++;
 	};
 }
