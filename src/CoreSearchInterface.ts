@@ -10,6 +10,9 @@ import {
 } from 'obsidian';
 import { isSearchView } from 'types/Guards';
 import { searchOptions } from 'types/Option';
+import { LinkedList } from 'LinkedList';
+
+const EVENT_SEARCH_RESULT_ITEM_DETECTED = 'searchResultItemDetected';
 
 export class CoreSearchInterface {
 	app: App;
@@ -17,9 +20,24 @@ export class CoreSearchInterface {
 	sortOrderContainerEl: HTMLElement | undefined;
 	sortOrderContentEl: HTMLElement | undefined;
 
+	// watch search results to be rendered
+	private observer: MutationObserver;
+	private readonly observationConfig: MutationObserverInit = {
+		childList: true,
+	};
+	private linkedList: LinkedList<HTMLElement>;
+
 	constructor(app: App, plugin: CoreSearchAssistantPlugin) {
 		this.app = app;
 		this.plugin = plugin;
+
+		this.linkedList = new LinkedList<HTMLElement>(
+			document,
+			EVENT_SEARCH_RESULT_ITEM_DETECTED
+		);
+		this.observer = new MutationObserver(
+			this.onObservedCallback.bind(this)
+		);
 	}
 
 	toggleMatchingCase() {
@@ -193,5 +211,61 @@ export class CoreSearchInterface {
 		return sortOrderSettingButtonEl
 			? (sortOrderSettingButtonEl as HTMLElement)
 			: undefined;
+	}
+
+	startWatching() {
+		// reset
+		this.linkedList = new LinkedList(
+			document,
+			EVENT_SEARCH_RESULT_ITEM_DETECTED
+		);
+
+		const childrenContainerEl =
+			this.plugin.coreSearchInterface?.getSearchView()?.dom
+				.childrenEl as HTMLElement;
+		this.observer.observe(childrenContainerEl, this.observationConfig);
+	}
+
+	stopWatching() {
+		this.observer.disconnect();
+	}
+
+	private onObservedCallback: MutationCallback = async (
+		mutations: MutationRecord[],
+		_observer: MutationObserver
+	) => {
+		for (const mutation of mutations) {
+			if (mutation.addedNodes.length === 0) {
+				continue;
+			}
+			const pre = mutation.previousSibling;
+			if (!(pre instanceof HTMLElement)) {
+				continue;
+			}
+			for (const node of Array.from(mutation.addedNodes)) {
+				if (!(node instanceof HTMLElement)) {
+					continue;
+				}
+				const isSearchResultItem =
+					node.tagName === 'DIV' &&
+					node.hasClass('tree-item') &&
+					node.hasClass('search-result');
+				if (!isSearchResultItem) {
+					continue;
+				}
+				this.linkedList.structure(
+					node,
+					this.isRootSearchResult(pre) ? undefined : pre
+				);
+			}
+		}
+	};
+
+	private isRootSearchResult(el: HTMLElement): boolean {
+		return (
+			el.tagName === 'DIV' &&
+			!el.hasClass('tree-item') &&
+			!el.hasClass('search-result')
+		);
 	}
 }

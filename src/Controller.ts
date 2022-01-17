@@ -2,7 +2,6 @@ import CoreSearchAssistantPlugin from 'main';
 import { App, Scope } from 'obsidian';
 import { OptionModal } from 'OptionModal';
 import { validOutlineWidth } from 'Setting';
-import { LinkedList } from 'LinkedList';
 
 const EVENT_SEARCH_RESULT_ITEM_DETECTED = 'searchResultItemDetected';
 
@@ -13,33 +12,14 @@ export class Controller {
 	private currentPos = -1;
 	private stackedPositions: number[];
 	private coverEl: HTMLElement;
-	cardViewDisplayed: boolean;
-	inSearchMode: boolean;
 
 	private searchItemIdToBeDisplayedInCardView: number;
-
-	private searchResultsObserver: MutationObserver | undefined; // listen the search results rendered events
-	private readonly observationConfig: MutationObserverInit = {
-		childList: true,
-	};
-	private linkedList: LinkedList<HTMLElement>;
 
 	constructor(app: App, plugin: CoreSearchAssistantPlugin) {
 		this.app = app;
 		this.plugin = plugin;
 		this.stackedPositions = [];
 		this.coverEl = this.createOutline();
-		this.cardViewDisplayed = false;
-		this.app.workspace.onLayoutReady(() => {
-			this.searchResultsObserver = new MutationObserver(
-				this.onObservedCallback.bind(this)
-			);
-		});
-		this.inSearchMode = false;
-		this.linkedList = new LinkedList<HTMLElement>(
-			document,
-			EVENT_SEARCH_RESULT_ITEM_DETECTED
-		);
 		this.searchItemIdToBeDisplayedInCardView = 0;
 	}
 
@@ -53,15 +33,11 @@ export class Controller {
 			evt.preventDefault();
 			this.navigateForward();
 			this.showWorkspacePreview();
-			this.cardViewDisplayed = false;
-			this.showCardView();
 		});
 		this.scope.register(['Ctrl'], 'P', (evt: KeyboardEvent) => {
 			evt.preventDefault();
 			this.navigateBack();
 			this.showWorkspacePreview();
-			this.cardViewDisplayed = false;
-			this.showCardView();
 		});
 		this.scope.register(['Mod'], 'Enter', () => {
 			this.open();
@@ -80,26 +56,12 @@ export class Controller {
 			inputEl.blur();
 		});
 
-		const childrenEl = this.plugin.coreSearchInterface?.getSearchView()?.dom
-			.childrenEl as HTMLElement;
-		this.searchResultsObserver?.observe(childrenEl, this.observationConfig);
+		this.plugin.coreSearchInterface?.startWatching();
 
-		document.addEventListener(EVENT_SEARCH_RESULT_ITEM_DETECTED, (evt) => {
-			if (!(evt instanceof CustomEvent)) {
-				return;
-			}
-			const item = this.plugin.coreSearchInterface?.getResultItemAt(
-				this.searchItemIdToBeDisplayedInCardView
-			);
-			if (!item) {
-				return;
-			}
-			this.searchItemIdToBeDisplayedInCardView++;
-			this.plugin.cardView?.reveal();
-			this.plugin.cardView?.renderItem(item);
-		});
-
-		this.inSearchMode = true;
+		document.addEventListener(
+			EVENT_SEARCH_RESULT_ITEM_DETECTED,
+			this.callbackOnSearchResultItemDetected
+		);
 
 		this.showOutline();
 	}
@@ -108,7 +70,6 @@ export class Controller {
 		this.forget();
 		this.unfocus();
 		this.plugin.cardView?.hide();
-		this.cardViewDisplayed = false;
 		this.searchItemIdToBeDisplayedInCardView = 0;
 	}
 
@@ -121,10 +82,13 @@ export class Controller {
 		this.unfocus();
 		this.plugin?.workspacePreview?.hide();
 		this.plugin.cardView?.hide();
-		this.cardViewDisplayed = false;
 		this.searchItemIdToBeDisplayedInCardView = 0;
 
-		this.inSearchMode = false;
+		this.plugin.coreSearchInterface?.stopWatching();
+		document.removeEventListener(
+			EVENT_SEARCH_RESULT_ITEM_DETECTED,
+			this.callbackOnSearchResultItemDetected
+		);
 
 		this.hideOutline();
 	}
@@ -142,21 +106,10 @@ export class Controller {
 
 	clean() {
 		this.coverEl.remove();
-	}
-
-	showCardView() {
-		if (this.cardViewDisplayed) {
-			return;
-		}
-		if (this.plugin.settings?.autoPreviewMode !== 'cardView') {
-			return;
-		}
-		const items = this.plugin.coreSearchInterface?.getResultItems();
-		if (items === undefined) {
-			return;
-		}
-		this.plugin.cardView?.renew(items);
-		this.cardViewDisplayed = true;
+		document.removeEventListener(
+			EVENT_SEARCH_RESULT_ITEM_DETECTED,
+			this.callbackOnSearchResultItemDetected
+		);
 	}
 
 	showWorkspacePreview() {
@@ -234,90 +187,20 @@ export class Controller {
 		this.coverEl.style.display = 'none';
 	}
 
-	private onObservedCallback: MutationCallback = async (
-		mutations: MutationRecord[],
-		_observer: MutationObserver
+	private callbackOnSearchResultItemDetected: EventListener = (
+		evt: Event
 	) => {
-		for (const mutation of mutations) {
-			if (mutation.addedNodes.length === 0) {
-				continue;
-			}
-			const pre = mutation.previousSibling;
-			if (!(pre instanceof HTMLElement)) {
-				continue;
-			}
-			for (const node of Array.from(mutation.addedNodes)) {
-				if (!(node instanceof HTMLElement)) {
-					continue;
-				}
-				const isSearchResultItem =
-					node.tagName === 'DIV' &&
-					node.hasClass('tree-item') &&
-					node.hasClass('search-result');
-				if (!isSearchResultItem) {
-					continue;
-				}
-				this.linkedList.structure(
-					node,
-					this.isRoot(pre) ? undefined : pre
-				);
-				// document.dispatchEvent(new CustomEvent('shouldRenderSearch'));
-				// return;
-			}
+		if (!(evt instanceof CustomEvent)) {
+			return;
 		}
-	};
-
-	isRoot(el: HTMLElement): boolean {
-		return (
-			el.tagName === 'DIV' &&
-			!el.hasClass('tree-item') &&
-			!el.hasClass('search-result')
+		const item = this.plugin.coreSearchInterface?.getResultItemAt(
+			this.searchItemIdToBeDisplayedInCardView
 		);
-	}
-
-	// structureChain(cur: HTMLElement, pre: HTMLElement) {
-	// 	let attached = false;
-
-	// 	// check if cur is root item
-	// 	if (this.searchResultElChain === undefined && this.isRoot(pre)) {
-	// 		this.searchResultElChain = {
-	// 			el: cur,
-	// 			pre: undefined,
-	// 			next: undefined,
-	// 		};
-	// 		attached = true;
-	// 	}
-
-	// 	// check if cur can be attached
-	// 	if (pre === this.searchResultElChain?.el) {
-	// 		const currentTail = this.searchResultElChain;
-	// 		currentTail.next = {
-	// 			el: cur,
-	// 			pre: currentTail,
-	// 			next: undefined,
-	// 		};
-	// 		this.searchResultElChain = currentTail.next;
-	// 		attached = true;
-	// 	}
-
-	// 	// find next sibling and attach it
-	// 	if (attached) {
-	// 		if (!this.searchResultElPoolUnchained.has(cur)) {
-	// 			return;
-	// 		}
-
-	// 		const siblings = this.searchResultElPoolUnchained.get(cur);
-	// 		if (!siblings?.next) {
-	// 			return;
-	// 		}
-	// 		this.structureChain(siblings.next, cur);
-	// 		return;
-	// 	}
-
-	// 	// pool sibling info
-	// 	this.searchResultElPoolUnchained.set(pre, {
-	// 		pre: undefined,
-	// 		next: cur,
-	// 	});
-	// }
+		if (!item) {
+			return;
+		}
+		this.searchItemIdToBeDisplayedInCardView++;
+		this.plugin.cardView?.reveal();
+		this.plugin.cardView?.renderItem(item);
+	};
 }
