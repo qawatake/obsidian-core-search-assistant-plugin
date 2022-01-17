@@ -37,20 +37,6 @@ export default class CoreSearchAssistantPlugin extends Plugin {
 			});
 			this.registerDomEvent(inputEl, 'input', () => {
 				this.controller?.reset();
-				let dispatched = false;
-				document.addEventListener('shouldRenderSearch', () => {
-					if (!dispatched) {
-						this.controller?.showCardView();
-						dispatched = true;
-					}
-				});
-				setTimeout(
-					() =>
-						document.dispatchEvent(
-							new CustomEvent('shouldRenderSearch')
-						),
-					1000
-				);
 			});
 			this.registerDomEvent(inputEl, 'focus', () => {
 				this.controller?.enter();
@@ -63,6 +49,20 @@ export default class CoreSearchAssistantPlugin extends Plugin {
 			}
 			this.registerDomEvent(sortOrderSettingButtonEl, 'click', () => {
 				this.coreSearchInterface?.watchSortOrderChangeByClick();
+			});
+
+			document.addEventListener('shouldRenderSearch', () => {
+				if (!this.controller) {
+					return;
+				}
+				if (!this.controller.inSearchMode) {
+					return;
+				}
+				if (this.controller.cardViewDisplayed) {
+					return;
+				}
+				this.controller.showCardView();
+				this.controller.cardViewDisplayed = true;
 			});
 		});
 	}

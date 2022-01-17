@@ -132,7 +132,7 @@ div.core-search-assistant_enter-mode {
 	// pointer-events: none; // to scroll
 	background-color: var(--background-primary);
 	padding: 20px 30px;
-	overflow-y: auto; // show scroll bar
+	overflow-y: scroll; // show scroll bar
 
 	&.core-search-assistant_hide {
 		display: none;

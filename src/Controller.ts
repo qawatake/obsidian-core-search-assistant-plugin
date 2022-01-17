@@ -10,7 +10,8 @@ export class Controller {
 	private currentPos = -1;
 	private stackedPositions: number[];
 	private coverEl: HTMLElement;
-	private cardViewDisplayed: boolean;
+	cardViewDisplayed: boolean;
+	inSearchMode: boolean;
 	private searchResultsObserver: MutationObserver | undefined; // listen the search results rendered events
 	private readonly observationConfig: MutationObserverInit = {
 		childList: true,
@@ -27,6 +28,7 @@ export class Controller {
 				this.onObservedCallback.bind(this)
 			);
 		});
+		this.inSearchMode = false;
 	}
 
 	enter() {
@@ -39,12 +41,14 @@ export class Controller {
 			evt.preventDefault();
 			this.navigateForward();
 			this.showWorkspacePreview();
+			this.cardViewDisplayed = false;
 			this.showCardView();
 		});
 		this.scope.register(['Ctrl'], 'P', (evt: KeyboardEvent) => {
 			evt.preventDefault();
 			this.navigateBack();
 			this.showWorkspacePreview();
+			this.cardViewDisplayed = false;
 			this.showCardView();
 		});
 		this.scope.register(['Mod'], 'Enter', () => {
@@ -68,6 +72,8 @@ export class Controller {
 			.childrenEl as HTMLElement;
 		this.searchResultsObserver?.observe(childrenEl, this.observationConfig);
 
+		this.inSearchMode = true;
+
 		this.showOutline();
 	}
 
@@ -88,6 +94,8 @@ export class Controller {
 		this.plugin?.workspacePreview?.hide();
 		this.plugin.cardView?.hide();
 		this.cardViewDisplayed = false;
+
+		this.inSearchMode = false;
 
 		this.hideOutline();
 	}
@@ -203,18 +211,19 @@ export class Controller {
 	) => {
 		for (const mutation of mutations) {
 			if (mutation.addedNodes.length === 0) {
-				return;
+				continue;
 			}
+			console.log(mutation);
 			for (const node of Array.from(mutation.addedNodes)) {
 				if (!(node instanceof HTMLElement)) {
-					return;
+					continue;
 				}
 				const isSearchResultItem =
 					node.tagName === 'DIV' &&
 					node.hasClass('tree-item') &&
 					node.hasClass('search-result');
 				if (!isSearchResultItem) {
-					return;
+					continue;
 				}
 				document.dispatchEvent(new CustomEvent('shouldRenderSearch'));
 				return;

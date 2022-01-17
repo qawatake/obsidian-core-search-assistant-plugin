@@ -51,6 +51,15 @@ export class CardView {
 		this.reveal();
 	}
 
+	renderItem(item: SearchResultItem) {
+		const previewContainerEl = this.createPreviewContainerEl(item);
+		const leaf = new (WorkspaceLeaf as any)(this.app) as WorkspaceLeaf;
+		leaf.openFile(item.file, { state: { mode: 'preview' } });
+		previewContainerEl.appendChild(leaf.containerEl);
+
+		this.leafs.push(leaf);
+	}
+
 	detachLeafsLater() {
 		const leafsToBeDetached = this.leafs;
 		this.leafs = [];
