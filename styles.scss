@@ -215,7 +215,9 @@ div.core-search-assistant_enter-mode {
 				font-size: 0.8rem;
 				line-height: 1.2;
 
-				p {
+				p,
+				li,
+				code {
 					font-size: 0.8rem;
 					line-height: 1.2;
 				}
