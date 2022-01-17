@@ -91,6 +91,37 @@ export class CardView {
 		return previewContainerEl;
 	}
 
+	focusOn(pos: number) {
+		const { contentEl } = this;
+		const cardEls = contentEl.childNodes;
+		cardEls.forEach((el, id) => {
+			if (!(el instanceof HTMLElement)) {
+				return;
+			}
+			if (id === pos) {
+				el.addClass('is-selected');
+				el.scrollIntoView(
+					this.plugin.settings?.keepSelectedItemsCentered
+						? { block: 'center' }
+						: { block: 'nearest' }
+				);
+			} else {
+				el.removeClass('is-selected');
+			}
+		});
+	}
+
+	unfocus() {
+		const { contentEl } = this;
+		const cardEls = contentEl.childNodes;
+		cardEls.forEach((el) => {
+			if (!(el instanceof HTMLElement)) {
+				return;
+			}
+			el.removeClass('is-selected');
+		});
+	}
+
 	clean() {
 		this.leafs.forEach((leaf) => {
 			leaf.detach();

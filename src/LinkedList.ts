@@ -53,6 +53,8 @@ export class LinkedList<T> {
 				return;
 			}
 			this.structure(next, cur);
+			this.unlinkedPool.delete(cur);
+
 			return;
 		}
 

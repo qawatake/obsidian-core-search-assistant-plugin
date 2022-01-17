@@ -152,10 +152,12 @@ export class Controller {
 
 	private focus() {
 		this.plugin.coreSearchInterface?.focusOn(this.currentPos);
+		this.plugin.cardView?.focusOn(this.currentPos);
 	}
 
 	private unfocus() {
 		this.plugin.coreSearchInterface?.unfocus();
+		this.plugin.cardView?.unfocus();
 	}
 
 	private preview() {
