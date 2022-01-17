@@ -11,8 +11,7 @@ import {
 import { isSearchView } from 'types/Guards';
 import { searchOptions } from 'types/Option';
 import { LinkedList } from 'LinkedList';
-
-const EVENT_SEARCH_RESULT_ITEM_DETECTED = 'searchResultItemDetected';
+import { EVENT_SEARCH_RESULT_ITEM_DETECTED } from 'types/Shared';
 
 export class CoreSearchInterface {
 	app: App;

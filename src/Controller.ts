@@ -2,8 +2,7 @@ import CoreSearchAssistantPlugin from 'main';
 import { App, Scope } from 'obsidian';
 import { OptionModal } from 'OptionModal';
 import { validOutlineWidth } from 'Setting';
-
-const EVENT_SEARCH_RESULT_ITEM_DETECTED = 'searchResultItemDetected';
+import { EVENT_SEARCH_RESULT_ITEM_DETECTED } from 'types/Shared';
 
 export class Controller {
 	private app: App;
@@ -13,14 +12,14 @@ export class Controller {
 	private stackedPositions: number[];
 	private coverEl: HTMLElement;
 
-	private searchItemIdToBeDisplayedInCardView: number;
+	private idToBeDisplayedNextInCardView: number;
 
 	constructor(app: App, plugin: CoreSearchAssistantPlugin) {
 		this.app = app;
 		this.plugin = plugin;
 		this.stackedPositions = [];
 		this.coverEl = this.createOutline();
-		this.searchItemIdToBeDisplayedInCardView = 0;
+		this.idToBeDisplayedNextInCardView = 0;
 	}
 
 	enter() {
@@ -70,7 +69,7 @@ export class Controller {
 		this.forget();
 		this.unfocus();
 		this.plugin.cardView?.hide();
-		this.searchItemIdToBeDisplayedInCardView = 0;
+		this.idToBeDisplayedNextInCardView = 0;
 	}
 
 	exit() {
@@ -82,7 +81,7 @@ export class Controller {
 		this.unfocus();
 		this.plugin?.workspacePreview?.hide();
 		this.plugin.cardView?.hide();
-		this.searchItemIdToBeDisplayedInCardView = 0;
+		this.idToBeDisplayedNextInCardView = 0;
 
 		this.plugin.coreSearchInterface?.stopWatching();
 		document.removeEventListener(
@@ -194,12 +193,12 @@ export class Controller {
 			return;
 		}
 		const item = this.plugin.coreSearchInterface?.getResultItemAt(
-			this.searchItemIdToBeDisplayedInCardView
+			this.idToBeDisplayedNextInCardView
 		);
 		if (!item) {
 			return;
 		}
-		this.searchItemIdToBeDisplayedInCardView++;
+		this.idToBeDisplayedNextInCardView++;
 		this.plugin.cardView?.reveal();
 		this.plugin.cardView?.renderItem(item);
 	};
