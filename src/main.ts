@@ -57,6 +57,7 @@ export default class CoreSearchAssistantPlugin extends Plugin {
 		this.controller?.clean();
 		this.coreSearchInterface?.clean();
 		this.workspacePreview?.clean();
+		this.cardView?.clean();
 	}
 
 	async loadSettings() {

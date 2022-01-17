@@ -91,6 +91,15 @@ export class CardView {
 		return previewContainerEl;
 	}
 
+	clean() {
+		this.leafs.forEach((leaf) => {
+			leaf.detach();
+		});
+		this.leafs = [];
+		this.workspaceCoverEl.empty();
+		this.workspaceCoverEl.remove();
+	}
+
 	hide() {
 		this.detachLeafsLater();
 		this.workspaceCoverEl.addClass('core-search-assistant_hide');

@@ -122,6 +122,7 @@ export class CoreSearchInterface {
 
 	clean() {
 		this.removeSortOrderContainerEl();
+		this.observer.disconnect();
 	}
 
 	createSortOrderEls(): void {

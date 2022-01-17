@@ -95,6 +95,7 @@ export class Controller {
 	forget() {
 		this.currentPos = -1;
 		this.stackedPositions = [];
+		this.idToBeDisplayedNextInCardView = 0;
 	}
 
 	recall() {
