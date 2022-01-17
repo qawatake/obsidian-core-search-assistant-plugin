@@ -3,6 +3,19 @@ import { App, Scope } from 'obsidian';
 import { OptionModal } from 'OptionModal';
 import { validOutlineWidth } from 'Setting';
 
+interface searchResultElChain {
+	el: HTMLElement;
+	pre: searchResultElChain | undefined;
+	next: searchResultElChain | undefined;
+}
+
+interface searchResultSiblingInfo {
+	pre: HTMLElement | undefined;
+	next: HTMLElement | undefined;
+}
+
+type searchResultElUnchained = Map<HTMLElement, searchResultSiblingInfo>;
+
 export class Controller {
 	private app: App;
 	private plugin: CoreSearchAssistantPlugin;
@@ -12,6 +25,8 @@ export class Controller {
 	private coverEl: HTMLElement;
 	cardViewDisplayed: boolean;
 	inSearchMode: boolean;
+	private searchResultElChain: searchResultElChain | undefined;
+	private searchResultElPoolUnchained: searchResultElUnchained;
 	private searchResultsObserver: MutationObserver | undefined; // listen the search results rendered events
 	private readonly observationConfig: MutationObserverInit = {
 		childList: true,
@@ -29,6 +44,10 @@ export class Controller {
 			);
 		});
 		this.inSearchMode = false;
+		this.searchResultElPoolUnchained = new Map<
+			HTMLElement,
+			searchResultSiblingInfo
+		>();
 	}
 
 	enter() {
@@ -38,6 +57,7 @@ export class Controller {
 		this.app.keymap.pushScope(this.scope);
 
 		this.scope.register(['Ctrl'], 'N', (evt: KeyboardEvent) => {
+			console.log(this.searchResultElChain);
 			evt.preventDefault();
 			this.navigateForward();
 			this.showWorkspacePreview();
@@ -213,7 +233,10 @@ export class Controller {
 			if (mutation.addedNodes.length === 0) {
 				continue;
 			}
-			console.log(mutation);
+			const pre = mutation.previousSibling;
+			if (!(pre instanceof HTMLElement)) {
+				continue;
+			}
 			for (const node of Array.from(mutation.addedNodes)) {
 				if (!(node instanceof HTMLElement)) {
 					continue;
@@ -225,9 +248,64 @@ export class Controller {
 				if (!isSearchResultItem) {
 					continue;
 				}
-				document.dispatchEvent(new CustomEvent('shouldRenderSearch'));
-				return;
+				this.structureChain(node, pre);
+				// document.dispatchEvent(new CustomEvent('shouldRenderSearch'));
+				// return;
 			}
 		}
 	};
+
+	isRoot(el: HTMLElement): boolean {
+		return (
+			el.tagName === 'DIV' &&
+			!el.hasClass('tree-item') &&
+			!el.hasClass('search-result')
+		);
+	}
+
+	structureChain(cur: HTMLElement, pre: HTMLElement) {
+		let attached = false;
+
+		// check if cur is root item
+		if (this.searchResultElChain === undefined && this.isRoot(pre)) {
+			this.searchResultElChain = {
+				el: cur,
+				pre: undefined,
+				next: undefined,
+			};
+			attached = true;
+		}
+
+		// check if cur can be attached
+		if (pre === this.searchResultElChain?.el) {
+			const currentTail = this.searchResultElChain;
+			currentTail.next = {
+				el: cur,
+				pre: currentTail,
+				next: undefined,
+			};
+			this.searchResultElChain = currentTail.next;
+			attached = true;
+		}
+
+		// find next sibling and attach it
+		if (attached) {
+			if (!this.searchResultElPoolUnchained.has(cur)) {
+				return;
+			}
+
+			const siblings = this.searchResultElPoolUnchained.get(cur);
+			if (!siblings?.next) {
+				return;
+			}
+			this.structureChain(siblings.next, cur);
+			return;
+		}
+
+		// pool sibling info
+		this.searchResultElPoolUnchained.set(pre, {
+			pre: undefined,
+			next: cur,
+		});
+	}
 }
