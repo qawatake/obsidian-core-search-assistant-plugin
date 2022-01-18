@@ -147,7 +147,7 @@ export class CoreSearchAssistantSettingTab extends PluginSettingTab {
 		new Setting(containerEl)
 			.setName('Hide iframe from auto preview')
 			.setDesc(
-				'Recommend to set this on because iframe interferes keyboard the operation.'
+				'Recommend to enable this because iframe interferes the keyboard operation.'
 			)
 			.addToggle((component) => {
 				if (!this.plugin.settings) {
