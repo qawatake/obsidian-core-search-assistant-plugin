@@ -112,11 +112,12 @@ export class CardView {
 	focusOn(pos: number) {
 		const { contentEl } = this;
 		const cardEls = contentEl.childNodes;
-		cardEls.forEach((el, id) => {
+		[-1, 0, 1].forEach((i) => {
+			const el = cardEls.item(pos + i);
 			if (!(el instanceof HTMLElement)) {
 				return;
 			}
-			if (id === pos) {
+			if (i === 0) {
 				el.addClass('is-selected');
 				el.scrollIntoView(
 					this.plugin.settings?.keepSelectedItemsCentered
@@ -167,6 +168,24 @@ export class CardView {
 			() => this.contentEl.empty(),
 			INTERVAL_MILLISECOND_TO_BE_DETACHED
 		);
+	}
+
+	renderPage(pageId: number, cardsPerPage: number) {
+		const items = this.plugin.coreSearchInterface?.getResultItems();
+		if (!items) {
+			return;
+		}
+		for (
+			let i = pageId * cardsPerPage;
+			i < (pageId + 1) * cardsPerPage;
+			i++
+		) {
+			const item = items[i];
+			if (!item) {
+				return;
+			}
+			this.renderItem(item, i);
+		}
 	}
 
 	reveal() {

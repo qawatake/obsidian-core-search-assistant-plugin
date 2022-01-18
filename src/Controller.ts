@@ -4,6 +4,8 @@ import { OptionModal } from 'OptionModal';
 import { validOutlineWidth } from 'Setting';
 import { EVENT_SEARCH_RESULT_ITEM_DETECTED } from 'types/Shared';
 
+const NUM_CARDS_PER_PAGE = 6;
+
 export class Controller {
 	private app: App;
 	private plugin: CoreSearchAssistantPlugin;
@@ -32,11 +34,15 @@ export class Controller {
 			evt.preventDefault();
 			this.navigateForward();
 			this.showWorkspacePreview();
+			this.showCardView();
+			this.focus();
 		});
 		this.scope.register(['Ctrl'], 'P', (evt: KeyboardEvent) => {
 			evt.preventDefault();
 			this.navigateBack();
 			this.showWorkspacePreview();
+			this.showCardView();
+			this.focus();
 		});
 		this.scope.register(['Mod'], 'Enter', () => {
 			this.open();
@@ -84,7 +90,7 @@ export class Controller {
 		this.pushCurrentPos();
 		this.unfocus();
 		this.plugin?.workspacePreview?.hide();
-		this.plugin.cardView?.close();
+		// this.plugin.cardView?.close();
 		this.idToBeDisplayedNextInCardView = 0;
 
 		this.plugin.coreSearchInterface?.stopWatching();
@@ -118,11 +124,9 @@ export class Controller {
 	}
 
 	showCardView() {
-		const items = this.plugin.coreSearchInterface?.getResultItems();
-		if (!items) {
-			return;
-		}
-		this.plugin.cardView?.renderItems(items);
+		this.plugin.cardView?.hide();
+		const pageId = Math.floor(this.currentPos / NUM_CARDS_PER_PAGE);
+		this.plugin.cardView?.renderPage(pageId, NUM_CARDS_PER_PAGE);
 		this.plugin.cardView?.reveal();
 	}
 
@@ -166,7 +170,8 @@ export class Controller {
 
 	private focus() {
 		this.plugin.coreSearchInterface?.focusOn(this.currentPos);
-		this.plugin.cardView?.focusOn(this.currentPos);
+		const pos = this.currentPos % NUM_CARDS_PER_PAGE;
+		this.plugin.cardView?.focusOn(pos);
 	}
 
 	private unfocus() {
