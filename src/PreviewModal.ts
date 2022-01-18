@@ -29,6 +29,12 @@ export class PreviewModal extends Modal {
 		const { contentEl } = this;
 		contentEl.empty();
 		this.detachLater(INTERVAL_MILLISECOND_TO_BE_DETACHED);
+
+		// too fast to focus the selected item
+		setTimeout(() => {
+			// necessary because selection focus will be removed when preview modal closes.
+			this.plugin.controller?.focus();
+		}, 100);
 	}
 
 	private detachLater(millisecond: number) {

@@ -13,7 +13,6 @@ export class Controller extends Component {
 	private scope: Scope | undefined;
 	private events: CoreSearchAssistantEvents;
 	private currentPos: number | undefined;
-	private stackedPositions: number[];
 	private outlineEl: HTMLElement;
 	private _inSearchMode: boolean;
 	private countSearchItemDetected: number;
@@ -23,7 +22,6 @@ export class Controller extends Component {
 		this.app = app;
 		this.plugin = plugin;
 		this.events = new CoreSearchAssistantEvents();
-		this.stackedPositions = [];
 		this.outlineEl = this.createOutline();
 		this._inSearchMode = false;
 		this.countSearchItemDetected = 0;
@@ -119,7 +117,6 @@ export class Controller extends Component {
 			this.app.keymap.popScope(this.scope);
 			this.scope = undefined;
 		}
-		this.pushCurrentPos();
 		this.unfocus();
 		this.plugin?.workspacePreview?.hide();
 		this.plugin.cardView?.close();
@@ -133,7 +130,6 @@ export class Controller extends Component {
 
 	forget() {
 		this.currentPos = undefined;
-		this.stackedPositions = [];
 		this.countSearchItemDetected = 0;
 	}
 
@@ -158,15 +154,6 @@ export class Controller extends Component {
 			return;
 		}
 		this.plugin?.workspacePreview?.renew(item.file);
-	}
-
-	private pushCurrentPos() {
-		this.stackedPositions.push(this.currentPos ?? 0);
-		this.currentPos = undefined;
-	}
-
-	private popCurrentPos() {
-		this.currentPos = this.stackedPositions.pop() ?? undefined;
 	}
 
 	private navigateForward() {
@@ -200,7 +187,7 @@ export class Controller extends Component {
 		this.focus();
 	}
 
-	private focus() {
+	focus() {
 		if (this.currentPos === undefined) {
 			return;
 		}
