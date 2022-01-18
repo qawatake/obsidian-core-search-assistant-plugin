@@ -1,22 +1,25 @@
 import CoreSearchAssistantPlugin from 'main';
-import { App, SearchResultItem, WorkspaceLeaf } from 'obsidian';
+import { App, Component, SearchResultItem, WorkspaceLeaf } from 'obsidian';
 import { parseCardLayout } from 'Setting';
 import { INTERVAL_MILLISECOND_TO_BE_DETACHED } from 'WorkspacePreview';
 
-export class CardView {
-	app: App;
-	plugin: CoreSearchAssistantPlugin;
-	leafs: WorkspaceLeaf[];
-	workspaceCoverEl: HTMLElement;
-	contentEl: HTMLElement;
+export class CardView extends Component {
+	private app: App;
+	private plugin: CoreSearchAssistantPlugin;
+	private leafs: WorkspaceLeaf[];
+	private workspaceCoverEl: HTMLElement;
+	private contentEl: HTMLElement;
+	private displayed: boolean;
 
 	constructor(app: App, plugin: CoreSearchAssistantPlugin) {
+		super();
 		this.app = app;
 		this.plugin = plugin;
 		this.leafs = [];
 		this.workspaceCoverEl = createEl('div', {
 			attr: { id: `core-search-assistant_card-view-cover` },
 		});
+		this.displayed = false;
 
 		let row = 0;
 		let column = 0;
@@ -39,9 +42,13 @@ export class CardView {
 		});
 	}
 
-	watchClickedCardItem() {
-		const callback: EventListener = (evt: Event) => {
-			evt.preventDefault();
+	override onload() {
+		console.log('card view loaded');
+
+		this.registerDomEvent(this.contentEl, 'click', (evt: MouseEvent) => {
+			if (!this.displayed) {
+				return;
+			}
 			if (!(evt.target instanceof HTMLElement)) {
 				return;
 			}
@@ -54,9 +61,17 @@ export class CardView {
 				return;
 			}
 			this.plugin.coreSearchInterface?.open(Number.parseInt(id));
-			evt.currentTarget?.removeEventListener('click', callback);
-		};
-		this.contentEl.addEventListener('click', callback);
+		});
+	}
+
+	override unload() {
+		console.log('card view unloaded');
+		this.leafs.forEach((leaf) => {
+			leaf.detach();
+		});
+		this.leafs = [];
+		this.workspaceCoverEl.empty();
+		this.workspaceCoverEl.remove();
 	}
 
 	// id is necessary to open the selected item when clicked
@@ -165,19 +180,11 @@ export class CardView {
 		});
 	}
 
-	clean() {
-		this.leafs.forEach((leaf) => {
-			leaf.detach();
-		});
-		this.leafs = [];
-		this.workspaceCoverEl.empty();
-		this.workspaceCoverEl.remove();
-	}
-
 	hide() {
 		this.detachLeafsLater();
 		this.workspaceCoverEl.addClass('core-search-assistant_hide');
 		this.contentEl.empty();
+		this.displayed = false;
 	}
 
 	close() {
@@ -185,6 +192,7 @@ export class CardView {
 		this.detachLeafsLater();
 		// ↓ why do not empty immediately ← to open selected item when clicked
 		this.emptyLater();
+		this.displayed = false;
 	}
 
 	emptyLater() {
@@ -225,6 +233,7 @@ export class CardView {
 
 	reveal() {
 		this.workspaceCoverEl.removeClass('core-search-assistant_hide');
+		this.displayed = true;
 	}
 
 	getSelectedCardEl(el: HTMLElement): HTMLElement | undefined {

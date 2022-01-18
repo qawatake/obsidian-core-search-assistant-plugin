@@ -21,6 +21,7 @@ export default class CoreSearchAssistantPlugin extends Plugin {
 		this.coreSearchInterface = new CoreSearchInterface(this.app, this);
 		this.workspacePreview = new WorkspacePreview(this.app, this);
 		this.cardView = new CardView(this.app, this);
+		this.addChild(this.cardView);
 
 		await this.loadSettings();
 
@@ -63,7 +64,6 @@ export default class CoreSearchAssistantPlugin extends Plugin {
 		this.controller?.clean();
 		this.coreSearchInterface?.clean();
 		this.workspacePreview?.clean();
-		this.cardView?.clean();
 	}
 
 	async loadSettings() {

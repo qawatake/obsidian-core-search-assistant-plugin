@@ -12,7 +12,7 @@ export class Controller {
 	private stackedPositions: number[];
 	private coverEl: HTMLElement;
 	private _inSearchMode: boolean;
-	private searchItemDetected: boolean;
+	private countSearchItemDetected: number;
 
 	constructor(app: App, plugin: CoreSearchAssistantPlugin) {
 		this.app = app;
@@ -20,7 +20,7 @@ export class Controller {
 		this.stackedPositions = [];
 		this.coverEl = this.createOutline();
 		this._inSearchMode = false;
-		this.searchItemDetected = false;
+		this.countSearchItemDetected = 0;
 	}
 
 	enter() {
@@ -63,8 +63,6 @@ export class Controller {
 				EVENT_SEARCH_RESULT_ITEM_DETECTED,
 				this.callbackOnSearchResultItemDetected
 			);
-
-			this.plugin.cardView?.watchClickedCardItem();
 		}
 
 		this.showOutline();
@@ -75,7 +73,7 @@ export class Controller {
 		this.forget();
 		this.unfocus();
 		this.plugin.cardView?.hide();
-		this.searchItemDetected = false;
+		this.countSearchItemDetected = 0;
 	}
 
 	exit() {
@@ -87,7 +85,7 @@ export class Controller {
 		this.unfocus();
 		this.plugin?.workspacePreview?.hide();
 		this.plugin.cardView?.close();
-		this.searchItemDetected = false;
+		this.countSearchItemDetected = 0;
 
 		this.plugin.coreSearchInterface?.stopWatching();
 		document.removeEventListener(
@@ -102,7 +100,7 @@ export class Controller {
 	forget() {
 		this.currentPos = undefined;
 		this.stackedPositions = [];
-		this.searchItemDetected = false;
+		this.countSearchItemDetected = 0;
 	}
 
 	recall() {
@@ -235,11 +233,23 @@ export class Controller {
 	private callbackOnSearchResultItemDetected: EventListener = (
 		_evt: Event
 	) => {
-		if (this.searchItemDetected) {
+		const cardsPerPage = this.cardsPerPage();
+		if (cardsPerPage === undefined) {
 			return;
 		}
-		this.renewCardViewPage();
-		this.searchItemDetected = true;
+		if (this.countSearchItemDetected >= cardsPerPage) {
+			return;
+		}
+		const item = this.plugin.coreSearchInterface?.getResultItemAt(
+			this.countSearchItemDetected
+		);
+		if (!item) {
+			return;
+		}
+		this.plugin.cardView?.renderItem(item, this.countSearchItemDetected);
+		this.plugin.cardView?.setLayout();
+		this.plugin.cardView?.reveal();
+		this.countSearchItemDetected++;
 	};
 
 	private shouldTransitNextPageInCardView(): boolean {
