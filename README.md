@@ -18,7 +18,7 @@ In the search mode, you can use the following hotkeys.
 | `Ctrl + P` | Select item above. |
 | `Ctrl + Space` | Preview selected item. |
 | `Ctrl + Enter` | Open selected item. |
-| `Ctrl + K` | Set search options. |
+| `Shift + Space` | Set search options. |
 
 The hotkeys above are available only in the search mode, so don't worry about overwriting your hotkey settings.
 
