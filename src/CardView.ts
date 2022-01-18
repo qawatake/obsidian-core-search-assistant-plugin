@@ -158,11 +158,6 @@ export class CardView extends Component {
 			}
 			if (i === 0) {
 				el.addClass('is-selected');
-				el.scrollIntoView(
-					this.plugin.settings?.keepSelectedItemsCentered
-						? { block: 'center' }
-						: { block: 'nearest' }
-				);
 			} else {
 				el.removeClass('is-selected');
 			}
