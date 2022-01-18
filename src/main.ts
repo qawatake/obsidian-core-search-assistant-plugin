@@ -42,6 +42,9 @@ export default class CoreSearchAssistantPlugin extends Plugin {
 			});
 
 			this.registerDomEvent(inputEl, 'input', () => {
+				if (!this.controller?.inSearchMode()) {
+					this.controller?.enter();
+				}
 				this.controller?.reset();
 			});
 			this.registerDomEvent(inputEl, 'focus', () => {
