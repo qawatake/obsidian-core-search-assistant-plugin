@@ -10,18 +10,18 @@ export class Controller {
 	private app: App;
 	private plugin: CoreSearchAssistantPlugin;
 	private scope: Scope | undefined;
-	private currentPos = -1;
+	private currentPos: number | undefined;
 	private stackedPositions: number[];
 	private coverEl: HTMLElement;
 
-	private idToBeDisplayedNextInCardView: number;
+	private countSearchItemDetected: number;
 
 	constructor(app: App, plugin: CoreSearchAssistantPlugin) {
 		this.app = app;
 		this.plugin = plugin;
 		this.stackedPositions = [];
 		this.coverEl = this.createOutline();
-		this.idToBeDisplayedNextInCardView = 0;
+		this.countSearchItemDetected = 0;
 	}
 
 	enter() {
@@ -75,7 +75,7 @@ export class Controller {
 		this.forget();
 		this.unfocus();
 		this.plugin.cardView?.hide();
-		this.idToBeDisplayedNextInCardView = 0;
+		this.countSearchItemDetected = 0;
 	}
 
 	exit() {
@@ -87,7 +87,7 @@ export class Controller {
 		this.unfocus();
 		this.plugin?.workspacePreview?.hide();
 		// this.plugin.cardView?.close();
-		this.idToBeDisplayedNextInCardView = 0;
+		this.countSearchItemDetected = 0;
 
 		this.plugin.coreSearchInterface?.stopWatching();
 		document.removeEventListener(
@@ -99,9 +99,9 @@ export class Controller {
 	}
 
 	forget() {
-		this.currentPos = -1;
+		this.currentPos = undefined;
 		this.stackedPositions = [];
-		this.idToBeDisplayedNextInCardView = 0;
+		this.countSearchItemDetected = 0;
 	}
 
 	recall() {
@@ -121,7 +121,7 @@ export class Controller {
 
 	renewCardViewPage() {
 		this.plugin.cardView?.hide();
-		const pageId = Math.floor(this.currentPos / NUM_CARDS_PER_PAGE);
+		const pageId = Math.floor((this.currentPos ?? 0) / NUM_CARDS_PER_PAGE);
 		this.plugin.cardView?.renderPage(pageId, NUM_CARDS_PER_PAGE);
 		this.plugin.cardView?.reveal();
 	}
@@ -132,7 +132,7 @@ export class Controller {
 		}
 
 		const item = this.plugin.coreSearchInterface?.getResultItemAt(
-			this.currentPos
+			this.currentPos ?? 0
 		);
 		if (!item) {
 			return;
@@ -141,28 +141,35 @@ export class Controller {
 	}
 
 	private pushCurrentPos() {
-		this.stackedPositions.push(this.currentPos);
-		this.currentPos = -1;
+		this.stackedPositions.push(this.currentPos ?? 0);
+		this.currentPos = undefined;
 	}
 
 	private popCurrentPos() {
-		this.currentPos = this.stackedPositions.pop() ?? -1;
+		this.currentPos = this.stackedPositions.pop() ?? undefined;
 	}
 
 	private navigateForward() {
-		const numResults = this.plugin.coreSearchInterface?.count() ?? 0;
-		this.currentPos++;
-		this.currentPos =
-			this.currentPos < numResults ? this.currentPos : numResults - 1;
+		if (this.currentPos === undefined) {
+			this.currentPos = 0;
+		} else {
+			const numResults = this.plugin.coreSearchInterface?.count() ?? 0;
+			this.currentPos++;
+			this.currentPos =
+				this.currentPos < numResults ? this.currentPos : numResults - 1;
 
-		if (this.currentPos % NUM_CARDS_PER_PAGE === 0) {
-			this.renewCardViewPage();
+			if (this.currentPos % NUM_CARDS_PER_PAGE === 0) {
+				this.renewCardViewPage();
+			}
 		}
 
 		this.focus();
 	}
 
 	private navigateBack() {
+		if (this.currentPos === undefined) {
+			return;
+		}
 		this.currentPos--;
 		this.currentPos = this.currentPos >= 0 ? this.currentPos : 0;
 
@@ -174,6 +181,9 @@ export class Controller {
 	}
 
 	private focus() {
+		if (this.currentPos === undefined) {
+			return;
+		}
 		this.plugin.coreSearchInterface?.focusOn(this.currentPos);
 		const pos = this.currentPos % NUM_CARDS_PER_PAGE;
 		this.plugin.cardView?.focusOn(pos);
@@ -185,10 +195,16 @@ export class Controller {
 	}
 
 	private preview() {
+		if (this.currentPos === undefined) {
+			return;
+		}
 		this.plugin.coreSearchInterface?.preview(this.currentPos);
 	}
 
 	private open() {
+		if (this.currentPos === undefined) {
+			return;
+		}
 		this.plugin.coreSearchInterface?.open(this.currentPos);
 	}
 
@@ -214,22 +230,11 @@ export class Controller {
 	}
 
 	private callbackOnSearchResultItemDetected: EventListener = (
-		evt: Event
+		_evt: Event
 	) => {
-		if (!(evt instanceof CustomEvent)) {
-			return;
+		this.countSearchItemDetected++;
+		if (this.countSearchItemDetected === NUM_CARDS_PER_PAGE) {
+			this.renewCardViewPage();
 		}
-		const item = this.plugin.coreSearchInterface?.getResultItemAt(
-			this.idToBeDisplayedNextInCardView
-		);
-		if (!item) {
-			return;
-		}
-		this.plugin.cardView?.reveal();
-		this.plugin.cardView?.renderItem(
-			item,
-			this.idToBeDisplayedNextInCardView
-		);
-		this.idToBeDisplayedNextInCardView++;
 	};
 }

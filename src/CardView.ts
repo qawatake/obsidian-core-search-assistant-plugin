@@ -182,7 +182,7 @@ export class CardView {
 		) {
 			const item = items[i];
 			if (!item) {
-				return;
+				continue;
 			}
 			this.renderItem(item, i);
 		}
