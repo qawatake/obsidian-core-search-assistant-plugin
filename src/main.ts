@@ -61,9 +61,7 @@ export default class CoreSearchAssistantPlugin extends Plugin {
 		});
 	}
 
-	override onunload() {
-		this.workspacePreview?.clean();
-	}
+	// override onunload() {}
 
 	async loadSettings() {
 		this.settings = Object.assign(

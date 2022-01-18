@@ -1,15 +1,16 @@
 import CoreSearchAssistantPlugin from 'main';
-import { App, TFile, WorkspaceLeaf } from 'obsidian';
+import { App, Component, TFile, WorkspaceLeaf } from 'obsidian';
 
 export const INTERVAL_MILLISECOND_TO_BE_DETACHED = 1000;
 
-export class WorkspacePreview {
+export class WorkspacePreview extends Component {
 	app: App;
 	plugin: CoreSearchAssistantPlugin;
 	workspaceCoverEl: HTMLDivElement;
 	leaf: WorkspaceLeaf | undefined;
 
 	constructor(app: App, plugin: CoreSearchAssistantPlugin) {
+		super();
 		this.app = app;
 		this.plugin = plugin;
 		this.workspaceCoverEl = createEl('div', {
@@ -24,6 +25,12 @@ export class WorkspacePreview {
 				this.workspaceCoverEl
 			);
 		});
+	}
+
+	override onunload(): void {
+		this.leaf?.detach();
+		this.workspaceCoverEl.empty();
+		this.workspaceCoverEl.remove();
 	}
 
 	private reveal() {
@@ -58,10 +65,5 @@ export class WorkspacePreview {
 	hide() {
 		this.detachLater(INTERVAL_MILLISECOND_TO_BE_DETACHED);
 		this.workspaceCoverEl.style.display = 'none';
-	}
-
-	clean() {
-		this.leaf?.detach();
-		this.workspaceCoverEl.remove();
 	}
 }
