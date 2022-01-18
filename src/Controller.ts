@@ -32,6 +32,10 @@ export class Controller extends Component {
 	override onunload() {
 		this.outlineEl.empty();
 		this.outlineEl.remove();
+		if (this.scope) {
+			this.app.keymap.popScope(this.scope);
+			this.scope = undefined;
+		}
 	}
 
 	override onload() {
@@ -92,10 +96,6 @@ export class Controller extends Component {
 			new OptionModal(this.app, this.plugin).open();
 		});
 		this.scope.register([], 'Escape', () => {
-			const inputEl = this.plugin.coreSearchInterface?.getSearchInput();
-			if (!inputEl) {
-				return;
-			}
 			this.exit();
 		});
 
