@@ -4,16 +4,16 @@ import { App, Component, TFile, WorkspaceLeaf } from 'obsidian';
 export const INTERVAL_MILLISECOND_TO_BE_DETACHED = 1000;
 
 export class WorkspacePreview extends Component {
-	app: App;
-	plugin: CoreSearchAssistantPlugin;
-	workspaceCoverEl: HTMLDivElement;
-	leaf: WorkspaceLeaf | undefined;
+	private app: App;
+	private plugin: CoreSearchAssistantPlugin;
+	private containerEl: HTMLDivElement;
+	private leaf: WorkspaceLeaf | undefined;
 
 	constructor(app: App, plugin: CoreSearchAssistantPlugin) {
 		super();
 		this.app = app;
 		this.plugin = plugin;
-		this.workspaceCoverEl = createEl('div', {
+		this.containerEl = createEl('div', {
 			attr: {
 				id: 'core-search-assistant_workspace-preview-cover',
 			},
@@ -22,19 +22,19 @@ export class WorkspacePreview extends Component {
 
 		this.app.workspace.onLayoutReady(() => {
 			this.app.workspace.rootSplit.containerEl.appendChild(
-				this.workspaceCoverEl
+				this.containerEl
 			);
 		});
 	}
 
 	override onunload(): void {
 		this.leaf?.detach();
-		this.workspaceCoverEl.empty();
-		this.workspaceCoverEl.remove();
+		this.containerEl.empty();
+		this.containerEl.remove();
 	}
 
 	private reveal() {
-		this.workspaceCoverEl.style.display = 'initial';
+		this.containerEl.style.display = 'initial';
 	}
 
 	renew(file: TFile) {
@@ -45,8 +45,8 @@ export class WorkspacePreview extends Component {
 	private show(file: TFile) {
 		this.leaf = new (WorkspaceLeaf as any)(this.app) as WorkspaceLeaf;
 		this.leaf.openFile(file, { state: { mode: 'preview' } });
-		this.workspaceCoverEl.empty();
-		this.workspaceCoverEl.appendChild(this.leaf.containerEl);
+		this.containerEl.empty();
+		this.containerEl.appendChild(this.leaf.containerEl);
 		this.reveal();
 	}
 
@@ -64,6 +64,6 @@ export class WorkspacePreview extends Component {
 
 	hide() {
 		this.detachLater(INTERVAL_MILLISECOND_TO_BE_DETACHED);
-		this.workspaceCoverEl.style.display = 'none';
+		this.containerEl.style.display = 'none';
 	}
 }

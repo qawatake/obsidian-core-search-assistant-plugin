@@ -148,10 +148,7 @@ export class OptionModal extends Modal {
 	}
 
 	override onClose() {
-		if (this.shouldRecall) {
-			setTimeout(() => {
-				this.plugin.controller?.recall();
-			}, 100);
-		}
+		const { containerEl } = this;
+		containerEl.empty();
 	}
 }

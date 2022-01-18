@@ -137,13 +137,6 @@ export class Controller extends Component {
 		this.countSearchItemDetected = 0;
 	}
 
-	recall() {
-		this.popCurrentPos();
-		this.showWorkspacePreview();
-		this.renewCardViewPage();
-		this.focus();
-	}
-
 	renewCardViewPage() {
 		this.plugin.cardView?.hide();
 		this.plugin.cardView?.renderPage(this.currentPos ?? 0);
