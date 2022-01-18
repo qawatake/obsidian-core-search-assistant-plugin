@@ -43,7 +43,9 @@ export default class CoreSearchAssistantPlugin extends Plugin {
 				evt.stopPropagation();
 			});
 
-			this.registerDomEvent(inputEl, 'input', () => {
+			// x "input" → do not recognize Enter key
+			// x "keydown" → capture Ctrl + Enter key
+			this.registerDomEvent(inputEl, 'keypress', () => {
 				if (!this.controller?.inSearchMode()) {
 					this.controller?.enter();
 				}
