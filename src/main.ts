@@ -20,7 +20,9 @@ export default class CoreSearchAssistantPlugin extends Plugin {
 		this.controller = new Controller(this.app, this);
 		this.addChild(this.controller);
 		this.coreSearchInterface = new CoreSearchInterface(this.app, this);
+		this.addChild(this.coreSearchInterface);
 		this.workspacePreview = new WorkspacePreview(this.app, this);
+		this.addChild(this.workspacePreview);
 		this.cardView = new CardView(this.app, this);
 		this.addChild(this.cardView);
 
