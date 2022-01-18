@@ -138,6 +138,9 @@ export class Controller extends Component {
 	}
 
 	renewCardViewPage() {
+		if (this.plugin.settings?.autoPreviewMode !== 'cardView') {
+			return;
+		}
 		this.plugin.cardView?.hide();
 		this.plugin.cardView?.renderPage(this.currentPos ?? 0);
 		this.plugin.cardView?.reveal();
