@@ -1,34 +1,32 @@
 import CoreSearchAssistantPlugin from 'main';
 import { App, PluginSettingTab, Setting } from 'obsidian';
 
-export interface CoreSearchAssistantPluginSettings {
-	keepSelectedItemsCentered: boolean;
-	outlineWidth: AvailableOutlineWidth;
-	autoPreviewMode: AutoPreviewMode;
-}
-
 const AVAILABLE_OUTLINE_WIDTHS = [0, 3, 5, 7, 10] as const;
-
 type AvailableOutlineWidth = typeof AVAILABLE_OUTLINE_WIDTHS[number];
 
-const DEFAULT_OUTLINE_WIDTH = AVAILABLE_OUTLINE_WIDTHS[2];
-
 const AUTO_PREVIEW_MODE_IDS = ['none', 'singleView', 'cardView'] as const;
-
 type AutoPreviewMode = typeof AUTO_PREVIEW_MODE_IDS[number];
-
 const autoPreviewModeInfos: Record<AutoPreviewMode, string> = {
 	none: 'none',
 	singleView: 'single view',
 	cardView: 'card view',
 };
 
-const DEFAULT_AUTO_VIEW_MODE: AutoPreviewMode = 'singleView';
+const AVAILABLE_CARD_LAYOUT = ['2x2', '2x3', '3x2', '3x3'] as const;
+type AvailableCardLayout = typeof AVAILABLE_CARD_LAYOUT[number];
+
+export interface CoreSearchAssistantPluginSettings {
+	keepSelectedItemsCentered: boolean;
+	outlineWidth: AvailableOutlineWidth;
+	autoPreviewMode: AutoPreviewMode;
+	cardViewLayout: AvailableCardLayout;
+}
 
 export const DEFAULT_SETTINGS: CoreSearchAssistantPluginSettings = {
 	keepSelectedItemsCentered: false,
-	outlineWidth: DEFAULT_OUTLINE_WIDTH,
-	autoPreviewMode: 'singleView',
+	outlineWidth: 5,
+	autoPreviewMode: 'cardView',
+	cardViewLayout: '2x3',
 };
 
 export class CoreSearchAssistantSettingTab extends PluginSettingTab {
@@ -96,8 +94,7 @@ export class CoreSearchAssistantSettingTab extends PluginSettingTab {
 				component
 					.addOptions(autoPreviewModeInfos)
 					.setValue(
-						this.plugin.settings?.autoPreviewMode ??
-							DEFAULT_AUTO_VIEW_MODE
+						this.plugin.settings?.autoPreviewMode ?? 'cardView'
 					)
 					.onChange((id) => {
 						if (!this.plugin.settings) {
@@ -115,18 +112,50 @@ export class CoreSearchAssistantSettingTab extends PluginSettingTab {
 						this.plugin.saveSettings();
 					});
 			});
+
+		new Setting(containerEl)
+			.setName('Default layout of card view')
+			.addDropdown((component) => {
+				AVAILABLE_CARD_LAYOUT.forEach((layout) => {
+					component.addOption(layout, layout);
+				});
+
+				component
+					.setValue(
+						this.plugin.settings?.cardViewLayout ??
+							DEFAULT_SETTINGS.cardViewLayout
+					)
+					.onChange((value) => {
+						if (!this.plugin.settings) {
+							return;
+						}
+						if (
+							!AVAILABLE_CARD_LAYOUT.includes(
+								value as AvailableCardLayout
+							)
+						) {
+							console.log(AVAILABLE_CARD_LAYOUT);
+							console.log(value);
+							return;
+						}
+						console.log('xxx');
+						this.plugin.settings.cardViewLayout =
+							value as AvailableCardLayout;
+						this.plugin.saveSettings();
+					});
+			});
 	}
 }
 
-export function validOutlineWidth(width: unknown): number {
+export function validOutlineWidth(width: unknown): AvailableOutlineWidth {
 	if (typeof width !== 'number') {
-		return DEFAULT_OUTLINE_WIDTH;
+		return DEFAULT_SETTINGS.outlineWidth;
 	}
 	if (!Number.isInteger(width)) {
-		return DEFAULT_OUTLINE_WIDTH;
+		return DEFAULT_SETTINGS.outlineWidth;
 	}
 	if (!AVAILABLE_OUTLINE_WIDTHS.includes(width as any)) {
-		return DEFAULT_OUTLINE_WIDTH;
+		return DEFAULT_SETTINGS.outlineWidth;
 	}
-	return width;
+	return width as AvailableOutlineWidth;
 }
