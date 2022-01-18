@@ -91,7 +91,7 @@ export class Controller extends Component {
 		this.scope.register(['Ctrl'], ' ', () => {
 			this.preview();
 		});
-		this.scope.register(['Ctrl'], 'k', () => {
+		this.scope.register(['Shift'], ' ', () => {
 			new OptionModal(this.app, this.plugin).open();
 		});
 		this.scope.register([], 'Escape', () => {
