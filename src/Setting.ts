@@ -20,6 +20,7 @@ export interface CoreSearchAssistantPluginSettings {
 	outlineWidth: AvailableOutlineWidth;
 	autoPreviewMode: AutoPreviewMode;
 	cardViewLayout: AvailableCardLayout;
+	hideIframe: boolean;
 }
 
 export const DEFAULT_SETTINGS: CoreSearchAssistantPluginSettings = {
@@ -27,6 +28,7 @@ export const DEFAULT_SETTINGS: CoreSearchAssistantPluginSettings = {
 	outlineWidth: 5,
 	autoPreviewMode: 'cardView',
 	cardViewLayout: '2x3',
+	hideIframe: true,
 };
 
 export class CoreSearchAssistantSettingTab extends PluginSettingTab {
@@ -134,12 +136,30 @@ export class CoreSearchAssistantSettingTab extends PluginSettingTab {
 								value as AvailableCardLayout
 							)
 						) {
-							console.log(AVAILABLE_CARD_LAYOUT);
-							console.log(value);
 							return;
 						}
 						this.plugin.settings.cardViewLayout =
 							value as AvailableCardLayout;
+						this.plugin.saveSettings();
+					});
+			});
+
+		new Setting(containerEl)
+			.setName('Hide iframe from auto preview')
+			.setDesc(
+				'Recommend to set this on because iframe interferes keyboard the operation.'
+			)
+			.addToggle((component) => {
+				if (!this.plugin.settings) {
+					return;
+				}
+				component
+					.setValue(this.plugin.settings.hideIframe)
+					.onChange((value) => {
+						if (!this.plugin.settings) {
+							return;
+						}
+						this.plugin.settings.hideIframe = value;
 						this.plugin.saveSettings();
 					});
 			});

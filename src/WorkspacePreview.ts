@@ -47,6 +47,9 @@ export class WorkspacePreview extends Component {
 		this.leaf.openFile(file, { state: { mode: 'preview' } });
 		this.containerEl.empty();
 		this.containerEl.appendChild(this.leaf.containerEl);
+		if (this.plugin.settings?.hideIframe) {
+			this.containerEl.addClass('hide-iframe');
+		}
 		this.reveal();
 	}
 

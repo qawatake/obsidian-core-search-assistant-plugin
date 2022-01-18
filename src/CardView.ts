@@ -145,6 +145,7 @@ export class CardView extends Component {
 		const previewContainerEl = previewMarginEl.createEl('div', {
 			cls: 'core-search-assistant_card-view-item-preview-container',
 		});
+		previewContainerEl.addClass('hide-iframe');
 		return previewContainerEl;
 	}
 
