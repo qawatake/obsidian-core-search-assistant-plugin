@@ -84,7 +84,8 @@ export class Controller extends Component {
 			this.navigateBack();
 			this.showWorkspacePreview();
 		});
-		this.scope.register(['Ctrl'], 'Enter', () => {
+		this.scope.register(['Ctrl'], 'Enter', (evt: KeyboardEvent) => {
+			evt.preventDefault(); // ← necessary to prevent renew query, which triggers item detection events
 			this.open();
 		});
 		this.scope.register(['Ctrl'], ' ', () => {
