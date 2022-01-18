@@ -2,6 +2,7 @@ import CoreSearchAssistantPlugin from 'main';
 import { PreviewModal } from 'PreviewModal';
 import {
 	App,
+	Events,
 	SearchResultItem,
 	SearchView,
 	SortOrderInSearch,
@@ -11,7 +12,7 @@ import {
 import { isSearchView } from 'types/Guards';
 import { searchOptions } from 'types/Option';
 import { LinkedList } from 'LinkedList';
-import { EVENT_SEARCH_RESULT_ITEM_DETECTED } from 'types/Shared';
+import { EVENT_SEARCH_RESULT_ITEM_DETECTED } from 'Events';
 
 export class CoreSearchInterface {
 	app: App;
@@ -24,16 +25,16 @@ export class CoreSearchInterface {
 	private readonly observationConfig: MutationObserverInit = {
 		childList: true,
 	};
-	private linkedList: LinkedList<HTMLElement>;
+	private linkedList: LinkedList<HTMLElement> | undefined;
 
 	constructor(app: App, plugin: CoreSearchAssistantPlugin) {
 		this.app = app;
 		this.plugin = plugin;
 
-		this.linkedList = new LinkedList<HTMLElement>(
-			document,
-			EVENT_SEARCH_RESULT_ITEM_DETECTED
-		);
+		// this.linkedList = new LinkedList<HTMLElement>(
+		// 	document,
+		// 	EVENT_SEARCH_RESULT_ITEM_DETECTED
+		// );
 		this.observer = new MutationObserver(
 			this.onObservedCallback.bind(this)
 		);
@@ -221,10 +222,10 @@ export class CoreSearchInterface {
 			: undefined;
 	}
 
-	startWatching() {
+	startWatching(events: Events) {
 		// reset
 		this.linkedList = new LinkedList(
-			document,
+			events,
 			EVENT_SEARCH_RESULT_ITEM_DETECTED
 		);
 
@@ -260,6 +261,9 @@ export class CoreSearchInterface {
 					node.hasClass('search-result');
 				if (!isSearchResultItem) {
 					continue;
+				}
+				if (!this.linkedList) {
+					return;
 				}
 				this.linkedList.structure(
 					node,

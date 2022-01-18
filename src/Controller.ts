@@ -1,13 +1,15 @@
+import { CoreSearchAssistantEvents } from 'Events';
 import CoreSearchAssistantPlugin from 'main';
-import { App, Scope } from 'obsidian';
+import { App, Component, Scope } from 'obsidian';
 import { OptionModal } from 'OptionModal';
 import { parseCardLayout, validOutlineWidth } from 'Setting';
 import { EVENT_SEARCH_RESULT_ITEM_DETECTED } from 'types/Shared';
 
-export class Controller {
+export class Controller extends Component {
 	private app: App;
 	private plugin: CoreSearchAssistantPlugin;
 	private scope: Scope | undefined;
+	private events: CoreSearchAssistantEvents;
 	private currentPos: number | undefined;
 	private stackedPositions: number[];
 	private coverEl: HTMLElement;
@@ -15,12 +17,51 @@ export class Controller {
 	private countSearchItemDetected: number;
 
 	constructor(app: App, plugin: CoreSearchAssistantPlugin) {
+		super();
 		this.app = app;
 		this.plugin = plugin;
+		this.events = new CoreSearchAssistantEvents();
 		this.stackedPositions = [];
 		this.coverEl = this.createOutline();
 		this._inSearchMode = false;
 		this.countSearchItemDetected = 0;
+	}
+
+	override onunload() {
+		this.coverEl.empty();
+		this.coverEl.remove();
+	}
+
+	override onload() {
+		console.log('controller loaded');
+		this.registerEvent(
+			this.events.on(EVENT_SEARCH_RESULT_ITEM_DETECTED, () => {
+				if (this.plugin.settings?.autoPreviewMode !== 'cardView') {
+					return;
+				}
+
+				const cardsPerPage = this.cardsPerPage();
+				if (cardsPerPage === undefined) {
+					return;
+				}
+				if (this.countSearchItemDetected >= cardsPerPage) {
+					return;
+				}
+				const item = this.plugin.coreSearchInterface?.getResultItemAt(
+					this.countSearchItemDetected
+				);
+				if (!item) {
+					return;
+				}
+				this.plugin.cardView?.renderItem(
+					item,
+					this.countSearchItemDetected
+				);
+				this.plugin.cardView?.setLayout();
+				this.plugin.cardView?.reveal();
+				this.countSearchItemDetected++;
+			})
+		);
 	}
 
 	enter() {
@@ -57,12 +98,7 @@ export class Controller {
 		});
 
 		if (this.plugin.settings?.autoPreviewMode === 'cardView') {
-			this.plugin.coreSearchInterface?.startWatching();
-
-			document.addEventListener(
-				EVENT_SEARCH_RESULT_ITEM_DETECTED,
-				this.callbackOnSearchResultItemDetected
-			);
+			this.plugin.coreSearchInterface?.startWatching(this.events);
 		}
 
 		this.showOutline();
@@ -88,10 +124,6 @@ export class Controller {
 		this.countSearchItemDetected = 0;
 
 		this.plugin.coreSearchInterface?.stopWatching();
-		document.removeEventListener(
-			EVENT_SEARCH_RESULT_ITEM_DETECTED,
-			this.callbackOnSearchResultItemDetected
-		);
 
 		this.hideOutline();
 		this.setInSearchMode(false);
@@ -108,14 +140,6 @@ export class Controller {
 		this.showWorkspacePreview();
 		this.renewCardViewPage();
 		this.focus();
-	}
-
-	clean() {
-		this.coverEl.remove();
-		document.removeEventListener(
-			EVENT_SEARCH_RESULT_ITEM_DETECTED,
-			this.callbackOnSearchResultItemDetected
-		);
 	}
 
 	renewCardViewPage() {
@@ -229,28 +253,6 @@ export class Controller {
 	private hideOutline() {
 		this.coverEl.style.display = 'none';
 	}
-
-	private callbackOnSearchResultItemDetected: EventListener = (
-		_evt: Event
-	) => {
-		const cardsPerPage = this.cardsPerPage();
-		if (cardsPerPage === undefined) {
-			return;
-		}
-		if (this.countSearchItemDetected >= cardsPerPage) {
-			return;
-		}
-		const item = this.plugin.coreSearchInterface?.getResultItemAt(
-			this.countSearchItemDetected
-		);
-		if (!item) {
-			return;
-		}
-		this.plugin.cardView?.renderItem(item, this.countSearchItemDetected);
-		this.plugin.cardView?.setLayout();
-		this.plugin.cardView?.reveal();
-		this.countSearchItemDetected++;
-	};
 
 	private shouldTransitNextPageInCardView(): boolean {
 		if (!this.plugin.settings) {

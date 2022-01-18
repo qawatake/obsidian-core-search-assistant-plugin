@@ -1,27 +1,21 @@
+import { Events } from 'obsidian';
+
 interface LinkedNode<T> {
 	entity: T;
 	pre: LinkedNode<T> | undefined;
 	next: LinkedNode<T> | undefined;
 }
 
-interface EventDispatcher {
-	dispatchEvent(event: Event): boolean;
-}
-
-// interface LinkedEventInfo<T> {
-// 	linked: T;
-// }
-
 export class LinkedList<T> {
 	head: LinkedNode<T> | undefined;
 	tail: LinkedNode<T> | undefined;
 	private unlinkedPool: Map<T, T>; // key: pre, value: cur
-	private readonly eventDispatcher: EventDispatcher;
+	private readonly events: Events;
 	private readonly eventId: string;
 
-	constructor(eventDispatcher: EventDispatcher, eventId: string) {
+	constructor(events: Events, eventId: string) {
 		this.unlinkedPool = new Map<T, T>();
-		this.eventDispatcher = eventDispatcher;
+		this.events = events;
 		this.eventId = eventId;
 	}
 
@@ -33,13 +27,13 @@ export class LinkedList<T> {
 		if (pre === undefined) {
 			this.setRoot(cur);
 			linked = true;
-			this.signal(cur);
+			this.signal();
 		}
 		// check if cur can be attached
 		else if (this.tail !== undefined && pre === this.tail.entity) {
 			this.link(cur);
 			linked = true;
-			this.signal(cur);
+			this.signal();
 		}
 
 		// find next sibling and attach it
@@ -94,11 +88,8 @@ export class LinkedList<T> {
 	}
 
 	// let outside know a node is attached
-	private signal(entity: T) {
-		const event = new CustomEvent(this.eventId, {
-			detail: { linked: entity },
-		});
-		this.eventDispatcher.dispatchEvent(event);
+	private signal() {
+		this.events.trigger(this.eventId);
 	}
 }
 

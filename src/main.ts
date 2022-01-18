@@ -18,6 +18,7 @@ export default class CoreSearchAssistantPlugin extends Plugin {
 
 	override async onload() {
 		this.controller = new Controller(this.app, this);
+		this.addChild(this.controller);
 		this.coreSearchInterface = new CoreSearchInterface(this.app, this);
 		this.workspacePreview = new WorkspacePreview(this.app, this);
 		this.cardView = new CardView(this.app, this);
@@ -61,7 +62,6 @@ export default class CoreSearchAssistantPlugin extends Plugin {
 	}
 
 	override onunload() {
-		this.controller?.clean();
 		this.coreSearchInterface?.clean();
 		this.workspacePreview?.clean();
 	}
