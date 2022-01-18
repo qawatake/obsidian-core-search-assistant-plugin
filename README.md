@@ -2,6 +2,7 @@
 
 This plugin enhances the built-in search function by providing
 - **keyboard interface**,
+- **card view**,
 - **bigger preview**,
 - **auto preview**,
 
@@ -15,9 +16,9 @@ In the search mode, you can use the following hotkeys.
 | -- | -- |
 | `Ctrl + N` | Select item below. |
 | `Ctrl + P` | Select item above. |
-| `Ctrl + Enter` | Preview selected item. |
-| `Cmd + Enter` | Open selected item. |
-| `Cmd + P` | Set search options. |
+| `Ctrl + Space` | Preview selected item. |
+| `Ctrl + Enter` | Open selected item. |
+| `Ctrl + K` | Set search options. |
 
 The hotkeys above are available only in the search mode, so don't worry about overwriting your hotkey settings.
 
