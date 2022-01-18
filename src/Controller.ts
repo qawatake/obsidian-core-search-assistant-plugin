@@ -31,18 +31,14 @@ export class Controller {
 		this.app.keymap.pushScope(this.scope);
 
 		this.scope.register(['Ctrl'], 'N', (evt: KeyboardEvent) => {
-			evt.preventDefault();
+			evt.preventDefault(); // ← necessary to stop cursor in search input
 			this.navigateForward();
 			this.showWorkspacePreview();
-			this.showCardView();
-			this.focus();
 		});
 		this.scope.register(['Ctrl'], 'P', (evt: KeyboardEvent) => {
 			evt.preventDefault();
 			this.navigateBack();
 			this.showWorkspacePreview();
-			this.showCardView();
-			this.focus();
 		});
 		this.scope.register(['Mod'], 'Enter', () => {
 			this.open();
@@ -111,7 +107,7 @@ export class Controller {
 	recall() {
 		this.popCurrentPos();
 		this.showWorkspacePreview();
-		this.showCardView();
+		this.renewCardViewPage();
 		this.focus();
 	}
 
@@ -123,7 +119,7 @@ export class Controller {
 		);
 	}
 
-	showCardView() {
+	renewCardViewPage() {
 		this.plugin.cardView?.hide();
 		const pageId = Math.floor(this.currentPos / NUM_CARDS_PER_PAGE);
 		this.plugin.cardView?.renderPage(pageId, NUM_CARDS_PER_PAGE);
@@ -158,12 +154,21 @@ export class Controller {
 		this.currentPos++;
 		this.currentPos =
 			this.currentPos < numResults ? this.currentPos : numResults - 1;
+
+		if (this.currentPos % NUM_CARDS_PER_PAGE === 0) {
+			this.renewCardViewPage();
+		}
+
 		this.focus();
 	}
 
 	private navigateBack() {
 		this.currentPos--;
 		this.currentPos = this.currentPos >= 0 ? this.currentPos : 0;
+
+		if ((this.currentPos + 1) % NUM_CARDS_PER_PAGE === 0) {
+			this.renewCardViewPage();
+		}
 
 		this.focus();
 	}
