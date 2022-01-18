@@ -29,6 +29,7 @@ export class CardView {
 
 	watchClickedCardItem() {
 		const callback: EventListener = (evt: Event) => {
+			evt.preventDefault();
 			if (!(evt.target instanceof HTMLElement)) {
 				return;
 			}

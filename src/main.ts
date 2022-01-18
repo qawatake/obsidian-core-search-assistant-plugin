@@ -32,9 +32,13 @@ export default class CoreSearchAssistantPlugin extends Plugin {
 				return;
 			}
 
-			this.registerDomEvent(inputEl, 'blur', () => {
+			this.registerDomEvent(document, 'click', () => {
 				this.controller?.exit();
 			});
+			this.registerDomEvent(inputEl, 'click', (evt) => {
+				evt.stopPropagation();
+			});
+
 			this.registerDomEvent(inputEl, 'input', () => {
 				this.controller?.reset();
 			});

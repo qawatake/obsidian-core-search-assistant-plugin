@@ -54,7 +54,7 @@ export class Controller {
 			if (!inputEl) {
 				return;
 			}
-			inputEl.blur();
+			this.exit();
 		});
 
 		if (this.plugin.settings?.autoPreviewMode === 'cardView') {
@@ -86,7 +86,7 @@ export class Controller {
 		this.pushCurrentPos();
 		this.unfocus();
 		this.plugin?.workspacePreview?.hide();
-		// this.plugin.cardView?.close();
+		this.plugin.cardView?.close();
 		this.countSearchItemDetected = 0;
 
 		this.plugin.coreSearchInterface?.stopWatching();
