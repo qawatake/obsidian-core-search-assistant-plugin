@@ -43,7 +43,9 @@ export default class CoreSearchAssistantPlugin extends Plugin {
 				this.controller?.reset();
 			});
 			this.registerDomEvent(inputEl, 'focus', () => {
-				this.controller?.enter();
+				if (!this.controller?.inSearchMode()) {
+					this.controller?.enter();
+				}
 			});
 
 			const sortOrderSettingButtonEl =

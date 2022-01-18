@@ -138,7 +138,6 @@ export class CoreSearchAssistantSettingTab extends PluginSettingTab {
 							console.log(value);
 							return;
 						}
-						console.log('xxx');
 						this.plugin.settings.cardViewLayout =
 							value as AvailableCardLayout;
 						this.plugin.saveSettings();
@@ -158,4 +157,9 @@ export function validOutlineWidth(width: unknown): AvailableOutlineWidth {
 		return DEFAULT_SETTINGS.outlineWidth;
 	}
 	return width as AvailableOutlineWidth;
+}
+
+export function parseCardLayout(layout: AvailableCardLayout): [number, number] {
+	const [row, column] = layout.split('x');
+	return [Number.parseInt(row ?? '0'), Number.parseInt(column ?? '0')];
 }

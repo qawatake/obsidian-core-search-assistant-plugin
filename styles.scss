@@ -164,8 +164,9 @@ div.core-search-assistant_enter-mode {
 		display: grid;
 		// grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
 		grid-template-columns: repeat(3, minmax(0, 1fr));
-		// grid-template-rows: auto;
-		grid-template-rows: repeat(2, 1fr);
+		// grid-template-columns: repeat(attr(data-column), minmax(0, 1fr));
+		// // grid-template-rows: auto;
+		grid-template-rows: repeat(attr(data-row), 1fr);
 		grid-gap: 20px;
 		height: 100%;
 

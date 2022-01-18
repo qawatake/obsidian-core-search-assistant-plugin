@@ -1,5 +1,6 @@
 import CoreSearchAssistantPlugin from 'main';
 import { App, SearchResultItem, WorkspaceLeaf } from 'obsidian';
+import { parseCardLayout } from 'Setting';
 import { INTERVAL_MILLISECOND_TO_BE_DETACHED } from 'WorkspacePreview';
 
 export class CardView {
@@ -16,9 +17,20 @@ export class CardView {
 		this.workspaceCoverEl = createEl('div', {
 			attr: { id: `core-search-assistant_card-view-cover` },
 		});
+
+		let row = 0;
+		let column = 0;
+		if (this.plugin.settings) {
+			[row, column] = parseCardLayout(
+				this.plugin.settings.cardViewLayout
+			);
+		}
 		this.contentEl = this.workspaceCoverEl.createEl('div', {
 			cls: 'core-search-assistant_card-view-cover-content',
 		});
+		this.contentEl.style.gridTemplateColumns = `repeat(${column}, minmax(0, 1fr))`;
+		this.contentEl.style.gridTemplateRows = `repeat(${row}, 1fr)`;
+
 		this.app.workspace.onLayoutReady(() => {
 			this.app.workspace.rootSplit.containerEl.appendChild(
 				this.workspaceCoverEl
@@ -74,6 +86,17 @@ export class CardView {
 			this.leafs.push(leaf);
 		});
 		this.reveal();
+	}
+
+	setLayout() {
+		if (!this.plugin.settings) {
+			return;
+		}
+		const [row, column] = parseCardLayout(
+			this.plugin.settings.cardViewLayout
+		);
+		this.contentEl.style.gridTemplateColumns = `repeat(${column}, minmax(0, 1fr))`;
+		this.contentEl.style.gridTemplateRows = `repeat(${row}, 1fr)`;
 	}
 
 	detachLeafsLater() {
@@ -171,7 +194,16 @@ export class CardView {
 		);
 	}
 
-	renderPage(pageId: number, cardsPerPage: number) {
+	renderPage(itemId: number) {
+		if (!this.plugin.settings) {
+			return;
+		}
+		const [row, column] = parseCardLayout(
+			this.plugin.settings.cardViewLayout
+		);
+		const cardsPerPage = row * column;
+		const pageId = Math.floor(itemId / cardsPerPage);
+
 		const items = this.plugin.coreSearchInterface?.getResultItems();
 		if (!items) {
 			return;
@@ -187,6 +219,8 @@ export class CardView {
 			}
 			this.renderItem(item, i);
 		}
+
+		this.setLayout();
 	}
 
 	reveal() {
