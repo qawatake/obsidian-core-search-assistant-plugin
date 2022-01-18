@@ -2,6 +2,7 @@ import CoreSearchAssistantPlugin from 'main';
 import { PreviewModal } from 'PreviewModal';
 import {
 	App,
+	Component,
 	Events,
 	SearchResultItem,
 	SearchView,
@@ -14,7 +15,7 @@ import { searchOptions } from 'types/Option';
 import { LinkedList } from 'LinkedList';
 import { EVENT_SEARCH_RESULT_ITEM_DETECTED } from 'Events';
 
-export class CoreSearchInterface {
+export class CoreSearchInterface extends Component {
 	app: App;
 	plugin: CoreSearchAssistantPlugin;
 	sortOrderContainerEl: HTMLElement | undefined;
@@ -28,13 +29,10 @@ export class CoreSearchInterface {
 	private linkedList: LinkedList<HTMLElement> | undefined;
 
 	constructor(app: App, plugin: CoreSearchAssistantPlugin) {
+		super();
 		this.app = app;
 		this.plugin = plugin;
 
-		// this.linkedList = new LinkedList<HTMLElement>(
-		// 	document,
-		// 	EVENT_SEARCH_RESULT_ITEM_DETECTED
-		// );
 		this.observer = new MutationObserver(
 			this.onObservedCallback.bind(this)
 		);
@@ -43,6 +41,12 @@ export class CoreSearchInterface {
 		this.app.workspace.onLayoutReady(() => {
 			this.renewSortOrderInfo();
 		});
+	}
+
+	override onunload(): void {
+		this.sortOrderContainerEl?.empty();
+		this.sortOrderContainerEl?.remove();
+		this.observer.disconnect();
 	}
 
 	toggleMatchingCase() {
@@ -126,11 +130,6 @@ export class CoreSearchInterface {
 		});
 	}
 
-	clean() {
-		this.removeSortOrderContainerEl();
-		this.observer.disconnect();
-	}
-
 	createSortOrderEls(): void {
 		// create element
 		this.sortOrderContainerEl = createEl('div', {
@@ -160,10 +159,6 @@ export class CoreSearchInterface {
 		}
 		this.sortOrderContentEl.textContent =
 			searchOptions[sortOrder].description;
-	}
-
-	removeSortOrderContainerEl(): void {
-		this.sortOrderContainerEl?.remove();
 	}
 
 	count(): number {

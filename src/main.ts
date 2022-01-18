@@ -62,7 +62,6 @@ export default class CoreSearchAssistantPlugin extends Plugin {
 	}
 
 	override onunload() {
-		this.coreSearchInterface?.clean();
 		this.workspacePreview?.clean();
 	}
 

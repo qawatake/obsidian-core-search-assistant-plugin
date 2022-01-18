@@ -1,9 +1,11 @@
-import { CoreSearchAssistantEvents } from 'Events';
+import {
+	CoreSearchAssistantEvents,
+	EVENT_SEARCH_RESULT_ITEM_DETECTED,
+} from 'Events';
 import CoreSearchAssistantPlugin from 'main';
 import { App, Component, Scope } from 'obsidian';
 import { OptionModal } from 'OptionModal';
 import { parseCardLayout, validOutlineWidth } from 'Setting';
-import { EVENT_SEARCH_RESULT_ITEM_DETECTED } from 'types/Shared';
 
 export class Controller extends Component {
 	private app: App;
