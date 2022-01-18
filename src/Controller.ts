@@ -84,13 +84,13 @@ export class Controller extends Component {
 			this.navigateBack();
 			this.showWorkspacePreview();
 		});
-		this.scope.register(['Mod'], 'Enter', () => {
+		this.scope.register(['Ctrl'], 'Enter', () => {
 			this.open();
 		});
-		this.scope.register(['Ctrl'], 'Enter', () => {
+		this.scope.register(['Ctrl'], ' ', () => {
 			this.preview();
 		});
-		this.scope.register(['Mod'], 'P', () => {
+		this.scope.register(['Alt'], ' ', () => {
 			new OptionModal(this.app, this.plugin).open();
 		});
 		this.scope.register([], 'Escape', () => {

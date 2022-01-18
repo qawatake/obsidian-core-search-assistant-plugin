@@ -20,7 +20,7 @@ export class PreviewModal extends Modal {
 		// to prevent the modal immediately close
 		// await new Promise((resolve) => setTimeout(resolve, 1));
 
-		this.scope.register(['Ctrl'], 'Enter', () => {
+		this.scope.register(['Ctrl'], ' ', () => {
 			this.close();
 		});
 	}
