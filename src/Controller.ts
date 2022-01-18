@@ -14,7 +14,7 @@ export class Controller extends Component {
 	private events: CoreSearchAssistantEvents;
 	private currentPos: number | undefined;
 	private stackedPositions: number[];
-	private coverEl: HTMLElement;
+	private outlineEl: HTMLElement;
 	private _inSearchMode: boolean;
 	private countSearchItemDetected: number;
 
@@ -24,14 +24,14 @@ export class Controller extends Component {
 		this.plugin = plugin;
 		this.events = new CoreSearchAssistantEvents();
 		this.stackedPositions = [];
-		this.coverEl = this.createOutline();
+		this.outlineEl = this.createOutline();
 		this._inSearchMode = false;
 		this.countSearchItemDetected = 0;
 	}
 
 	override onunload() {
-		this.coverEl.empty();
-		this.coverEl.remove();
+		this.outlineEl.empty();
+		this.outlineEl.remove();
 	}
 
 	override onload() {
@@ -127,7 +127,7 @@ export class Controller extends Component {
 
 		this.plugin.coreSearchInterface?.stopWatching();
 
-		this.hideOutline();
+		this.outlineEl.hide();
 		this.setInSearchMode(false);
 	}
 
@@ -229,24 +229,20 @@ export class Controller extends Component {
 	}
 
 	private createOutline(): HTMLElement {
-		const coverEl = document.body.createEl('div', {
+		const outlineEl = document.body.createEl('div', {
 			cls: 'core-search-assistant_enter-mode',
 		});
-		coverEl.style.display = 'none';
-		return coverEl;
+		outlineEl.hide();
+		return outlineEl;
 	}
 
 	private showOutline() {
 		const outlineWidth = validOutlineWidth(
 			this.plugin.settings?.outlineWidth
 		);
-		this.coverEl.style.outline = `${outlineWidth}px solid var(--interactive-accent)`;
-		this.coverEl.style.outlineOffset = `-${outlineWidth}px`;
-		this.coverEl.style.display = 'initial';
-	}
-
-	private hideOutline() {
-		this.coverEl.style.display = 'none';
+		this.outlineEl.style.outline = `${outlineWidth}px solid var(--interactive-accent)`;
+		this.outlineEl.style.outlineOffset = `-${outlineWidth}px`;
+		this.outlineEl.show();
 	}
 
 	private shouldTransitNextPageInCardView(): boolean {

@@ -34,7 +34,7 @@ export class WorkspacePreview extends Component {
 	}
 
 	private reveal() {
-		this.containerEl.style.display = 'initial';
+		this.containerEl.show();
 	}
 
 	renew(file: TFile) {
@@ -64,6 +64,6 @@ export class WorkspacePreview extends Component {
 
 	hide() {
 		this.detachLater(INTERVAL_MILLISECOND_TO_BE_DETACHED);
-		this.containerEl.style.display = 'none';
+		this.containerEl.hide();
 	}
 }
