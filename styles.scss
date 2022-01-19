@@ -171,9 +171,9 @@ div.core-search-assistant_enter-mode {
 		height: 100%;
 
 		.core-search-assistant_card-view-item-container-aspect-ratio {
-			// position: relative;
 			// padding-top: 125%;
 
+			position: relative;
 			box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 			border-radius: 10px;
 			cursor: pointer;
@@ -181,7 +181,7 @@ div.core-search-assistant_enter-mode {
 			&:hover,
 			&.is-selected {
 				top: -2px;
-				box-shadow: 0 4px 5px 3px var(--interactive-accent);
+				box-shadow: 0 4px 5px var(--interactive-accent);
 			}
 		}
 
