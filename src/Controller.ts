@@ -37,7 +37,6 @@ export class Controller extends Component {
 	}
 
 	override onload() {
-		console.log('controller loaded');
 		this.registerEvent(
 			this.events.on(EVENT_SEARCH_RESULT_ITEM_DETECTED, () => {
 				if (this.plugin.settings?.autoPreviewMode !== 'cardView') {
@@ -118,12 +117,28 @@ export class Controller extends Component {
 		this.setInSearchMode(false);
 	}
 
-	forget() {
+	focus() {
+		if (this.currentFocusId === undefined) {
+			return;
+		}
+		this.plugin.coreSearchInterface?.focusOn(this.currentFocusId);
+		const pos = this.positionInCardView(this.currentFocusId);
+		if (pos === undefined) {
+			return;
+		}
+		this.plugin.cardView?.focusOn(pos);
+	}
+
+	inSearchMode(): boolean {
+		return this._inSearchMode;
+	}
+
+	private forget() {
 		this.currentFocusId = undefined;
 		this.countSearchItemDetected = 0;
 	}
 
-	renewCardViewPage() {
+	private renewCardViewPage() {
 		if (this.plugin.settings?.autoPreviewMode !== 'cardView') {
 			return;
 		}
@@ -132,7 +147,7 @@ export class Controller extends Component {
 		this.plugin.cardView?.reveal();
 	}
 
-	showCardViewItem(id: number) {
+	private showCardViewItem(id: number) {
 		const item = this.plugin.coreSearchInterface?.getResultItemAt(id);
 		if (!item) {
 			return;
@@ -142,7 +157,7 @@ export class Controller extends Component {
 		this.plugin.cardView?.reveal();
 	}
 
-	showWorkspacePreview() {
+	private showWorkspacePreview() {
 		if (this.plugin.settings?.autoPreviewMode !== 'singleView') {
 			return;
 		}
@@ -188,18 +203,6 @@ export class Controller extends Component {
 		}
 
 		this.focus();
-	}
-
-	focus() {
-		if (this.currentFocusId === undefined) {
-			return;
-		}
-		this.plugin.coreSearchInterface?.focusOn(this.currentFocusId);
-		const pos = this.positionInCardView(this.currentFocusId);
-		if (pos === undefined) {
-			return;
-		}
-		this.plugin.cardView?.focusOn(pos);
 	}
 
 	private unfocus() {
@@ -287,10 +290,6 @@ export class Controller extends Component {
 			this.plugin.settings.cardViewLayout
 		);
 		return row * column;
-	}
-
-	inSearchMode(): boolean {
-		return this._inSearchMode;
 	}
 
 	private setInSearchMode(on: boolean) {

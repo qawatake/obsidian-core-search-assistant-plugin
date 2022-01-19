@@ -33,13 +33,14 @@ export class WorkspacePreview extends Component {
 		this.containerEl.remove();
 	}
 
-	private reveal() {
-		this.containerEl.show();
-	}
-
 	renew(file: TFile) {
 		this.detachLater(INTERVAL_MILLISECOND_TO_BE_DETACHED);
 		this.show(file);
+	}
+
+	hide() {
+		this.detachLater(INTERVAL_MILLISECOND_TO_BE_DETACHED);
+		this.containerEl.hide();
 	}
 
 	private show(file: TFile) {
@@ -50,7 +51,7 @@ export class WorkspacePreview extends Component {
 		if (this.plugin.settings?.hideIframe) {
 			this.containerEl.addClass('hide-iframe');
 		}
-		this.reveal();
+		this.containerEl.show();
 	}
 
 	// delay detachment because otherwise ↓ occur
@@ -63,10 +64,5 @@ export class WorkspacePreview extends Component {
 		setTimeout(() => {
 			leafToBeDetached.detach();
 		}, millisecond);
-	}
-
-	hide() {
-		this.detachLater(INTERVAL_MILLISECOND_TO_BE_DETACHED);
-		this.containerEl.hide();
 	}
 }

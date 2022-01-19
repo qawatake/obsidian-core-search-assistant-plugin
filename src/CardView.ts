@@ -43,8 +43,6 @@ export class CardView extends Component {
 	}
 
 	override onload() {
-		console.log('card view loaded');
-
 		this.registerDomEvent(this.contentEl, 'click', (evt: MouseEvent) => {
 			if (!this.displayed) {
 				return;
@@ -65,7 +63,6 @@ export class CardView extends Component {
 	}
 
 	override unload() {
-		console.log('card view unloaded');
 		this.leafs.forEach((leaf) => {
 			leaf.detach();
 		});
@@ -82,68 +79,6 @@ export class CardView extends Component {
 		previewContainerEl.appendChild(leaf.containerEl);
 
 		this.leafs.push(leaf);
-	}
-
-	renderItems(items: SearchResultItem[]) {
-		if (items.length === 0) {
-			return;
-		}
-		this.leafs = [];
-		const { contentEl } = this;
-		contentEl.empty();
-		items.forEach((item, id) => {
-			const previewContainerEl = this.createPreviewContainerEl(item, id);
-
-			const leaf = new (WorkspaceLeaf as any)(this.app) as WorkspaceLeaf;
-			leaf.openFile(item.file, { state: { mode: 'preview' } });
-			previewContainerEl.appendChild(leaf.containerEl);
-
-			this.leafs.push(leaf);
-		});
-		this.reveal();
-	}
-
-	setLayout() {
-		if (!this.plugin.settings) {
-			return;
-		}
-		const [row, column] = parseCardLayout(
-			this.plugin.settings.cardViewLayout
-		);
-		this.contentEl.style.gridTemplateColumns = `repeat(${column}, minmax(0, 1fr))`;
-		this.contentEl.style.gridTemplateRows = `repeat(${row}, 1fr)`;
-	}
-
-	detachLeafsLater() {
-		const leafsToBeDetached = this.leafs;
-		this.leafs = [];
-		setTimeout(() => {
-			leafsToBeDetached.forEach((leaf) => {
-				leaf.detach();
-			});
-		}, INTERVAL_MILLISECOND_TO_BE_DETACHED);
-	}
-
-	createPreviewContainerEl(item: SearchResultItem, id: number): HTMLElement {
-		const { contentEl } = this;
-		const itemContainerEl = contentEl.createEl('div', {
-			cls: 'item-container',
-			attr: {
-				'data-id': id,
-			},
-		});
-		itemContainerEl.createEl('div', {
-			cls: 'file-name-container',
-			text: item.file.name,
-		});
-		const previewMarginEl = itemContainerEl.createEl('div', {
-			cls: 'preview-container-wrapper',
-		});
-		const previewContainerEl = previewMarginEl.createEl('div', {
-			cls: 'preview-container',
-		});
-		previewContainerEl.addClass('hide-iframe');
-		return previewContainerEl;
 	}
 
 	focusOn(pos: number) {
@@ -180,13 +115,6 @@ export class CardView extends Component {
 		this.displayed = false;
 	}
 
-	emptyLater() {
-		setTimeout(
-			() => this.contentEl.empty(),
-			INTERVAL_MILLISECOND_TO_BE_DETACHED
-		);
-	}
-
 	renderPage(itemId: number) {
 		if (!this.plugin.settings) {
 			return;
@@ -221,7 +149,56 @@ export class CardView extends Component {
 		this.displayed = true;
 	}
 
-	getSelectedCardEl(el: HTMLElement): HTMLElement | undefined {
+	// set grid layout
+	setLayout() {
+		if (!this.plugin.settings) {
+			return;
+		}
+		const [row, column] = parseCardLayout(
+			this.plugin.settings.cardViewLayout
+		);
+		this.contentEl.style.gridTemplateColumns = `repeat(${column}, minmax(0, 1fr))`;
+		this.contentEl.style.gridTemplateRows = `repeat(${row}, 1fr)`;
+	}
+
+	// delay detachment because otherwise ↓ occur
+	// "Uncaught TypeError: Cannot read property 'onResize' of null"
+	private detachLeafsLater() {
+		const leafsToBeDetached = this.leafs;
+		this.leafs = [];
+		setTimeout(() => {
+			leafsToBeDetached.forEach((leaf) => {
+				leaf.detach();
+			});
+		}, INTERVAL_MILLISECOND_TO_BE_DETACHED);
+	}
+
+	private createPreviewContainerEl(
+		item: SearchResultItem,
+		id: number
+	): HTMLElement {
+		const { contentEl } = this;
+		const itemContainerEl = contentEl.createEl('div', {
+			cls: 'item-container',
+			attr: {
+				'data-id': id,
+			},
+		});
+		itemContainerEl.createEl('div', {
+			cls: 'file-name-container',
+			text: item.file.name,
+		});
+		const previewMarginEl = itemContainerEl.createEl('div', {
+			cls: 'preview-container-wrapper',
+		});
+		const previewContainerEl = previewMarginEl.createEl('div', {
+			cls: 'preview-container',
+		});
+		previewContainerEl.addClass('hide-iframe');
+		return previewContainerEl;
+	}
+
+	private getSelectedCardEl(el: HTMLElement): HTMLElement | undefined {
 		const parentEl = el.parentElement;
 		if (el.tagName === 'DIV' && parentEl === this.contentEl) {
 			return el;
@@ -231,4 +208,23 @@ export class CardView extends Component {
 		}
 		return this.getSelectedCardEl(parentEl);
 	}
+
+	// private renderItems(items: SearchResultItem[]) {
+	// 	if (items.length === 0) {
+	// 		return;
+	// 	}
+	// 	this.leafs = [];
+	// 	const { contentEl } = this;
+	// 	contentEl.empty();
+	// 	items.forEach((item, id) => {
+	// 		const previewContainerEl = this.createPreviewContainerEl(item, id);
+
+	// 		const leaf = new (WorkspaceLeaf as any)(this.app) as WorkspaceLeaf;
+	// 		leaf.openFile(item.file, { state: { mode: 'preview' } });
+	// 		previewContainerEl.appendChild(leaf.containerEl);
+
+	// 		this.leafs.push(leaf);
+	// 	});
+	// 	this.reveal();
+	// }
 }

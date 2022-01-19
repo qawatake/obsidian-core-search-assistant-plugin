@@ -120,33 +120,6 @@ export class CoreSearchInterface extends Component {
 		new PreviewModal(this.app, this.plugin, item.file).open();
 	}
 
-	getSearchLeaf(): WorkspaceLeaf | undefined {
-		const sideDock = this.app.workspace.leftSplit;
-		if (!(sideDock instanceof WorkspaceSidedock)) {
-			return undefined;
-		}
-		const leafs = sideDock.children[0]?.children as WorkspaceLeaf[];
-
-		return leafs.find((leaf) => {
-			return leaf.view.getViewType() === 'search';
-		});
-	}
-
-	createSortOrderEls(): void {
-		// create element
-		this.sortOrderContainerEl = createEl('div', {
-			cls: 'search-info-container',
-		});
-		this.sortOrderContentEl = this.sortOrderContainerEl.createEl('div');
-
-		// insert created element
-		const view = this.getSearchView();
-		if (!view) {
-			return undefined;
-		}
-		this.sortOrderContainerEl.insertAfter(view.searchInfoEl);
-	}
-
 	renewSortOrderInfo(): void {
 		if (!this.sortOrderContainerEl) {
 			this.createSortOrderEls();
@@ -181,16 +154,6 @@ export class CoreSearchInterface extends Component {
 
 	getSearchInput(): HTMLInputElement | undefined {
 		return this.getSearchView()?.searchComponent.inputEl;
-	}
-
-	getSearchView(): SearchView | undefined {
-		const leaf = this.getSearchLeaf();
-		if (!leaf) {
-			return undefined;
-		}
-
-		const view = leaf.view;
-		return isSearchView(view) ? view : undefined;
 	}
 
 	async watchSortOrderChangeByClick() {
@@ -234,6 +197,43 @@ export class CoreSearchInterface extends Component {
 
 	stopWatching() {
 		this.observer.disconnect();
+	}
+
+	private createSortOrderEls(): void {
+		// create element
+		this.sortOrderContainerEl = createEl('div', {
+			cls: 'search-info-container',
+		});
+		this.sortOrderContentEl = this.sortOrderContainerEl.createEl('div');
+
+		// insert created element
+		const view = this.getSearchView();
+		if (!view) {
+			return undefined;
+		}
+		this.sortOrderContainerEl.insertAfter(view.searchInfoEl);
+	}
+
+	private getSearchView(): SearchView | undefined {
+		const leaf = this.getSearchLeaf();
+		if (!leaf) {
+			return undefined;
+		}
+
+		const view = leaf.view;
+		return isSearchView(view) ? view : undefined;
+	}
+
+	private getSearchLeaf(): WorkspaceLeaf | undefined {
+		const sideDock = this.app.workspace.leftSplit;
+		if (!(sideDock instanceof WorkspaceSidedock)) {
+			return undefined;
+		}
+		const leafs = sideDock.children[0]?.children as WorkspaceLeaf[];
+
+		return leafs.find((leaf) => {
+			return leaf.view.getViewType() === 'search';
+		});
 	}
 
 	private onObservedCallback: MutationCallback = async (
