@@ -162,17 +162,16 @@ div.core-search-assistant_enter-mode {
 	.core-search-assistant_card-view-cover-content {
 		max-width: 1000px;
 		display: grid;
-		// grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
 		grid-template-columns: repeat(3, minmax(0, 1fr));
-		// grid-template-columns: repeat(attr(data-column), minmax(0, 1fr));
-		// // grid-template-rows: auto;
 		grid-template-rows: repeat(attr(data-row), 1fr);
 		grid-gap: 20px;
 		height: 100%;
 
-		.core-search-assistant_card-view-item-container-aspect-ratio {
-			// padding-top: 125%;
-
+		.core-search-assistant_card-view-item-container {
+			overflow: hidden;
+			display: flex;
+			flex-direction: column;
+			height: 100%;
 			position: relative;
 			box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 			border-radius: 10px;
@@ -183,17 +182,6 @@ div.core-search-assistant_enter-mode {
 				top: -2px;
 				box-shadow: 0 4px 5px var(--interactive-accent);
 			}
-		}
-
-		.core-search-assistant_card-view-item-container {
-			overflow: hidden;
-			display: flex;
-			flex-direction: column;
-			// position: absolute;
-			// top: 0;
-			// right: 0;
-			// width: 100%;
-			height: 100%;
 
 			.core-search-assistant_card_view-item-file-name-container {
 				padding: 5px 10px;
@@ -203,7 +191,6 @@ div.core-search-assistant_enter-mode {
 				color: var(--text-muted);
 				overflow-wrap: break-word;
 				flex-grow: 0;
-				border-radius: 10px;
 			}
 
 			.core-search-assistant_card-view-item-preview-margin {
