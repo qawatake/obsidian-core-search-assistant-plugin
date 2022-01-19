@@ -120,7 +120,7 @@ export class Controller extends Component {
 		}
 		this.unfocus();
 		this.plugin?.workspacePreview?.hide();
-		this.plugin.cardView?.close();
+		this.plugin.cardView?.hide();
 		this.countSearchItemDetected = 0;
 
 		this.plugin.coreSearchInterface?.stopWatching();

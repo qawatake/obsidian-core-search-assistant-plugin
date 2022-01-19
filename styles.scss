@@ -128,11 +128,6 @@ div.core-search-assistant_search-mode-outline {
 	background-color: var(--background-primary);
 	padding: 20px 30px;
 
-	&.hide {
-		opacity: 0; // to catch click event (x display:none, x visibility:hidden)
-		pointer-events: none;
-	}
-
 	div.workspace-leaf {
 		contain: initial !important;
 	}

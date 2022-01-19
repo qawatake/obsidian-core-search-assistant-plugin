@@ -175,16 +175,8 @@ export class CardView extends Component {
 
 	hide() {
 		this.detachLeafsLater();
-		this.workspaceCoverEl.addClass('hide');
+		this.workspaceCoverEl.toggleVisibility(false);
 		this.contentEl.empty();
-		this.displayed = false;
-	}
-
-	close() {
-		this.workspaceCoverEl.addClass('hide');
-		this.detachLeafsLater();
-		// ↓ why do not empty immediately ← to open selected item when clicked
-		this.emptyLater();
 		this.displayed = false;
 	}
 
@@ -225,7 +217,7 @@ export class CardView extends Component {
 	}
 
 	reveal() {
-		this.workspaceCoverEl.removeClass('hide');
+		this.workspaceCoverEl.toggleVisibility(true);
 		this.displayed = true;
 	}
 
