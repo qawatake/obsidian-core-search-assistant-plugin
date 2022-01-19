@@ -54,6 +54,37 @@ export class Controller extends Component {
 				this.countSearchItemDetected++;
 			})
 		);
+
+		this.app.workspace.onLayoutReady(() => {
+			const inputEl = this.plugin.coreSearchInterface?.getSearchInput();
+			if (!inputEl) {
+				return;
+			}
+
+			this.registerDomEvent(document, 'click', () => {
+				this.exit();
+			});
+			this.registerDomEvent(inputEl, 'click', (evt) => {
+				evt.stopPropagation();
+				if (!this.inSearchMode()) {
+					this.enter();
+				}
+			});
+
+			// x "keydown" → capture Ctrl + Enter key
+			// x "keypress" → do not recognize Backspace key
+			this.registerDomEvent(inputEl, 'input', () => {
+				if (!this.inSearchMode()) {
+					this.enter();
+				}
+				this.reset();
+			});
+			this.registerDomEvent(inputEl, 'focus', () => {
+				if (!this.inSearchMode()) {
+					this.enter();
+				}
+			});
+		});
 	}
 
 	enter() {

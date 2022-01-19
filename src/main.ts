@@ -29,37 +29,6 @@ export default class CoreSearchAssistantPlugin extends Plugin {
 		await this.loadSettings();
 
 		this.addSettingTab(new CoreSearchAssistantSettingTab(this.app, this));
-
-		this.app.workspace.onLayoutReady(() => {
-			const inputEl = this.coreSearchInterface?.getSearchInput();
-			if (!inputEl) {
-				return;
-			}
-
-			this.registerDomEvent(document, 'click', () => {
-				this.controller?.exit();
-			});
-			this.registerDomEvent(inputEl, 'click', (evt) => {
-				evt.stopPropagation();
-				if (!this.controller?.inSearchMode()) {
-					this.controller?.enter();
-				}
-			});
-
-			// x "keydown" → capture Ctrl + Enter key
-			// x "keypress" → do not recognize Backspace key
-			this.registerDomEvent(inputEl, 'input', () => {
-				if (!this.controller?.inSearchMode()) {
-					this.controller?.enter();
-				}
-				this.controller?.reset();
-			});
-			this.registerDomEvent(inputEl, 'focus', () => {
-				if (!this.controller?.inSearchMode()) {
-					this.controller?.enter();
-				}
-			});
-		});
 	}
 
 	// override onunload() {}
