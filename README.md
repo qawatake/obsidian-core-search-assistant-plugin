@@ -6,8 +6,6 @@ This plugin enhances the built-in search function by providing
 - **bigger preview**,
 - **auto preview**,
 
-[![Image from Gyazo](https://i.gyazo.com/7a2a075eeda8a58b5ecca546538f0bb4.gif)](https://gyazo.com/7a2a075eeda8a58b5ecca546538f0bb4)
-
 ## How to use
 When you open the built-in search panel, you enter **search mode**.
 In the search mode, you can use the following hotkeys.
@@ -29,16 +27,18 @@ There are three options for auto preview.
 3. card view.
 
 ### None
-**image here**
+
 Manual preview by `Ctrl + Enter`  is still available.
 
+![none-view-min](https://user-images.githubusercontent.com/38106890/150082308-493df0a0-e9d4-46ee-8957-c11a2f5ce628.gif)
+
 ### Single view
-**image here**
 
 Previewed item can be scrolled unlike card view.
 
+![single-view-min](https://user-images.githubusercontent.com/38106890/150082234-54a39bce-5ba7-4b53-88c7-603310f14274.gif)
+
 ### Card view
-**image here**
 
 The following layout are available.
 - 2 x 2,
@@ -46,6 +46,9 @@ The following layout are available.
 - 3 x 2,
 - 3 x 3.
 
+![card-view-min](https://user-images.githubusercontent.com/38106890/150082177-6a14a509-b6f9-449f-90d1-7e198ae2d3d3.gif)
+
 ## Search options
 
-[![Image from Gyazo](https://i.gyazo.com/a24b079264f43baffa2b9de00e9e242d.gif)](https://gyazo.com/a24b079264f43baffa2b9de00e9e242d)
+![search-option-min](https://user-images.githubusercontent.com/38106890/150083314-0834e593-2cd6-46c6-8706-5582e987037a.gif)
+
