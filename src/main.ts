@@ -41,11 +41,14 @@ export default class CoreSearchAssistantPlugin extends Plugin {
 			});
 			this.registerDomEvent(inputEl, 'click', (evt) => {
 				evt.stopPropagation();
+				if (!this.controller?.inSearchMode()) {
+					this.controller?.enter();
+				}
 			});
 
-			// x "input" → do not recognize Enter key
 			// x "keydown" → capture Ctrl + Enter key
-			this.registerDomEvent(inputEl, 'keypress', () => {
+			// x "keypress" → do not recognize Backspace key
+			this.registerDomEvent(inputEl, 'input', () => {
 				if (!this.controller?.inSearchMode()) {
 					this.controller?.enter();
 				}
