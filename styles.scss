@@ -1,5 +1,5 @@
 /* search result item */
-.core-search-assistant_search_result_items {
+.core-search-assistant_search-result-items-focus {
 	.tree-item-self {
 		background-color: var(--background-secondary-alt);
 		color: var(--text-normal);
@@ -11,7 +11,7 @@
 }
 
 /* preview modal */
-.core-search-assistant_preview-modal-leaf-container {
+.core-search-assistant_preview-modal {
 	div.workspace-leaf {
 		contain: initial !important;
 	}
@@ -34,7 +34,7 @@
 }
 
 /* outline on search mode */
-div.core-search-assistant_enter-mode {
+div.core-search-assistant_search-mode-outline {
 	/* outline: 5px solid var(--interactive-accent);
 	outline-offset: -5px; */
 	position: absolute;
@@ -47,7 +47,7 @@ div.core-search-assistant_enter-mode {
 }
 
 /* option modal */
-.core-search-assistant_option_modal {
+.core-search-assistant_option-modal {
 	div.modal {
 		background-color: var(--background-primary);
 	}
@@ -88,7 +88,7 @@ div.core-search-assistant_enter-mode {
 
 /* preview covering workspace */
 // ↓ class is not sufficient to override width: 0 specified by default
-#core-search-assistant_workspace-preview-cover {
+#core-search-assistant_workspace-preview {
 	position: absolute;
 	top: 0;
 	left: 0;
@@ -103,38 +103,32 @@ div.core-search-assistant_enter-mode {
 	div.workspace-leaf {
 		contain: initial !important;
 	}
-
 	div.workspace-leaf-resize-handle {
 		display: none;
 	}
-
 	div.view-header {
 		display: none;
 	}
-
 	div.markdown-preview-view {
 		padding: 0;
 	}
-
 	div.modal-content {
 		margin: 0;
 	}
 }
 
 /* card view */
-#core-search-assistant_card-view-cover {
+#core-search-assistant_card-view {
 	position: absolute;
 	top: 0;
 	left: 0;
 	width: 100%;
 	height: 100%;
 	z-index: var(--layer-modal);
-	// pointer-events: none; // to scroll
 	background-color: var(--background-primary);
 	padding: 20px 30px;
-	overflow-y: scroll; // show scroll bar
 
-	&.core-search-assistant_hide {
+	&.hide {
 		opacity: 0; // to catch click event (x display:none, x visibility:hidden)
 		pointer-events: none;
 	}
@@ -142,92 +136,88 @@ div.core-search-assistant_enter-mode {
 	div.workspace-leaf {
 		contain: initial !important;
 	}
-
 	div.workspace-leaf-resize-handle {
 		display: none;
 	}
-
 	div.view-header {
 		display: none;
 	}
-
 	div.markdown-preview-view {
 		padding: 0;
 	}
-
 	div.modal-content {
 		margin: 0;
 	}
 
-	.core-search-assistant_card-view-cover-content {
+	.content {
 		max-width: 1000px;
 		display: grid;
 		grid-template-columns: repeat(3, minmax(0, 1fr));
 		grid-template-rows: repeat(attr(data-row), 1fr);
 		grid-gap: 20px;
 		height: 100%;
+	}
 
-		.core-search-assistant_card-view-item-container {
-			overflow: hidden;
-			display: flex;
-			flex-direction: column;
-			height: 100%;
-			position: relative;
-			box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-			border-radius: 10px;
-			cursor: pointer;
+	.item-container {
+		overflow: hidden;
+		display: flex;
+		flex-direction: column;
+		height: 100%;
+		position: relative;
+		box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+		border-radius: 10px;
+		cursor: pointer;
 
-			&:hover,
-			&.is-selected {
-				top: -2px;
-				box-shadow: 0 4px 5px var(--interactive-accent);
-			}
+		&:hover,
+		&.is-selected {
+			top: -2px;
+			box-shadow: 0 4px 5px var(--interactive-accent);
+		}
+	}
 
-			.core-search-assistant_card_view-item-file-name-container {
-				padding: 5px 10px;
-				font-size: 1rem;
-				line-height: 1.2rem;
-				background-color: var(--background-secondary);
-				color: var(--text-muted);
-				overflow-wrap: break-word;
-				flex-grow: 0;
-			}
+	.file-name-container {
+		padding: 5px 10px;
+		font-size: 1rem;
+		line-height: 1.2rem;
+		background-color: var(--background-secondary);
+		color: var(--text-muted);
+		overflow-wrap: break-word;
+		flex-grow: 0;
+	}
 
-			.core-search-assistant_card-view-item-preview-margin {
-				padding: 5px;
-				flex: 1;
-				height: 100px;
-			}
+	.preview-container-wrapper {
+		padding: 5px;
+		flex: 1;
+		height: 100px;
+	}
 
-			.core-search-assistant_card-view-item-preview-container {
-				overflow: hidden;
-				height: 100%;
+	.preview-container {
+		overflow: hidden;
+		height: 100%;
 
-				font-size: 0.8rem;
-				line-height: 1.2;
+		font-size: 0.8rem;
+		line-height: 1.2;
 
-				p,
-				li,
-				code {
-					font-size: 0.8rem;
-					line-height: 1.2;
-				}
+		p,
+		li,
+		code {
+			font-size: 0.8rem;
+			line-height: 1.2;
+		}
 
-				h1,
-				h2,
-				h3,
-				h4,
-				h5,
-				h6 {
-					font-size: 1rem;
-					line-height: 1.2;
-					margin: 5px;
-				}
+		h1,
+		h2,
+		h3,
+		h4,
+		h5,
+		h6 {
+			font-size: 1rem;
+			line-height: 1.2;
+			margin: 5px;
+		}
 
-				a {
-					pointer-events: none;
-				}
-			}
+		a {
+			pointer-events: none;
 		}
 	}
 }

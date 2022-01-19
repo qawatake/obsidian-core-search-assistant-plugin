@@ -15,7 +15,7 @@ export class WorkspacePreview extends Component {
 		this.plugin = plugin;
 		this.containerEl = createEl('div', {
 			attr: {
-				id: 'core-search-assistant_workspace-preview-cover',
+				id: 'core-search-assistant_workspace-preview',
 			},
 		});
 		this.hide();

@@ -17,7 +17,7 @@ export class CardView extends Component {
 		this.plugin = plugin;
 		this.leafs = [];
 		this.workspaceCoverEl = createEl('div', {
-			attr: { id: `core-search-assistant_card-view-cover` },
+			attr: { id: `core-search-assistant_card-view` },
 		});
 		this.displayed = false;
 
@@ -29,7 +29,7 @@ export class CardView extends Component {
 			);
 		}
 		this.contentEl = this.workspaceCoverEl.createEl('div', {
-			cls: 'core-search-assistant_card-view-cover-content',
+			cls: 'content',
 		});
 		this.contentEl.style.gridTemplateColumns = `repeat(${column}, minmax(0, 1fr))`;
 		this.contentEl.style.gridTemplateRows = `repeat(${row}, 1fr)`;
@@ -127,20 +127,20 @@ export class CardView extends Component {
 	createPreviewContainerEl(item: SearchResultItem, id: number): HTMLElement {
 		const { contentEl } = this;
 		const itemContainerEl = contentEl.createEl('div', {
-			cls: 'core-search-assistant_card-view-item-container',
+			cls: 'item-container',
 			attr: {
 				'data-id': id,
 			},
 		});
 		itemContainerEl.createEl('div', {
-			cls: 'core-search-assistant_card_view-item-file-name-container',
+			cls: 'file-name-container',
 			text: item.file.name,
 		});
 		const previewMarginEl = itemContainerEl.createEl('div', {
-			cls: 'core-search-assistant_card-view-item-preview-margin',
+			cls: 'preview-container-wrapper',
 		});
 		const previewContainerEl = previewMarginEl.createEl('div', {
-			cls: 'core-search-assistant_card-view-item-preview-container',
+			cls: 'preview-container',
 		});
 		previewContainerEl.addClass('hide-iframe');
 		return previewContainerEl;
@@ -175,13 +175,13 @@ export class CardView extends Component {
 
 	hide() {
 		this.detachLeafsLater();
-		this.workspaceCoverEl.addClass('core-search-assistant_hide');
+		this.workspaceCoverEl.addClass('hide');
 		this.contentEl.empty();
 		this.displayed = false;
 	}
 
 	close() {
-		this.workspaceCoverEl.addClass('core-search-assistant_hide');
+		this.workspaceCoverEl.addClass('hide');
 		this.detachLeafsLater();
 		// ↓ why do not empty immediately ← to open selected item when clicked
 		this.emptyLater();
@@ -225,7 +225,7 @@ export class CardView extends Component {
 	}
 
 	reveal() {
-		this.workspaceCoverEl.removeClass('core-search-assistant_hide');
+		this.workspaceCoverEl.removeClass('hide');
 		this.displayed = true;
 	}
 

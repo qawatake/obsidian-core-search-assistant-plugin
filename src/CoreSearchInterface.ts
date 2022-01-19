@@ -81,7 +81,9 @@ export class CoreSearchInterface extends Component {
 		if (!item) {
 			return;
 		}
-		item.containerEl.addClass('core-search-assistant_search_result_items');
+		item.containerEl.addClass(
+			'core-search-assistant_search-result-items-focus'
+		);
 		item.containerEl.scrollIntoView(
 			this.plugin.settings?.keepSelectedItemsCentered
 				? { block: 'center' }
@@ -93,7 +95,7 @@ export class CoreSearchInterface extends Component {
 		const items = this.getResultItems();
 		items.forEach((item) => {
 			item.containerEl.removeClass(
-				'core-search-assistant_search_result_items'
+				'core-search-assistant_search-result-items-focus'
 			);
 		});
 	}

@@ -221,7 +221,7 @@ export class Controller extends Component {
 
 	private createOutline(): HTMLElement {
 		const outlineEl = document.body.createEl('div', {
-			cls: 'core-search-assistant_enter-mode',
+			cls: 'core-search-assistant_search-mode-outline',
 		});
 		outlineEl.hide();
 		return outlineEl;

@@ -127,7 +127,7 @@ export class OptionModal extends Modal {
 	renderOptions() {
 		const { contentEl } = this;
 		contentEl.empty();
-		this.containerEl.addClass('core-search-assistant_option_modal');
+		this.containerEl.addClass('core-search-assistant_option-modal');
 		this.items.forEach((item) => {
 			const entryEl = contentEl.createEl('div', {
 				cls: 'suggestion-item',
