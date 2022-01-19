@@ -59,15 +59,6 @@ export default class CoreSearchAssistantPlugin extends Plugin {
 					this.controller?.enter();
 				}
 			});
-
-			const sortOrderSettingButtonEl =
-				this.coreSearchInterface?.getSortOrderSettingButton();
-			if (!sortOrderSettingButtonEl) {
-				return;
-			}
-			this.registerDomEvent(sortOrderSettingButtonEl, 'click', () => {
-				this.coreSearchInterface?.watchSortOrderChangeByClick();
-			});
 		});
 	}
 

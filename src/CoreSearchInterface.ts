@@ -18,8 +18,8 @@ import { EVENT_SEARCH_RESULT_ITEM_DETECTED } from 'Events';
 export class CoreSearchInterface extends Component {
 	app: App;
 	plugin: CoreSearchAssistantPlugin;
-	sortOrderContainerEl: HTMLElement | undefined;
-	sortOrderContentEl: HTMLElement | undefined;
+	private sortOrderContainerEl: HTMLElement | undefined;
+	private sortOrderContentEl: HTMLElement | undefined;
 
 	// watch search results to be rendered
 	private observer: MutationObserver;
@@ -36,10 +36,16 @@ export class CoreSearchInterface extends Component {
 		this.observer = new MutationObserver(
 			this.onObservedCallback.bind(this)
 		);
+	}
 
+	override onload(): void {
 		// ↓ necessary to display sort order info at start up
 		this.app.workspace.onLayoutReady(() => {
 			this.renewSortOrderInfo();
+
+			this.registerDomEvent(document, 'click', () => {
+				this.renewSortOrderInfo();
+			});
 		});
 	}
 
@@ -156,32 +162,6 @@ export class CoreSearchInterface extends Component {
 		return this.getSearchView()?.searchComponent.inputEl;
 	}
 
-	async watchSortOrderChangeByClick() {
-		const callback = async (evt: Event) => {
-			this.renewSortOrderInfo();
-			if (evt.currentTarget === null) {
-				return;
-			}
-			evt.currentTarget.removeEventListener('click', callback);
-		};
-		await new Promise((resolve) => setTimeout(resolve, 1)); // prevent callback from being called immediately
-		document.addEventListener('click', callback);
-	}
-
-	getSortOrderSettingButton(): HTMLElement | undefined {
-		const view = this.getSearchView();
-		const buttonsEl = view?.headerDom.navButtonsEl;
-		if (!buttonsEl) {
-			return undefined;
-		}
-		const sortOrderSettingButtonEl = buttonsEl.querySelector(
-			'div.nav-action-button[aria-label="Change sort order"]'
-		);
-		return sortOrderSettingButtonEl
-			? (sortOrderSettingButtonEl as HTMLElement)
-			: undefined;
-	}
-
 	startWatching(events: Events) {
 		// reset
 		this.linkedList = new LinkedList(
@@ -277,4 +257,30 @@ export class CoreSearchInterface extends Component {
 			!el.hasClass('search-result')
 		);
 	}
+
+	// async watchSortOrderChangeByClick() {
+	// 	const callback = async (evt: Event) => {
+	// 		this.renewSortOrderInfo();
+	// 		if (evt.currentTarget === null) {
+	// 			return;
+	// 		}
+	// 		evt.currentTarget.removeEventListener('click', callback);
+	// 	};
+	// 	await new Promise((resolve) => setTimeout(resolve, 1)); // prevent callback from being called immediately
+	// 	document.addEventListener('click', callback);
+	// }
+
+	// getSortOrderSettingButton(): HTMLElement | undefined {
+	// 	const view = this.getSearchView();
+	// 	const buttonsEl = view?.headerDom.navButtonsEl;
+	// 	if (!buttonsEl) {
+	// 		return undefined;
+	// 	}
+	// 	const sortOrderSettingButtonEl = buttonsEl.querySelector(
+	// 		'div.nav-action-button[aria-label="Change sort order"]'
+	// 	);
+	// 	return sortOrderSettingButtonEl
+	// 		? (sortOrderSettingButtonEl as HTMLElement)
+	// 		: undefined;
+	// }
 }
