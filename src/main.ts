@@ -1,6 +1,6 @@
 import { CardView } from 'CardView';
 import { Controller } from 'Controller';
-import { CoreSearchInterface } from 'CoreSearchInterface';
+import { SearchComponentInterface } from 'SearchComponentInterface';
 import { Plugin } from 'obsidian';
 import {
 	CoreSearchAssistantPluginSettings,
@@ -12,15 +12,18 @@ import { WorkspacePreview } from 'WorkspacePreview';
 export default class CoreSearchAssistantPlugin extends Plugin {
 	settings: CoreSearchAssistantPluginSettings | undefined;
 	controller: Controller | undefined;
-	coreSearchInterface: CoreSearchInterface | undefined;
+	SearchComponentInterface: SearchComponentInterface | undefined;
 	workspacePreview: WorkspacePreview | undefined;
 	cardView: CardView | undefined;
 
 	override async onload() {
 		this.controller = new Controller(this.app, this);
 		this.addChild(this.controller);
-		this.coreSearchInterface = new CoreSearchInterface(this.app, this);
-		this.addChild(this.coreSearchInterface);
+		this.SearchComponentInterface = new SearchComponentInterface(
+			this.app,
+			this
+		);
+		this.addChild(this.SearchComponentInterface);
 		this.workspacePreview = new WorkspacePreview(this.app, this);
 		this.addChild(this.workspacePreview);
 		this.cardView = new CardView(this.app, this);

@@ -56,7 +56,8 @@ export class Controller extends Component {
 		);
 
 		this.app.workspace.onLayoutReady(() => {
-			const inputEl = this.plugin.coreSearchInterface?.getSearchInput();
+			const inputEl =
+				this.plugin.SearchComponentInterface?.getSearchInput();
 			if (!inputEl) {
 				return;
 			}
@@ -118,7 +119,7 @@ export class Controller extends Component {
 		});
 
 		if (this.plugin.settings?.autoPreviewMode === 'cardView') {
-			this.plugin.coreSearchInterface?.startWatching(this.events);
+			this.plugin.SearchComponentInterface?.startWatching(this.events);
 		}
 
 		this.showOutline();
@@ -142,7 +143,7 @@ export class Controller extends Component {
 		this.plugin.cardView?.hide();
 		this.countSearchItemDetected = 0;
 
-		this.plugin.coreSearchInterface?.stopWatching();
+		this.plugin.SearchComponentInterface?.stopWatching();
 
 		this.outlineEl.hide();
 		this.setInSearchMode(false);
@@ -152,7 +153,7 @@ export class Controller extends Component {
 		if (this.currentFocusId === undefined) {
 			return;
 		}
-		this.plugin.coreSearchInterface?.focusOn(this.currentFocusId);
+		this.plugin.SearchComponentInterface?.focusOn(this.currentFocusId);
 		const pos = this.positionInCardView(this.currentFocusId);
 		if (pos === undefined) {
 			return;
@@ -179,7 +180,7 @@ export class Controller extends Component {
 	}
 
 	private showCardViewItem(id: number) {
-		const item = this.plugin.coreSearchInterface?.getResultItemAt(id);
+		const item = this.plugin.SearchComponentInterface?.getResultItemAt(id);
 		if (!item) {
 			return;
 		}
@@ -193,7 +194,7 @@ export class Controller extends Component {
 			return;
 		}
 
-		const item = this.plugin.coreSearchInterface?.getResultItemAt(
+		const item = this.plugin.SearchComponentInterface?.getResultItemAt(
 			this.currentFocusId ?? 0
 		);
 		if (!item) {
@@ -206,7 +207,8 @@ export class Controller extends Component {
 		if (this.currentFocusId === undefined) {
 			this.currentFocusId = 0;
 		} else {
-			const numResults = this.plugin.coreSearchInterface?.count() ?? 0;
+			const numResults =
+				this.plugin.SearchComponentInterface?.count() ?? 0;
 			this.currentFocusId++;
 			this.currentFocusId =
 				this.currentFocusId < numResults
@@ -237,7 +239,7 @@ export class Controller extends Component {
 	}
 
 	private unfocus() {
-		this.plugin.coreSearchInterface?.unfocus();
+		this.plugin.SearchComponentInterface?.unfocus();
 		this.plugin.cardView?.unfocus();
 	}
 
@@ -245,14 +247,14 @@ export class Controller extends Component {
 		if (this.currentFocusId === undefined) {
 			return;
 		}
-		this.plugin.coreSearchInterface?.preview(this.currentFocusId);
+		this.plugin.SearchComponentInterface?.preview(this.currentFocusId);
 	}
 
 	private open() {
 		if (this.currentFocusId === undefined) {
 			return;
 		}
-		this.plugin.coreSearchInterface?.open(this.currentFocusId);
+		this.plugin.SearchComponentInterface?.open(this.currentFocusId);
 	}
 
 	private createOutline(): HTMLElement {

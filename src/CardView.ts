@@ -58,7 +58,7 @@ export class CardView extends Component {
 			if (id === undefined) {
 				return;
 			}
-			this.plugin.coreSearchInterface?.open(Number.parseInt(id));
+			this.plugin.SearchComponentInterface?.open(Number.parseInt(id));
 		});
 	}
 
@@ -125,7 +125,7 @@ export class CardView extends Component {
 		const cardsPerPage = row * column;
 		const pageId = Math.floor(itemId / cardsPerPage);
 
-		const items = this.plugin.coreSearchInterface?.getResultItems();
+		const items = this.plugin.SearchComponentInterface?.getResultItems();
 		if (!items) {
 			return;
 		}

@@ -22,7 +22,7 @@ export class OptionModal extends Modal {
 				id: 'matchingCase',
 				key: 'a',
 				onChoose: () => {
-					this.plugin.coreSearchInterface?.toggleMatchingCase();
+					this.plugin.SearchComponentInterface?.toggleMatchingCase();
 					this.shouldRecall = false;
 				},
 			},
@@ -30,31 +30,31 @@ export class OptionModal extends Modal {
 				id: 'explainSearch',
 				key: 's',
 				onChoose: () => {
-					this.plugin.coreSearchInterface?.toggleExplainSearch();
+					this.plugin.SearchComponentInterface?.toggleExplainSearch();
 				},
 			},
 			{
 				id: 'collapseAll',
 				key: 'd',
 				onChoose: () => {
-					this.plugin.coreSearchInterface?.toggleCollapseAll();
+					this.plugin.SearchComponentInterface?.toggleCollapseAll();
 				},
 			},
 			{
 				id: 'extraContext',
 				key: 'f',
 				onChoose: () => {
-					this.plugin.coreSearchInterface?.toggleExtraContext();
+					this.plugin.SearchComponentInterface?.toggleExtraContext();
 				},
 			},
 			{
 				id: 'alphabetical',
 				key: 'g',
 				onChoose: () => {
-					this.plugin.coreSearchInterface?.setSortOrder(
+					this.plugin.SearchComponentInterface?.setSortOrder(
 						'alphabetical'
 					);
-					this.plugin.coreSearchInterface?.renewSortOrderInfo();
+					this.plugin.SearchComponentInterface?.renewSortOrderInfo();
 					this.shouldRecall = false;
 				},
 			},
@@ -62,10 +62,10 @@ export class OptionModal extends Modal {
 				id: 'alphabeticalReverse',
 				key: 'h',
 				onChoose: () => {
-					this.plugin.coreSearchInterface?.setSortOrder(
+					this.plugin.SearchComponentInterface?.setSortOrder(
 						'alphabeticalReverse'
 					);
-					this.plugin.coreSearchInterface?.renewSortOrderInfo();
+					this.plugin.SearchComponentInterface?.renewSortOrderInfo();
 					this.shouldRecall = false;
 				},
 			},
@@ -73,10 +73,10 @@ export class OptionModal extends Modal {
 				id: 'byModifiedTime',
 				key: 'j',
 				onChoose: () => {
-					this.plugin.coreSearchInterface?.setSortOrder(
+					this.plugin.SearchComponentInterface?.setSortOrder(
 						'byModifiedTime'
 					);
-					this.plugin.coreSearchInterface?.renewSortOrderInfo();
+					this.plugin.SearchComponentInterface?.renewSortOrderInfo();
 					this.shouldRecall = false;
 				},
 			},
@@ -84,10 +84,10 @@ export class OptionModal extends Modal {
 				id: 'byModifiedTimeReverse',
 				key: 'k',
 				onChoose: () => {
-					this.plugin.coreSearchInterface?.setSortOrder(
+					this.plugin.SearchComponentInterface?.setSortOrder(
 						'byModifiedTimeReverse'
 					);
-					this.plugin.coreSearchInterface?.renewSortOrderInfo();
+					this.plugin.SearchComponentInterface?.renewSortOrderInfo();
 					this.shouldRecall = false;
 				},
 			},
@@ -95,10 +95,10 @@ export class OptionModal extends Modal {
 				id: 'byCreatedTime',
 				key: 'l',
 				onChoose: () => {
-					this.plugin.coreSearchInterface?.setSortOrder(
+					this.plugin.SearchComponentInterface?.setSortOrder(
 						'byCreatedTime'
 					);
-					this.plugin.coreSearchInterface?.renewSortOrderInfo();
+					this.plugin.SearchComponentInterface?.renewSortOrderInfo();
 					this.shouldRecall = false;
 				},
 			},
@@ -106,10 +106,10 @@ export class OptionModal extends Modal {
 				id: 'byCreatedTimeReverse',
 				key: ';',
 				onChoose: () => {
-					this.plugin.coreSearchInterface?.setSortOrder(
+					this.plugin.SearchComponentInterface?.setSortOrder(
 						'byCreatedTimeReverse'
 					);
-					this.plugin.coreSearchInterface?.renewSortOrderInfo();
+					this.plugin.SearchComponentInterface?.renewSortOrderInfo();
 					this.shouldRecall = false;
 				},
 			},

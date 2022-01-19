@@ -15,7 +15,7 @@ import { searchOptions } from 'types/Option';
 import { LinkedList } from 'LinkedList';
 import { EVENT_SEARCH_RESULT_ITEM_DETECTED } from 'Events';
 
-export class CoreSearchInterface extends Component {
+export class SearchComponentInterface extends Component {
 	app: App;
 	plugin: CoreSearchAssistantPlugin;
 	private sortOrderContainerEl: HTMLElement | undefined;
@@ -170,7 +170,7 @@ export class CoreSearchInterface extends Component {
 		);
 
 		const childrenContainerEl =
-			this.plugin.coreSearchInterface?.getSearchView()?.dom
+			this.plugin.SearchComponentInterface?.getSearchView()?.dom
 				.childrenEl as HTMLElement;
 		this.observer.observe(childrenContainerEl, this.observationConfig);
 	}
