@@ -127,6 +127,8 @@ div.core-search-assistant_search-mode-outline {
 	z-index: var(--layer-modal);
 	background-color: var(--background-primary);
 	padding: 20px 30px;
+	display: flex;
+	justify-content: center;
 
 	div.workspace-leaf {
 		contain: initial !important;
@@ -145,7 +147,6 @@ div.core-search-assistant_search-mode-outline {
 	}
 
 	.content {
-		max-width: 1000px;
 		display: grid;
 		grid-template-columns: repeat(3, minmax(0, 1fr));
 		grid-template-rows: repeat(attr(data-row), 1fr);
