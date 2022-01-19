@@ -12,7 +12,7 @@ export class Controller extends Component {
 	private plugin: CoreSearchAssistantPlugin;
 	private scope: Scope | undefined;
 	private events: CoreSearchAssistantEvents;
-	private currentPos: number | undefined;
+	private currentFocusId: number | undefined;
 	private outlineEl: HTMLElement;
 	private _inSearchMode: boolean;
 	private countSearchItemDetected: number;
@@ -51,18 +51,7 @@ export class Controller extends Component {
 				if (this.countSearchItemDetected >= cardsPerPage) {
 					return;
 				}
-				const item = this.plugin.coreSearchInterface?.getResultItemAt(
-					this.countSearchItemDetected
-				);
-				if (!item) {
-					return;
-				}
-				this.plugin.cardView?.renderItem(
-					item,
-					this.countSearchItemDetected
-				);
-				this.plugin.cardView?.setLayout();
-				this.plugin.cardView?.reveal();
+				this.showCardViewItem(this.countSearchItemDetected);
 				this.countSearchItemDetected++;
 			})
 		);
@@ -130,7 +119,7 @@ export class Controller extends Component {
 	}
 
 	forget() {
-		this.currentPos = undefined;
+		this.currentFocusId = undefined;
 		this.countSearchItemDetected = 0;
 	}
 
@@ -139,7 +128,17 @@ export class Controller extends Component {
 			return;
 		}
 		this.plugin.cardView?.hide();
-		this.plugin.cardView?.renderPage(this.currentPos ?? 0);
+		this.plugin.cardView?.renderPage(this.currentFocusId ?? 0);
+		this.plugin.cardView?.reveal();
+	}
+
+	showCardViewItem(id: number) {
+		const item = this.plugin.coreSearchInterface?.getResultItemAt(id);
+		if (!item) {
+			return;
+		}
+		this.plugin.cardView?.renderItem(item, id);
+		this.plugin.cardView?.setLayout();
 		this.plugin.cardView?.reveal();
 	}
 
@@ -149,7 +148,7 @@ export class Controller extends Component {
 		}
 
 		const item = this.plugin.coreSearchInterface?.getResultItemAt(
-			this.currentPos ?? 0
+			this.currentFocusId ?? 0
 		);
 		if (!item) {
 			return;
@@ -158,13 +157,15 @@ export class Controller extends Component {
 	}
 
 	private navigateForward() {
-		if (this.currentPos === undefined) {
-			this.currentPos = 0;
+		if (this.currentFocusId === undefined) {
+			this.currentFocusId = 0;
 		} else {
 			const numResults = this.plugin.coreSearchInterface?.count() ?? 0;
-			this.currentPos++;
-			this.currentPos =
-				this.currentPos < numResults ? this.currentPos : numResults - 1;
+			this.currentFocusId++;
+			this.currentFocusId =
+				this.currentFocusId < numResults
+					? this.currentFocusId
+					: numResults - 1;
 
 			if (this.shouldTransitNextPageInCardView()) {
 				this.renewCardViewPage();
@@ -175,11 +176,12 @@ export class Controller extends Component {
 	}
 
 	private navigateBack() {
-		if (this.currentPos === undefined) {
+		if (this.currentFocusId === undefined) {
 			return;
 		}
-		this.currentPos--;
-		this.currentPos = this.currentPos >= 0 ? this.currentPos : 0;
+		this.currentFocusId--;
+		this.currentFocusId =
+			this.currentFocusId >= 0 ? this.currentFocusId : 0;
 
 		if (this.shouldTransitPreviousPageInCardView()) {
 			this.renewCardViewPage();
@@ -189,11 +191,11 @@ export class Controller extends Component {
 	}
 
 	focus() {
-		if (this.currentPos === undefined) {
+		if (this.currentFocusId === undefined) {
 			return;
 		}
-		this.plugin.coreSearchInterface?.focusOn(this.currentPos);
-		const pos = this.positionInCardView();
+		this.plugin.coreSearchInterface?.focusOn(this.currentFocusId);
+		const pos = this.positionInCardView(this.currentFocusId);
 		if (pos === undefined) {
 			return;
 		}
@@ -206,17 +208,17 @@ export class Controller extends Component {
 	}
 
 	private preview() {
-		if (this.currentPos === undefined) {
+		if (this.currentFocusId === undefined) {
 			return;
 		}
-		this.plugin.coreSearchInterface?.preview(this.currentPos);
+		this.plugin.coreSearchInterface?.preview(this.currentFocusId);
 	}
 
 	private open() {
-		if (this.currentPos === undefined) {
+		if (this.currentFocusId === undefined) {
 			return;
 		}
-		this.plugin.coreSearchInterface?.open(this.currentPos);
+		this.plugin.coreSearchInterface?.open(this.currentFocusId);
 	}
 
 	private createOutline(): HTMLElement {
@@ -244,10 +246,10 @@ export class Controller extends Component {
 			this.plugin.settings.cardViewLayout
 		);
 		const cardsPerPage = row * column;
-		if (this.currentPos === undefined) {
+		if (this.currentFocusId === undefined) {
 			return false;
 		}
-		return this.currentPos % cardsPerPage === 0;
+		return this.currentFocusId % cardsPerPage === 0;
 	}
 
 	private shouldTransitPreviousPageInCardView(): boolean {
@@ -259,22 +261,21 @@ export class Controller extends Component {
 		);
 		const cardsPerPage = row * column;
 
-		if (this.currentPos === undefined) {
+		if (this.currentFocusId === undefined) {
 			return false;
 		}
-		return (this.currentPos + 1) % cardsPerPage === 0;
+		return (this.currentFocusId + 1) % cardsPerPage === 0;
 	}
 
-	private positionInCardView(): number | undefined {
+	private positionInCardView(id: number | undefined): number | undefined {
+		if (id === undefined) {
+			return undefined;
+		}
 		const cardsPerPage = this.cardsPerPage();
 		if (!cardsPerPage) {
 			return undefined;
 		}
-
-		if (this.currentPos === undefined) {
-			return undefined;
-		}
-		return this.currentPos % cardsPerPage;
+		return id % cardsPerPage;
 	}
 
 	private cardsPerPage(): number | undefined {
