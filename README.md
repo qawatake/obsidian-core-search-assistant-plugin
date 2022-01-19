@@ -48,6 +48,8 @@ Available layouts:
 - 3 x 2,
 - 3 x 3.
 
+If rendered results are wrong, press `Enter` to reload.
+
 ![card-view-min](https://user-images.githubusercontent.com/38106890/150082177-6a14a509-b6f9-449f-90d1-7e198ae2d3d3.gif)
 
 ## Search options
