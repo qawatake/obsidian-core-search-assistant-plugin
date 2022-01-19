@@ -80,6 +80,17 @@ export class Controller extends Component {
 				}
 				this.reset();
 			});
+			// reload card view
+			// Enter key is not recognized by input event
+			this.registerDomEvent(inputEl, 'keypress', (evt) => {
+				if (evt.key !== 'Enter') {
+					return;
+				}
+				if (!this.inSearchMode()) {
+					this.enter();
+				}
+				this.reset();
+			});
 			this.registerDomEvent(inputEl, 'focus', () => {
 				if (!this.inSearchMode()) {
 					this.enter();
