@@ -45,6 +45,7 @@ export class SearchComponentInterface extends Component {
 
 			this.registerDomEvent(document, 'click', () => {
 				this.renewSortOrderInfo();
+				this.plugin.controller?.reset();
 			});
 		});
 	}

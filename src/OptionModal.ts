@@ -11,7 +11,6 @@ interface OptionItem {
 export class OptionModal extends Modal {
 	plugin: CoreSearchAssistantPlugin;
 	items: OptionItem[];
-	shouldRecall = true;
 
 	constructor(app: App, plugin: CoreSearchAssistantPlugin) {
 		super(app);
@@ -23,7 +22,7 @@ export class OptionModal extends Modal {
 				key: 'a',
 				onChoose: () => {
 					this.plugin.SearchComponentInterface?.toggleMatchingCase();
-					this.shouldRecall = false;
+					this.plugin.controller?.reset();
 				},
 			},
 			{
@@ -55,7 +54,7 @@ export class OptionModal extends Modal {
 						'alphabetical'
 					);
 					this.plugin.SearchComponentInterface?.renewSortOrderInfo();
-					this.shouldRecall = false;
+					this.plugin.controller?.reset();
 				},
 			},
 			{
@@ -66,7 +65,7 @@ export class OptionModal extends Modal {
 						'alphabeticalReverse'
 					);
 					this.plugin.SearchComponentInterface?.renewSortOrderInfo();
-					this.shouldRecall = false;
+					this.plugin.controller?.reset();
 				},
 			},
 			{
@@ -77,7 +76,7 @@ export class OptionModal extends Modal {
 						'byModifiedTime'
 					);
 					this.plugin.SearchComponentInterface?.renewSortOrderInfo();
-					this.shouldRecall = false;
+					this.plugin.controller?.reset();
 				},
 			},
 			{
@@ -88,7 +87,7 @@ export class OptionModal extends Modal {
 						'byModifiedTimeReverse'
 					);
 					this.plugin.SearchComponentInterface?.renewSortOrderInfo();
-					this.shouldRecall = false;
+					this.plugin.controller?.reset();
 				},
 			},
 			{
@@ -99,7 +98,7 @@ export class OptionModal extends Modal {
 						'byCreatedTime'
 					);
 					this.plugin.SearchComponentInterface?.renewSortOrderInfo();
-					this.shouldRecall = false;
+					this.plugin.controller?.reset();
 				},
 			},
 			{
@@ -110,7 +109,7 @@ export class OptionModal extends Modal {
 						'byCreatedTimeReverse'
 					);
 					this.plugin.SearchComponentInterface?.renewSortOrderInfo();
-					this.shouldRecall = false;
+					this.plugin.controller?.reset();
 				},
 			},
 		];
