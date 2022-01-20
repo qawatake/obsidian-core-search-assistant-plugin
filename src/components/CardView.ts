@@ -1,7 +1,7 @@
 import CoreSearchAssistantPlugin from 'main';
 import { App, Component, SearchResultItem, WorkspaceLeaf } from 'obsidian';
 import { parseCardLayout } from 'Setting';
-import { INTERVAL_MILLISECOND_TO_BE_DETACHED } from 'WorkspacePreview';
+import { INTERVAL_MILLISECOND_TO_BE_DETACHED } from 'components/WorkspacePreview';
 
 export class CardView extends Component {
 	private app: App;

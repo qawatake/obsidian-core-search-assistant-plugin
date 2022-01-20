@@ -1,5 +1,4 @@
 import CoreSearchAssistantPlugin from 'main';
-import { PreviewModal } from 'PreviewModal';
 import {
 	App,
 	Component,
@@ -12,7 +11,7 @@ import {
 } from 'obsidian';
 import { isSearchView } from 'types/Guards';
 import { searchOptions } from 'types/Option';
-import { LinkedList } from 'LinkedList';
+import { LinkedList } from 'utils/LinkedList';
 import { EVENT_SEARCH_RESULT_ITEM_DETECTED } from 'Events';
 
 export class SearchComponentInterface extends Component {
@@ -117,14 +116,6 @@ export class SearchComponentInterface extends Component {
 			return;
 		}
 		(fileNameEl as HTMLElement).click();
-	}
-
-	preview(pos: number) {
-		const item = this.getResultItemAt(pos);
-		if (!item) {
-			return;
-		}
-		new PreviewModal(this.app, this.plugin, item.file).open();
 	}
 
 	renewSortOrderInfo(): void {

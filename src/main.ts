@@ -1,4 +1,4 @@
-import { CardView } from 'CardView';
+import { CardView } from 'components/CardView';
 import { Controller } from 'Controller';
 import { SearchComponentInterface } from 'SearchComponentInterface';
 import { Plugin } from 'obsidian';
@@ -7,7 +7,7 @@ import {
 	CoreSearchAssistantSettingTab,
 	DEFAULT_SETTINGS,
 } from 'Setting';
-import { WorkspacePreview } from 'WorkspacePreview';
+import { WorkspacePreview } from 'components/WorkspacePreview';
 
 export default class CoreSearchAssistantPlugin extends Plugin {
 	settings: CoreSearchAssistantPluginSettings | undefined;

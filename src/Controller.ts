@@ -4,8 +4,9 @@ import {
 } from 'Events';
 import CoreSearchAssistantPlugin from 'main';
 import { App, Component, Scope } from 'obsidian';
-import { OptionModal } from 'OptionModal';
+import { OptionModal } from 'components/OptionModal';
 import { parseCardLayout, validOutlineWidth } from 'Setting';
+import { PreviewModal } from 'components/PreviewModal';
 
 export class Controller extends Component {
 	private app: App;
@@ -120,7 +121,7 @@ export class Controller extends Component {
 			this.open();
 		});
 		this.scope.register(['Ctrl'], ' ', () => {
-			this.preview();
+			this.openPreviewModal();
 		});
 		this.scope.register(['Shift'], ' ', () => {
 			new OptionModal(this.app, this.plugin).open();
@@ -254,11 +255,19 @@ export class Controller extends Component {
 		this.plugin.cardView?.unfocus();
 	}
 
-	private preview() {
-		if (this.currentFocusId === undefined) {
+	private openPreviewModal() {
+		const { currentFocusId } = this;
+		if (currentFocusId === undefined) {
 			return;
 		}
-		this.plugin.SearchComponentInterface?.preview(this.currentFocusId);
+		const item =
+			this.plugin.SearchComponentInterface?.getResultItemAt(
+				currentFocusId
+			);
+		if (!item) {
+			return;
+		}
+		new PreviewModal(this.app, this.plugin, item.file).open();
 	}
 
 	private open() {

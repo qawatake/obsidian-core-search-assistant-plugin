@@ -1,6 +1,6 @@
 import CoreSearchAssistantPlugin from 'main';
 import { App, Modal, TFile, WorkspaceLeaf } from 'obsidian';
-import { INTERVAL_MILLISECOND_TO_BE_DETACHED } from 'WorkspacePreview';
+import { INTERVAL_MILLISECOND_TO_BE_DETACHED } from 'components/WorkspacePreview';
 
 export class PreviewModal extends Modal {
 	file: TFile;
