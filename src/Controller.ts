@@ -135,7 +135,7 @@ export class Controller extends Component {
 		}
 
 		this.showOutline();
-		this.setInSearchMode(true);
+		this.toggleSearchMode(true);
 	}
 
 	reset() {
@@ -158,7 +158,7 @@ export class Controller extends Component {
 		this.plugin.SearchComponentInterface?.stopWatching();
 
 		this.outlineEl.hide();
-		this.setInSearchMode(false);
+		this.toggleSearchMode(false);
 	}
 
 	focus() {
@@ -345,7 +345,7 @@ export class Controller extends Component {
 		return row * column;
 	}
 
-	private setInSearchMode(on: boolean) {
+	private toggleSearchMode(on: boolean) {
 		this._inSearchMode = on;
 	}
 }
