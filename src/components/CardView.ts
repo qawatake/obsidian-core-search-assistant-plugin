@@ -192,7 +192,9 @@ export class CardView extends Component {
 		const previewContainerEl = previewMarginEl.createEl('div', {
 			cls: 'preview-container',
 		});
-		previewContainerEl.addClass('hide-iframe');
+		if (this.plugin.settings?.hideIframe) {
+			previewContainerEl.addClass('hide-iframe');
+		}
 		return previewContainerEl;
 	}
 
