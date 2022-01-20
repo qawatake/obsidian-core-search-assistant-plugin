@@ -33,6 +33,7 @@ export class LinkedList<T> {
 		else if (this.tail !== undefined && pre === this.tail.entity) {
 			this.link(cur);
 			linked = true;
+			this.unlinkedPool.delete(cur);
 			this.signal();
 		}
 
@@ -47,14 +48,11 @@ export class LinkedList<T> {
 				return;
 			}
 			this.structure(next, cur);
-			this.unlinkedPool.delete(cur);
-
-			return;
-		}
-
-		// pool sibling info
-		if (pre) {
-			this.unlinkedPool.set(pre, cur);
+		} else {
+			// pool sibling info
+			if (pre) {
+				this.unlinkedPool.set(pre, cur);
+			}
 		}
 	}
 
