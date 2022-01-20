@@ -28,7 +28,7 @@ export const DEFAULT_SETTINGS: CoreSearchAssistantPluginSettings = {
 	outlineWidth: 5,
 	autoPreviewMode: 'cardView',
 	cardViewLayout: '2x3',
-	hideIframe: true,
+	hideIframe: false,
 };
 
 export class CoreSearchAssistantSettingTab extends PluginSettingTab {
@@ -146,9 +146,7 @@ export class CoreSearchAssistantSettingTab extends PluginSettingTab {
 
 		new Setting(containerEl)
 			.setName('Hide iframe from auto preview')
-			.setDesc(
-				'Recommend to enable this because iframe interferes the keyboard operation.'
-			)
+			.setDesc('Some iframe elements prevent the keyboard operation.')
 			.addToggle((component) => {
 				if (!this.plugin.settings) {
 					return;
