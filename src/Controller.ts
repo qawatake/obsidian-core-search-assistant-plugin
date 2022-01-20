@@ -8,7 +8,7 @@ import { OptionModal } from 'components/OptionModal';
 import { parseCardLayout, validOutlineWidth } from 'Setting';
 import { PreviewModal } from 'components/PreviewModal';
 
-const DELAY_TO_RELOAD_IN_MILLISECOND = 100;
+const DELAY_TO_RELOAD_IN_MILLISECOND = 1000;
 
 export class Controller extends Component {
 	private app: App;
@@ -182,18 +182,18 @@ export class Controller extends Component {
 		return this._inSearchMode;
 	}
 
-	private forget() {
-		this.currentFocusId = undefined;
-		this.countSearchItemDetected = 0;
-	}
-
-	private renewCardViewPage() {
+	renewCardViewPage() {
 		if (this.plugin.settings?.autoPreviewMode !== 'cardView') {
 			return;
 		}
 		this.plugin.cardView?.hide();
 		this.plugin.cardView?.renderPage(this.currentFocusId ?? 0);
 		this.plugin.cardView?.reveal();
+	}
+
+	private forget() {
+		this.currentFocusId = undefined;
+		this.countSearchItemDetected = 0;
 	}
 
 	private showCardViewItem(id: number) {

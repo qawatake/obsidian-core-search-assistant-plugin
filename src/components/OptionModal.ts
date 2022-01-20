@@ -23,6 +23,7 @@ export class OptionModal extends Modal {
 				onChoose: () => {
 					this.plugin.SearchComponentInterface?.toggleMatchingCase();
 					this.plugin.controller?.reset();
+					// renewCardPageView is not needed because the internal plugin definitely reloads
 				},
 			},
 			{
@@ -50,66 +51,84 @@ export class OptionModal extends Modal {
 				id: 'alphabetical',
 				key: 'g',
 				onChoose: () => {
-					this.plugin.SearchComponentInterface?.setSortOrder(
-						'alphabetical'
-					);
-					this.plugin.SearchComponentInterface?.renewSortOrderInfo();
-					this.plugin.controller?.reset();
+					const changed =
+						this.plugin.SearchComponentInterface?.setSortOrder(
+							'alphabetical'
+						);
+					if (changed) {
+						this.plugin.SearchComponentInterface?.renewSortOrderInfo();
+						this.plugin.controller?.reset();
+					}
 				},
 			},
 			{
 				id: 'alphabeticalReverse',
 				key: 'h',
 				onChoose: () => {
-					this.plugin.SearchComponentInterface?.setSortOrder(
-						'alphabeticalReverse'
-					);
-					this.plugin.SearchComponentInterface?.renewSortOrderInfo();
-					this.plugin.controller?.reset();
+					const changed =
+						this.plugin.SearchComponentInterface?.setSortOrder(
+							'alphabeticalReverse'
+						);
+					if (changed) {
+						this.plugin.SearchComponentInterface?.renewSortOrderInfo();
+						this.plugin.controller?.reset();
+					}
 				},
 			},
 			{
 				id: 'byModifiedTime',
 				key: 'j',
 				onChoose: () => {
-					this.plugin.SearchComponentInterface?.setSortOrder(
-						'byModifiedTime'
-					);
-					this.plugin.SearchComponentInterface?.renewSortOrderInfo();
-					this.plugin.controller?.reset();
+					const changed =
+						this.plugin.SearchComponentInterface?.setSortOrder(
+							'byModifiedTime'
+						);
+					if (changed) {
+						this.plugin.SearchComponentInterface?.renewSortOrderInfo();
+						this.plugin.controller?.reset();
+					}
 				},
 			},
 			{
 				id: 'byModifiedTimeReverse',
 				key: 'k',
 				onChoose: () => {
-					this.plugin.SearchComponentInterface?.setSortOrder(
-						'byModifiedTimeReverse'
-					);
-					this.plugin.SearchComponentInterface?.renewSortOrderInfo();
-					this.plugin.controller?.reset();
+					const changed =
+						this.plugin.SearchComponentInterface?.setSortOrder(
+							'byModifiedTimeReverse'
+						);
+					if (changed) {
+						this.plugin.SearchComponentInterface?.renewSortOrderInfo();
+						this.plugin.controller?.reset();
+					}
 				},
 			},
 			{
 				id: 'byCreatedTime',
 				key: 'l',
 				onChoose: () => {
-					this.plugin.SearchComponentInterface?.setSortOrder(
-						'byCreatedTime'
-					);
-					this.plugin.SearchComponentInterface?.renewSortOrderInfo();
-					this.plugin.controller?.reset();
+					const changed =
+						this.plugin.SearchComponentInterface?.setSortOrder(
+							'byCreatedTime'
+						);
+					if (changed) {
+						this.plugin.SearchComponentInterface?.renewSortOrderInfo();
+						this.plugin.controller?.reset();
+					}
 				},
 			},
 			{
 				id: 'byCreatedTimeReverse',
 				key: ';',
 				onChoose: () => {
-					this.plugin.SearchComponentInterface?.setSortOrder(
-						'byCreatedTimeReverse'
-					);
-					this.plugin.SearchComponentInterface?.renewSortOrderInfo();
-					this.plugin.controller?.reset();
+					const changed =
+						this.plugin.SearchComponentInterface?.setSortOrder(
+							'byCreatedTimeReverse'
+						);
+					if (changed) {
+						this.plugin.SearchComponentInterface?.renewSortOrderInfo();
+						this.plugin.controller?.reset();
+					}
 				},
 			},
 		];

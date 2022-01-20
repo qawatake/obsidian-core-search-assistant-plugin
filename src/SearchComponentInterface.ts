@@ -75,9 +75,11 @@ export class SearchComponentInterface extends Component {
 		view?.setExtraContext(!view.dom.extraContext);
 	}
 
-	setSortOrder(sortOrder: SortOrderInSearch) {
+	setSortOrder(sortOrder: SortOrderInSearch): SortOrderChanged {
 		const view = this.getSearchView();
+		const originalOrder = view?.dom.sortOrder;
 		view?.setSortOrder(sortOrder);
+		return sortOrder !== originalOrder;
 	}
 
 	focusOn(pos: number) {
@@ -276,3 +278,6 @@ export class SearchComponentInterface extends Component {
 	// 		: undefined;
 	// }
 }
+
+// will be used to indicate if reloading card view is needed
+type SortOrderChanged = boolean;
