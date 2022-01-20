@@ -14,10 +14,10 @@ In the search mode, you can use the following hotkeys.
 
 | Key | Action |
 | -- | -- |
-| `Ctrl + N` | Select item below. |
-| `Ctrl + P` | Select item above. |
-| `Ctrl + Space` | Preview selected item. |
-| `Ctrl + Enter` | Open selected item. |
+| `Ctrl + N` | Select the next item. |
+| `Ctrl + P` | Select the previous item. |
+| `Ctrl + Space` | Preview the selected item. |
+| `Ctrl + Enter` | Open the selected item. |
 | `Shift + Space` | Set search options. |
 
 The hotkeys above are available only in the search mode, so don't worry about overwriting your hotkey settings.
