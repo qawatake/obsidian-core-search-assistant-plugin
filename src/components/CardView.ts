@@ -116,13 +116,10 @@ export class CardView extends Component {
 	}
 
 	renderPage(itemId: number) {
-		if (!this.plugin.settings) {
+		const cardsPerPage = this.cardsPerPage();
+		if (cardsPerPage === undefined) {
 			return;
 		}
-		const [row, column] = parseCardLayout(
-			this.plugin.settings.cardViewLayout
-		);
-		const cardsPerPage = row * column;
 		const pageId = Math.floor(itemId / cardsPerPage);
 
 		const items = this.plugin.SearchComponentInterface?.getResultItems();
@@ -182,6 +179,7 @@ export class CardView extends Component {
 			cls: 'item-container',
 			attr: {
 				'data-id': id,
+				'data-path': item.file.path,
 			},
 		});
 		itemContainerEl.createEl('div', {
@@ -207,6 +205,52 @@ export class CardView extends Component {
 			return undefined;
 		}
 		return this.getSelectedCardEl(parentEl);
+	}
+
+	itemsRenderedCorrectly(): boolean {
+		const wantedItems =
+			this.plugin.SearchComponentInterface?.getResultItems();
+		if (wantedItems === undefined) {
+			return false;
+		}
+		const cardsPerPage = this.cardsPerPage();
+		if (cardsPerPage === undefined) {
+			return false;
+		}
+		const length = Math.min(wantedItems.length, cardsPerPage);
+
+		const gotItemEls = this.contentEl.children;
+		for (let i = 0; i < length; i++) {
+			const want = wantedItems[i];
+			const got = gotItemEls.item(i);
+			if (want === undefined) {
+				if (got === null) {
+					continue;
+				} else {
+					return false;
+				}
+			}
+
+			if (!(got instanceof HTMLElement)) {
+				return false;
+			}
+			if (got.dataset['path'] !== want.file.path) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	private cardsPerPage(): number | undefined {
+		if (!this.plugin.settings) {
+			return undefined;
+		}
+
+		const [row, column] = parseCardLayout(
+			this.plugin.settings.cardViewLayout
+		);
+		return row * column;
 	}
 
 	// private renderItems(items: SearchResultItem[]) {

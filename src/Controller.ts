@@ -8,6 +8,8 @@ import { OptionModal } from 'components/OptionModal';
 import { parseCardLayout, validOutlineWidth } from 'Setting';
 import { PreviewModal } from 'components/PreviewModal';
 
+const DELAY_TO_RELOAD_IN_MILLISECOND = 100;
+
 export class Controller extends Component {
 	private app: App;
 	private plugin: CoreSearchAssistantPlugin;
@@ -53,6 +55,9 @@ export class Controller extends Component {
 				}
 				this.showCardViewItem(this.countSearchItemDetected);
 				this.countSearchItemDetected++;
+				if (this.countSearchItemDetected === 1) {
+					this.retryCardView(DELAY_TO_RELOAD_IN_MILLISECOND);
+				}
 			})
 		);
 
@@ -347,5 +352,15 @@ export class Controller extends Component {
 
 	private toggleSearchMode(on: boolean) {
 		this._inSearchMode = on;
+	}
+
+	private retryCardView(delayMillisecond: number) {
+		// i don't retry many times because it looks bad.
+		setTimeout(() => {
+			if (!this.plugin.cardView?.itemsRenderedCorrectly()) {
+				this.reset();
+				this.renewCardViewPage();
+			}
+		}, delayMillisecond);
 	}
 }
