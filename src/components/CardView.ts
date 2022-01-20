@@ -186,7 +186,7 @@ export class CardView extends Component {
 		});
 		itemContainerEl.createEl('div', {
 			cls: 'file-name-container',
-			text: item.file.name,
+			text: item.file.basename, // extension is unnecessary because built-in search does not catch other formats
 		});
 		const previewMarginEl = itemContainerEl.createEl('div', {
 			cls: 'preview-container-wrapper',
