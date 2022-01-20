@@ -21,6 +21,7 @@ In the search mode, you can use the following hotkeys.
 | `Shift + Space` | Set search options. |
 
 The hotkeys above are available only in the search mode, so don't worry about overwriting your hotkey settings.
+To exit the search mode, press `Esc` or click any part of the screen other than the input form.
 
 ## Auto Preview
 There are three options for auto preview.
