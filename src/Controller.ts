@@ -57,11 +57,17 @@ export class Controller extends Component {
 				if (this.countSearchItemDetected >= cardsPerPage) {
 					return;
 				}
+
+				if (this.countSearchItemDetected === 0) {
+					this.plugin.cardView?.hide();
+				}
+
 				this.showCardViewItem(this.countSearchItemDetected);
-				this.countSearchItemDetected++;
-				if (this.countSearchItemDetected === 1) {
+
+				if (this.countSearchItemDetected === 0) {
 					this.retryCardView(DELAY_TO_RELOAD_IN_MILLISECOND);
 				}
+				this.countSearchItemDetected++;
 			})
 		);
 
