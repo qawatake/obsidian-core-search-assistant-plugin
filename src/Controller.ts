@@ -137,7 +137,6 @@ export class Controller extends Component {
 		});
 		this.scope.register(['Shift'], ' ', () => {
 			new OptionModal(this.app, this.plugin).open();
-			this.optionModalShown = true;
 		});
 		this.scope.register([], 'Escape', () => {
 			this.exit();
@@ -156,8 +155,6 @@ export class Controller extends Component {
 		this.unfocus();
 		this.plugin.cardView?.hide();
 		this.countSearchItemDetected = 0;
-		this.previewModalShown = false;
-		this.optionModalShown = false;
 	}
 
 	exit() {
@@ -169,8 +166,6 @@ export class Controller extends Component {
 		this.plugin?.workspacePreview?.hide();
 		this.plugin.cardView?.hide();
 		this.countSearchItemDetected = 0;
-		this.previewModalShown = false;
-		this.optionModalShown = false;
 
 		this.plugin.SearchComponentInterface?.stopWatching();
 
@@ -199,11 +194,17 @@ export class Controller extends Component {
 		this.plugin.cardView?.reveal();
 	}
 
+	toggleOptionModalShown(shown: boolean) {
+		this.optionModalShown = shown;
+	}
+
+	togglePreviewModalShown(shown: boolean) {
+		this.previewModalShown = shown;
+	}
+
 	private forget() {
 		this.currentFocusId = undefined;
 		this.countSearchItemDetected = 0;
-		this.previewModalShown = false;
-		this.optionModalShown = false;
 	}
 
 	private showCardViewItem(id: number) {
@@ -283,7 +284,6 @@ export class Controller extends Component {
 			return;
 		}
 		new PreviewModal(this.app, this.plugin, item.file).open();
-		this.previewModalShown = true;
 	}
 
 	private open() {

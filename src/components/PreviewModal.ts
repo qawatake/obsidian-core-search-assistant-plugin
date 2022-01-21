@@ -16,6 +16,7 @@ export class PreviewModal extends Modal {
 
 	override onOpen() {
 		this.renderPreview();
+		this.plugin.controller?.togglePreviewModalShown(true);
 
 		// to prevent the modal immediately close
 		// await new Promise((resolve) => setTimeout(resolve, 1));
@@ -34,6 +35,8 @@ export class PreviewModal extends Modal {
 		setTimeout(() => {
 			// necessary because selection focus will be removed when preview modal closes.
 			this.plugin.controller?.focus();
+			// too fast to remain search mode
+			this.plugin.controller?.togglePreviewModalShown(false);
 		}, 100);
 	}
 

@@ -140,6 +140,7 @@ export class OptionModal extends Modal {
 		});
 
 		this.renderOptions();
+		this.plugin.controller?.toggleOptionModalShown(true);
 	}
 
 	renderOptions() {
@@ -168,5 +169,11 @@ export class OptionModal extends Modal {
 	override onClose() {
 		const { containerEl } = this;
 		containerEl.empty();
+
+		// too fast to remain search mode
+		setTimeout(
+			() => this.plugin.controller?.toggleOptionModalShown(false),
+			100
+		);
 	}
 }
