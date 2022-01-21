@@ -44,7 +44,7 @@ export class SearchComponentInterface extends Component {
 
 			this.registerDomEvent(document, 'click', () => {
 				this.renewSortOrderInfo();
-				this.plugin.controller?.reset();
+				// this.plugin.controller?.reset(); // it unexpectedly reloads when clicking close button of modals
 			});
 		});
 	}

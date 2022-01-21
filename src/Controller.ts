@@ -17,8 +17,10 @@ export class Controller extends Component {
 	private events: CoreSearchAssistantEvents;
 	private currentFocusId: number | undefined;
 	private outlineEl: HTMLElement;
-	private _inSearchMode: boolean;
 	private countSearchItemDetected: number;
+	private inSearchMode: boolean;
+	private previewModalShown: boolean;
+	private optionModalShown: boolean;
 
 	constructor(app: App, plugin: CoreSearchAssistantPlugin) {
 		super();
@@ -26,8 +28,10 @@ export class Controller extends Component {
 		this.plugin = plugin;
 		this.events = new CoreSearchAssistantEvents();
 		this.outlineEl = this.createOutline();
-		this._inSearchMode = false;
 		this.countSearchItemDetected = 0;
+		this.inSearchMode = false;
+		this.previewModalShown = false;
+		this.optionModalShown = false;
 	}
 
 	override onunload() {
@@ -69,11 +73,14 @@ export class Controller extends Component {
 			}
 
 			this.registerDomEvent(document, 'click', () => {
+				if (this.optionModalShown || this.previewModalShown) {
+					return;
+				}
 				this.exit();
 			});
 			this.registerDomEvent(inputEl, 'click', (evt) => {
 				evt.stopPropagation();
-				if (!this.inSearchMode()) {
+				if (!this.inSearchMode) {
 					this.enter();
 				}
 			});
@@ -81,7 +88,7 @@ export class Controller extends Component {
 			// x "keydown" → capture Ctrl + Enter key
 			// x "keypress" → do not recognize Backspace key
 			this.registerDomEvent(inputEl, 'input', () => {
-				if (!this.inSearchMode()) {
+				if (!this.inSearchMode) {
 					this.enter();
 				}
 				this.reset();
@@ -92,13 +99,13 @@ export class Controller extends Component {
 				if (evt.key !== 'Enter') {
 					return;
 				}
-				if (!this.inSearchMode()) {
+				if (!this.inSearchMode) {
 					this.enter();
 				}
 				this.reset();
 			});
 			this.registerDomEvent(inputEl, 'focus', () => {
-				if (!this.inSearchMode()) {
+				if (!this.inSearchMode) {
 					this.enter();
 				}
 			});
@@ -130,6 +137,7 @@ export class Controller extends Component {
 		});
 		this.scope.register(['Shift'], ' ', () => {
 			new OptionModal(this.app, this.plugin).open();
+			this.optionModalShown = true;
 		});
 		this.scope.register([], 'Escape', () => {
 			this.exit();
@@ -140,7 +148,7 @@ export class Controller extends Component {
 		}
 
 		this.showOutline();
-		this.toggleSearchMode(true);
+		this.inSearchMode = true;
 	}
 
 	reset() {
@@ -148,6 +156,8 @@ export class Controller extends Component {
 		this.unfocus();
 		this.plugin.cardView?.hide();
 		this.countSearchItemDetected = 0;
+		this.previewModalShown = false;
+		this.optionModalShown = false;
 	}
 
 	exit() {
@@ -159,11 +169,13 @@ export class Controller extends Component {
 		this.plugin?.workspacePreview?.hide();
 		this.plugin.cardView?.hide();
 		this.countSearchItemDetected = 0;
+		this.previewModalShown = false;
+		this.optionModalShown = false;
 
 		this.plugin.SearchComponentInterface?.stopWatching();
 
 		this.outlineEl.hide();
-		this.toggleSearchMode(false);
+		this.inSearchMode = false;
 	}
 
 	focus() {
@@ -178,10 +190,6 @@ export class Controller extends Component {
 		this.plugin.cardView?.focusOn(pos);
 	}
 
-	inSearchMode(): boolean {
-		return this._inSearchMode;
-	}
-
 	renewCardViewPage() {
 		if (this.plugin.settings?.autoPreviewMode !== 'cardView') {
 			return;
@@ -194,6 +202,8 @@ export class Controller extends Component {
 	private forget() {
 		this.currentFocusId = undefined;
 		this.countSearchItemDetected = 0;
+		this.previewModalShown = false;
+		this.optionModalShown = false;
 	}
 
 	private showCardViewItem(id: number) {
@@ -273,6 +283,7 @@ export class Controller extends Component {
 			return;
 		}
 		new PreviewModal(this.app, this.plugin, item.file).open();
+		this.previewModalShown = true;
 	}
 
 	private open() {
@@ -348,10 +359,6 @@ export class Controller extends Component {
 			this.plugin.settings.cardViewLayout
 		);
 		return row * column;
-	}
-
-	private toggleSearchMode(on: boolean) {
-		this._inSearchMode = on;
 	}
 
 	private retryCardView(delayMillisecond: number) {
