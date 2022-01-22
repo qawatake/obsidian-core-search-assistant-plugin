@@ -2,6 +2,10 @@ import CoreSearchAssistantPlugin from 'main';
 import { App, Modal, TFile, WorkspaceLeaf } from 'obsidian';
 import { INTERVAL_MILLISECOND_TO_BE_DETACHED } from 'components/WorkspacePreview';
 
+type ScrollDirection = 'up' | 'down';
+
+const SCROLL_AMOUNT = 20;
+
 export class PreviewModal extends Modal {
 	file: TFile;
 	plugin: CoreSearchAssistantPlugin;
@@ -39,6 +43,25 @@ export class PreviewModal extends Modal {
 			this.shouldRestoreSelection = false;
 			this.close();
 		});
+
+		this.scope.register([], ' ', () => {
+			this.scroll('down');
+		});
+		this.scope.register(['Shift'], ' ', () => {
+			this.scroll('up');
+		});
+		this.scope.register([], 'ArrowDown', () => {
+			this.scroll('down', SCROLL_AMOUNT);
+		});
+		this.scope.register(['Ctrl'], 'n', () => {
+			this.scroll('down', SCROLL_AMOUNT);
+		});
+		this.scope.register([], 'ArrowUp', () => {
+			this.scroll('up', SCROLL_AMOUNT);
+		});
+		this.scope.register(['Ctrl'], 'p', () => {
+			this.scroll('up', SCROLL_AMOUNT);
+		});
 	}
 
 	override onClose() {
@@ -60,6 +83,17 @@ export class PreviewModal extends Modal {
 		setTimeout(() => {
 			leafToBeDetached.detach();
 		}, millisecond);
+	}
+
+	private scroll(direction: ScrollDirection, px?: number) {
+		const { containerEl, contentEl } = this;
+		const move =
+			(px ?? containerEl.clientHeight / 2) *
+			(direction === 'up' ? -1 : 1);
+		contentEl.scrollBy({
+			top: move,
+			behavior: 'smooth',
+		});
 	}
 
 	renderPreview() {
