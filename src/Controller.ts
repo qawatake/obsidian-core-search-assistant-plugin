@@ -3,7 +3,7 @@ import {
 	EVENT_SEARCH_RESULT_ITEM_DETECTED,
 } from 'Events';
 import CoreSearchAssistantPlugin from 'main';
-import { App, Component, Scope } from 'obsidian';
+import { App, Component, Scope, SplitDirection } from 'obsidian';
 import { OptionModal } from 'components/OptionModal';
 import { parseCardLayout, validOutlineWidth } from 'Setting';
 import { PreviewModal } from 'components/PreviewModal';
@@ -129,7 +129,17 @@ export class Controller extends Component {
 			this.navigateForward();
 			this.showWorkspacePreview();
 		});
+		this.scope.register([], 'ArrowDown', (evt: KeyboardEvent) => {
+			evt.preventDefault();
+			this.navigateForward();
+			this.showWorkspacePreview();
+		});
 		this.scope.register(['Ctrl'], 'P', (evt: KeyboardEvent) => {
+			evt.preventDefault();
+			this.navigateBack();
+			this.showWorkspacePreview();
+		});
+		this.scope.register([], 'ArrowUp', (evt: KeyboardEvent) => {
 			evt.preventDefault();
 			this.navigateBack();
 			this.showWorkspacePreview();
@@ -137,7 +147,17 @@ export class Controller extends Component {
 		this.scope.register(['Ctrl'], 'Enter', (evt: KeyboardEvent) => {
 			evt.preventDefault(); // ← necessary to prevent renew query, which triggers item detection events
 			this.open();
+			this.exit();
 		});
+		this.scope.register(
+			['Ctrl', 'Shift'],
+			'Enter',
+			(evt: KeyboardEvent) => {
+				evt.preventDefault();
+				this.open(this.plugin.settings?.splitDirection);
+				this.exit();
+			}
+		);
 		this.scope.register(['Ctrl'], ' ', () => {
 			this.openPreviewModal();
 		});
@@ -189,6 +209,16 @@ export class Controller extends Component {
 			return;
 		}
 		this.plugin.cardView?.focusOn(pos);
+	}
+
+	open(direction?: SplitDirection) {
+		if (this.currentFocusId === undefined) {
+			return;
+		}
+		this.plugin.SearchComponentInterface?.open(
+			this.currentFocusId,
+			direction
+		);
 	}
 
 	renewCardViewPage() {
@@ -290,13 +320,6 @@ export class Controller extends Component {
 			return;
 		}
 		new PreviewModal(this.app, this.plugin, item.file).open();
-	}
-
-	private open() {
-		if (this.currentFocusId === undefined) {
-			return;
-		}
-		this.plugin.SearchComponentInterface?.open(this.currentFocusId);
 	}
 
 	private createOutline(): HTMLElement {

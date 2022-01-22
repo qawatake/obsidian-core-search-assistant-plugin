@@ -2,6 +2,10 @@ import CoreSearchAssistantPlugin from 'main';
 import { App, Modal, TFile, WorkspaceLeaf } from 'obsidian';
 import { INTERVAL_MILLISECOND_TO_BE_DETACHED } from 'components/WorkspacePreview';
 
+type ScrollDirection = 'up' | 'down';
+
+const SCROLL_AMOUNT = 20;
+
 export class PreviewModal extends Modal {
 	file: TFile;
 	plugin: CoreSearchAssistantPlugin;
@@ -22,7 +26,41 @@ export class PreviewModal extends Modal {
 		// await new Promise((resolve) => setTimeout(resolve, 1));
 
 		this.scope.register(['Ctrl'], ' ', () => {
+			this.shouldRestoreSelection = true;
 			this.close();
+		});
+
+		this.scope.register(['Ctrl'], 'Enter', () => {
+			this.plugin.controller?.open();
+			this.plugin.controller?.exit();
+			this.shouldRestoreSelection = false;
+			this.close();
+		});
+
+		this.scope.register(['Ctrl', 'Shift'], 'Enter', () => {
+			this.plugin.controller?.open(this.plugin.settings?.splitDirection);
+			this.plugin.controller?.exit();
+			this.shouldRestoreSelection = false;
+			this.close();
+		});
+
+		this.scope.register([], ' ', () => {
+			this.scroll('down');
+		});
+		this.scope.register(['Shift'], ' ', () => {
+			this.scroll('up');
+		});
+		this.scope.register([], 'ArrowDown', () => {
+			this.scroll('down', SCROLL_AMOUNT);
+		});
+		this.scope.register(['Ctrl'], 'n', () => {
+			this.scroll('down', SCROLL_AMOUNT);
+		});
+		this.scope.register([], 'ArrowUp', () => {
+			this.scroll('up', SCROLL_AMOUNT);
+		});
+		this.scope.register(['Ctrl'], 'p', () => {
+			this.scroll('up', SCROLL_AMOUNT);
 		});
 	}
 
@@ -31,11 +69,8 @@ export class PreviewModal extends Modal {
 		contentEl.empty();
 		this.detachLater(INTERVAL_MILLISECOND_TO_BE_DETACHED);
 
-		// too fast to focus the selected item
+		// too fast to remain search mode
 		setTimeout(() => {
-			// necessary because selection focus will be removed when preview modal closes.
-			this.plugin.controller?.focus();
-			// too fast to remain search mode
 			this.plugin.controller?.togglePreviewModalShown(false);
 		}, 100);
 	}
@@ -48,6 +83,17 @@ export class PreviewModal extends Modal {
 		setTimeout(() => {
 			leafToBeDetached.detach();
 		}, millisecond);
+	}
+
+	private scroll(direction: ScrollDirection, px?: number) {
+		const { containerEl, contentEl } = this;
+		const move =
+			(px ?? containerEl.clientHeight / 2) *
+			(direction === 'up' ? -1 : 1);
+		contentEl.scrollBy({
+			top: move,
+			behavior: 'smooth',
+		});
 	}
 
 	renderPreview() {
