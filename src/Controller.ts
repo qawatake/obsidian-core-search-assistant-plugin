@@ -129,7 +129,17 @@ export class Controller extends Component {
 			this.navigateForward();
 			this.showWorkspacePreview();
 		});
+		this.scope.register([], 'ArrowDown', (evt: KeyboardEvent) => {
+			evt.preventDefault();
+			this.navigateForward();
+			this.showWorkspacePreview();
+		});
 		this.scope.register(['Ctrl'], 'P', (evt: KeyboardEvent) => {
+			evt.preventDefault();
+			this.navigateBack();
+			this.showWorkspacePreview();
+		});
+		this.scope.register([], 'ArrowUp', (evt: KeyboardEvent) => {
 			evt.preventDefault();
 			this.navigateBack();
 			this.showWorkspacePreview();
