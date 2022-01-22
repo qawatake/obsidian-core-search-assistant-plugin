@@ -191,6 +191,13 @@ export class Controller extends Component {
 		this.plugin.cardView?.focusOn(pos);
 	}
 
+	open() {
+		if (this.currentFocusId === undefined) {
+			return;
+		}
+		this.plugin.SearchComponentInterface?.open(this.currentFocusId);
+	}
+
 	renewCardViewPage() {
 		if (this.plugin.settings?.autoPreviewMode !== 'cardView') {
 			return;
@@ -290,13 +297,6 @@ export class Controller extends Component {
 			return;
 		}
 		new PreviewModal(this.app, this.plugin, item.file).open();
-	}
-
-	private open() {
-		if (this.currentFocusId === undefined) {
-			return;
-		}
-		this.plugin.SearchComponentInterface?.open(this.currentFocusId);
 	}
 
 	private createOutline(): HTMLElement {

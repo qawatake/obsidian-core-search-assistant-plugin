@@ -22,6 +22,14 @@ export class PreviewModal extends Modal {
 		// await new Promise((resolve) => setTimeout(resolve, 1));
 
 		this.scope.register(['Ctrl'], ' ', () => {
+			this.shouldRestoreSelection = true;
+			this.close();
+		});
+
+		this.scope.register(['Ctrl'], 'Enter', () => {
+			this.plugin.controller?.open();
+			this.plugin.controller?.exit();
+			this.shouldRestoreSelection = false;
 			this.close();
 		});
 	}
@@ -31,11 +39,8 @@ export class PreviewModal extends Modal {
 		contentEl.empty();
 		this.detachLater(INTERVAL_MILLISECOND_TO_BE_DETACHED);
 
-		// too fast to focus the selected item
+		// too fast to remain search mode
 		setTimeout(() => {
-			// necessary because selection focus will be removed when preview modal closes.
-			this.plugin.controller?.focus();
-			// too fast to remain search mode
 			this.plugin.controller?.togglePreviewModalShown(false);
 		}, 100);
 	}
