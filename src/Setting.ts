@@ -148,9 +148,7 @@ export class CoreSearchAssistantSettingTab extends PluginSettingTab {
 
 		new Setting(containerEl)
 			.setName('Default split direction')
-			.setDesc(
-				'This applies when you open a file by pressing Ctrl + Shift + Enter'
-			)
+			.setDesc('This applies when you open a file in a new pane')
 			.addDropdown((component) => {
 				if (!this.plugin.settings) {
 					return;
