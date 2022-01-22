@@ -14,14 +14,15 @@ In the search mode, you can use the following hotkeys.
 
 | Key | Action |
 | -- | -- |
-| `Ctrl + N` | Select the next item. |
-| `Ctrl + P` | Select the previous item. |
-| `Ctrl + Space` | Preview the selected item. |
+| `Ctrl + N`, `↓` | Select the next item. |
+| `Ctrl + P`, `↑` | Select the previous item. |
+| `Ctrl + Space` | Preview the selected item. ([Manual preview](#manual-preview)) |
 | `Ctrl + Enter` | Open the selected item. |
+| `Ctrl + Shift + Enter` | Open the selected item in a new pane. |
 | `Shift + Space` | Set search options. |
 
-The hotkeys above are available only in the search mode, so don't worry about overwriting your hotkey settings.
-To exit the search mode, press `Esc` or click any part of the screen other than the input form.
+- The hotkeys above are available only in the search mode, so don't worry about overwriting your hotkey settings.
+- To **exit** the search mode, press `Esc` or click any part of the screen other than the input form.
 
 ## Auto Preview
 There are three options for auto preview.
@@ -52,6 +53,18 @@ Available layouts:
 If rendered results are wrong, press `Enter` to reload.
 
 ![card-view-min](https://user-images.githubusercontent.com/38106890/150082177-6a14a509-b6f9-449f-90d1-7e198ae2d3d3.gif)
+
+## Manual Preview
+In the preview modal, the following hotkeys are available.
+| Key | Action |
+| -- | -- |
+| `Ctrl + N`, `↓` | Scroll down a bit. |
+| `Ctrl + P`, `↑` | Scroll up a bit. |
+| `Space` | Scroll down a lot. |
+| `Shit + Space` | Scroll up a lot. |
+| `Ctrl + Enter` | Open the selected item. |
+| `Ctrl + Shift + Enter` | Open the selected item in a new pane. |
+| `Esc`, `Ctrl + Space` | Close the modal. |
 
 ## Search options
 
