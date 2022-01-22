@@ -6,6 +6,7 @@ import {
 	SearchResultItem,
 	SearchView,
 	SortOrderInSearch,
+	SplitDirection,
 	WorkspaceLeaf,
 	WorkspaceSidedock,
 } from 'obsidian';
@@ -108,16 +109,18 @@ export class SearchComponentInterface extends Component {
 		});
 	}
 
-	open(pos: number) {
+	open(pos: number, direction?: SplitDirection) {
 		const item = this.getResultItemAt(pos);
 		if (!item) {
 			return;
 		}
-		const fileNameEl = item.containerEl.querySelector('div.tree-item-self');
-		if (fileNameEl === null) {
-			return;
-		}
-		(fileNameEl as HTMLElement).click();
+		const { file } = item;
+		const leaf =
+			direction === undefined
+				? this.app.workspace.getMostRecentLeaf()
+				: this.app.workspace.splitActiveLeaf();
+		leaf.openFile(file, direction);
+		this.app.workspace.setActiveLeaf(leaf, true, true);
 	}
 
 	renewSortOrderInfo(): void {

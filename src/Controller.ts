@@ -3,7 +3,7 @@ import {
 	EVENT_SEARCH_RESULT_ITEM_DETECTED,
 } from 'Events';
 import CoreSearchAssistantPlugin from 'main';
-import { App, Component, Scope } from 'obsidian';
+import { App, Component, Scope, SplitDirection } from 'obsidian';
 import { OptionModal } from 'components/OptionModal';
 import { parseCardLayout, validOutlineWidth } from 'Setting';
 import { PreviewModal } from 'components/PreviewModal';
@@ -147,7 +147,17 @@ export class Controller extends Component {
 		this.scope.register(['Ctrl'], 'Enter', (evt: KeyboardEvent) => {
 			evt.preventDefault(); // ← necessary to prevent renew query, which triggers item detection events
 			this.open();
+			this.exit();
 		});
+		this.scope.register(
+			['Ctrl', 'Shift'],
+			'Enter',
+			(evt: KeyboardEvent) => {
+				evt.preventDefault();
+				this.open('vertical');
+				this.exit();
+			}
+		);
 		this.scope.register(['Ctrl'], ' ', () => {
 			this.openPreviewModal();
 		});
@@ -201,11 +211,14 @@ export class Controller extends Component {
 		this.plugin.cardView?.focusOn(pos);
 	}
 
-	open() {
+	open(direction?: SplitDirection) {
 		if (this.currentFocusId === undefined) {
 			return;
 		}
-		this.plugin.SearchComponentInterface?.open(this.currentFocusId);
+		this.plugin.SearchComponentInterface?.open(
+			this.currentFocusId,
+			direction
+		);
 	}
 
 	renewCardViewPage() {

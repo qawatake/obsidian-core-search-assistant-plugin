@@ -32,6 +32,13 @@ export class PreviewModal extends Modal {
 			this.shouldRestoreSelection = false;
 			this.close();
 		});
+
+		this.scope.register(['Ctrl', 'Shift'], 'Enter', () => {
+			this.plugin.controller?.open('vertical');
+			this.plugin.controller?.exit();
+			this.shouldRestoreSelection = false;
+			this.close();
+		});
 	}
 
 	override onClose() {
