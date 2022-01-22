@@ -1,5 +1,5 @@
 import CoreSearchAssistantPlugin from 'main';
-import { App, PluginSettingTab, Setting } from 'obsidian';
+import { App, PluginSettingTab, Setting, SplitDirection } from 'obsidian';
 
 const AVAILABLE_OUTLINE_WIDTHS = [0, 3, 5, 7, 10] as const;
 type AvailableOutlineWidth = typeof AVAILABLE_OUTLINE_WIDTHS[number];
@@ -20,6 +20,7 @@ export interface CoreSearchAssistantPluginSettings {
 	outlineWidth: AvailableOutlineWidth;
 	autoPreviewMode: AutoPreviewMode;
 	cardViewLayout: AvailableCardLayout;
+	splitDirection: SplitDirection;
 	hideIframe: boolean;
 }
 
@@ -28,6 +29,7 @@ export const DEFAULT_SETTINGS: CoreSearchAssistantPluginSettings = {
 	outlineWidth: 5,
 	autoPreviewMode: 'cardView',
 	cardViewLayout: '2x3',
+	splitDirection: 'horizontal',
 	hideIframe: false,
 };
 
@@ -141,6 +143,35 @@ export class CoreSearchAssistantSettingTab extends PluginSettingTab {
 						this.plugin.settings.cardViewLayout =
 							value as AvailableCardLayout;
 						this.plugin.saveSettings();
+					});
+			});
+
+		new Setting(containerEl)
+			.setName('Default split direction')
+			.setDesc(
+				'This applies when you open a file by pressing Ctrl + Shift + Enter'
+			)
+			.addDropdown((component) => {
+				if (!this.plugin.settings) {
+					return;
+				}
+				component
+					.setValue(this.plugin.settings.splitDirection)
+					.addOptions({
+						horizontal: 'horizontal',
+						vertical: 'vertical',
+					})
+					.onChange(async (direction) => {
+						if (!this.plugin.settings) {
+							return;
+						}
+						if (
+							direction == 'horizontal' ||
+							direction == 'vertical'
+						) {
+							this.plugin.settings.splitDirection = direction;
+							await this.plugin.saveSettings();
+						}
 					});
 			});
 

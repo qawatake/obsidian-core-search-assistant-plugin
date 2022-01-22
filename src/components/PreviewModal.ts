@@ -34,7 +34,7 @@ export class PreviewModal extends Modal {
 		});
 
 		this.scope.register(['Ctrl', 'Shift'], 'Enter', () => {
-			this.plugin.controller?.open('vertical');
+			this.plugin.controller?.open(this.plugin.settings?.splitDirection);
 			this.plugin.controller?.exit();
 			this.shouldRestoreSelection = false;
 			this.close();

@@ -154,7 +154,7 @@ export class Controller extends Component {
 			'Enter',
 			(evt: KeyboardEvent) => {
 				evt.preventDefault();
-				this.open('vertical');
+				this.open(this.plugin.settings?.splitDirection);
 				this.exit();
 			}
 		);

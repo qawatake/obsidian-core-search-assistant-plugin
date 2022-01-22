@@ -118,8 +118,8 @@ export class SearchComponentInterface extends Component {
 		const leaf =
 			direction === undefined
 				? this.app.workspace.getMostRecentLeaf()
-				: this.app.workspace.splitActiveLeaf();
-		leaf.openFile(file, direction);
+				: this.app.workspace.splitActiveLeaf(direction);
+		leaf.openFile(file);
 		this.app.workspace.setActiveLeaf(leaf, true, true);
 	}
 
