@@ -60,4 +60,17 @@ declare module 'obsidian' {
 	interface WorkspaceSplit {
 		containerEl: HTMLElement;
 	}
+
+	interface MarkdownPreviewView {
+		view: PreviewView;
+		renderer: PreviewRenderer;
+	}
+
+	interface PreviewView {
+		file: TFile;
+	}
+
+	interface PreviewRenderer {
+		previewEl: HTMLElement;
+	}
 }

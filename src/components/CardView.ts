@@ -1,5 +1,11 @@
 import CoreSearchAssistantPlugin from 'main';
-import { App, Component, SearchResultItem, WorkspaceLeaf } from 'obsidian';
+import {
+	App,
+	Component,
+	MarkdownView,
+	SearchResultItem,
+	WorkspaceLeaf,
+} from 'obsidian';
 import { parseCardLayout } from 'Setting';
 import { INTERVAL_MILLISECOND_TO_BE_DETACHED } from 'components/WorkspacePreview';
 
@@ -73,11 +79,24 @@ export class CardView extends Component {
 
 	// id is necessary to open the selected item when clicked
 	renderItem(item: SearchResultItem, id: number) {
+		this.renderItemByPreviewView(item, id);
+		// const previewContainerEl = this.createPreviewContainerEl(item, id);
+		// const leaf = new (WorkspaceLeaf as any)(this.app) as WorkspaceLeaf;
+		// leaf.openFile(item.file, { state: { mode: 'preview' } });
+		// previewContainerEl.appendChild(leaf.containerEl);
+
+		// this.leafs.push(leaf);
+	}
+
+	// id is necessary to open the selected item when clicked
+	private async renderItemByPreviewView(item: SearchResultItem, id: number) {
 		const previewContainerEl = this.createPreviewContainerEl(item, id);
 		const leaf = new (WorkspaceLeaf as any)(this.app) as WorkspaceLeaf;
-		leaf.openFile(item.file, { state: { mode: 'preview' } });
-		previewContainerEl.appendChild(leaf.containerEl);
-
+		const previewView = new MarkdownView(leaf).previewMode;
+		previewView.view.file = item.file; // necessary to remove error message
+		previewView.set(await this.app.vault.read(item.file), false); // load content
+		previewContainerEl.appendChild(previewView.containerEl);
+		previewView.renderer.previewEl.addClass('preview-container');
 		this.leafs.push(leaf);
 	}
 
