@@ -84,15 +84,18 @@ export class PreviewModal extends Modal {
 		});
 		this.scope.register([], 'Tab', (evt) => {
 			evt.preventDefault(); // to prevent inserting indent in editing mode in the active leaf
-			this.currentFocus = Math.min(
-				++this.currentFocus,
-				this.matchEls.length - 1
-			);
+			this.currentFocus =
+				++this.currentFocus > this.matchEls.length - 1
+					? 0
+					: this.currentFocus;
 			this.focusOn(this.currentFocus);
 		});
 		this.scope.register(['Shift'], 'Tab', (evt) => {
 			evt.preventDefault();
-			this.currentFocus = Math.max(--this.currentFocus, 0);
+			this.currentFocus =
+				--this.currentFocus < 0
+					? this.matchEls.length - 1
+					: this.currentFocus;
 			this.focusOn(this.currentFocus);
 		});
 	}
