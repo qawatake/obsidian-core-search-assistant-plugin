@@ -50,8 +50,17 @@ declare module 'obsidian' {
 
 	interface SearchResultItem {
 		file: TFile;
+		content: string;
 		containerEl: HTMLElement;
+		result: SearchResultMatchInfo;
 	}
+
+	interface SearchResultMatchInfo {
+		filename?: Match[];
+		content?: Match[];
+	}
+
+	type Match = [number, number];
 
 	interface SearchHeaderDom {
 		navButtonsEl: HTMLDivElement;

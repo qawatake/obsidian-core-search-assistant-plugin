@@ -1,25 +1,38 @@
 import CoreSearchAssistantPlugin from 'main';
-import { App, Modal, TFile, WorkspaceLeaf } from 'obsidian';
+import {
+	App,
+	MarkdownView,
+	Modal,
+	SearchResultItem,
+	TFile,
+	WorkspaceLeaf,
+} from 'obsidian';
 import { INTERVAL_MILLISECOND_TO_BE_DETACHED } from 'components/WorkspacePreview';
+import { highlightMatches } from 'PreProcessor';
 
 type ScrollDirection = 'up' | 'down';
 
 const SCROLL_AMOUNT = 20;
 
 export class PreviewModal extends Modal {
-	file: TFile;
+	item: SearchResultItem;
 	plugin: CoreSearchAssistantPlugin;
 	leaf: WorkspaceLeaf;
 
-	constructor(app: App, plugin: CoreSearchAssistantPlugin, file: TFile) {
+	constructor(
+		app: App,
+		plugin: CoreSearchAssistantPlugin,
+		item: SearchResultItem
+	) {
 		super(app);
 		this.plugin = plugin;
-		this.file = file;
+		this.item = item;
 		this.leaf = new (WorkspaceLeaf as any)(app) as WorkspaceLeaf;
 	}
 
 	override onOpen() {
-		this.renderPreview();
+		// this.renderPreview();
+		this.renderPreviewWithHighLight();
 		this.plugin.controller?.togglePreviewModalShown(true);
 
 		// to prevent the modal immediately close
@@ -96,12 +109,31 @@ export class PreviewModal extends Modal {
 		});
 	}
 
-	renderPreview() {
+	private renderPreview() {
 		const { contentEl, containerEl } = this;
 		contentEl.empty();
 		containerEl.addClass('core-search-assistant_preview-modal-container');
 
-		this.leaf.openFile(this.file, { state: { mode: 'preview' } });
+		this.leaf.openFile(this.item.file, { state: { mode: 'preview' } });
 		contentEl.appendChild(this.leaf.containerEl);
+	}
+
+	private async renderPreviewWithHighLight() {
+		const { contentEl, containerEl, item } = this;
+		contentEl.empty();
+		containerEl.addClass('core-search-assistant_preview-modal-container');
+
+		const previewView = new MarkdownView(this.leaf).previewMode;
+		previewView.view.file = item.file; // necessary to remove error message
+
+		const content = highlightMatches(
+			item.content,
+			item.result.content ?? [],
+			{ cls: 'highlight-match' }
+		);
+		previewView.set(content, false); // load content
+
+		contentEl.appendChild(previewView.containerEl);
+		previewView.renderer.previewEl.addClass('preview-container');
 	}
 }

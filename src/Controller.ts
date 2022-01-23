@@ -319,7 +319,7 @@ export class Controller extends Component {
 		if (!item) {
 			return;
 		}
-		new PreviewModal(this.app, this.plugin, item.file).open();
+		new PreviewModal(this.app, this.plugin, item).open();
 	}
 
 	private createOutline(): HTMLElement {

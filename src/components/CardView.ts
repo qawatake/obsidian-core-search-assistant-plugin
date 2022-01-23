@@ -94,7 +94,7 @@ export class CardView extends Component {
 		const leaf = new (WorkspaceLeaf as any)(this.app) as WorkspaceLeaf;
 		const previewView = new MarkdownView(leaf).previewMode;
 		previewView.view.file = item.file; // necessary to remove error message
-		previewView.set(await this.app.vault.read(item.file), false); // load content
+		previewView.set(item.content, false); // load content
 		previewContainerEl.appendChild(previewView.containerEl);
 		previewView.renderer.previewEl.addClass('preview-container');
 		this.leafs.push(leaf);

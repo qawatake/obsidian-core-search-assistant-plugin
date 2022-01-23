@@ -225,3 +225,8 @@ div.core-search-assistant_search-mode-outline {
 		display: none;
 	}
 }
+
+.highlight-match {
+	color: var(--text-normal);
+	background-color: var(--text-highlight-bg);
+}
