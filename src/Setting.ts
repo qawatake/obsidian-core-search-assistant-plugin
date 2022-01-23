@@ -154,11 +154,11 @@ export class CoreSearchAssistantSettingTab extends PluginSettingTab {
 					return;
 				}
 				component
-					.setValue(this.plugin.settings.splitDirection)
 					.addOptions({
 						horizontal: 'horizontal',
 						vertical: 'vertical',
 					})
+					.setValue(this.plugin.settings.splitDirection) // it should be after addOptions
 					.onChange(async (direction) => {
 						if (!this.plugin.settings) {
 							return;

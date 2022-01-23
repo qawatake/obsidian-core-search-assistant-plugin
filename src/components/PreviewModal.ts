@@ -97,9 +97,9 @@ export class PreviewModal extends Modal {
 	}
 
 	renderPreview() {
-		const { contentEl } = this;
+		const { contentEl, containerEl } = this;
 		contentEl.empty();
-		contentEl.addClass('core-search-assistant_preview-modal');
+		containerEl.addClass('core-search-assistant_preview-modal-container');
 
 		this.leaf.openFile(this.file, { state: { mode: 'preview' } });
 		contentEl.appendChild(this.leaf.containerEl);
