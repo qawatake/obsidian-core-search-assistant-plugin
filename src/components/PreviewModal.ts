@@ -11,7 +11,7 @@ import { highlightMatches } from 'PreProcessor';
 
 type ScrollDirection = 'up' | 'down';
 
-const SCROLL_AMOUNT = 20;
+const SCROLL_AMOUNT = 70;
 
 export class PreviewModal extends Modal {
 	item: SearchResultItem;
