@@ -1,5 +1,6 @@
 import { Match } from 'obsidian';
 
+// WARNING: attr "data-id" will be overwritten
 export function highlightMatches(
 	content: string,
 	matches: Match[],
@@ -7,10 +8,13 @@ export function highlightMatches(
 ): string {
 	let processed = '';
 	let currentPos = 0;
-	matches.forEach((match) => {
+	matches.forEach((match, id) => {
 		const [start, end] = match;
 		processed += content.slice(currentPos, start);
-		const spanEl = createEl('span', o);
+		const spanEl = createEl('span', {
+			...o,
+			...{ attr: { 'data-id': id } },
+		});
 		spanEl.textContent = content.slice(start, end);
 		processed += spanEl.outerHTML;
 		currentPos = end;

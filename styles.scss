@@ -31,6 +31,15 @@
 	div.modal-content {
 		margin: 0;
 	}
+
+	.highlight-match {
+		color: var(--text-normal);
+		background-color: var(--text-highlight-bg);
+	}
+
+	.focus-match {
+		text-decoration: underline;
+	}
 }
 
 /* outline on search mode */
@@ -224,9 +233,4 @@ div.core-search-assistant_search-mode-outline {
 	iframe {
 		display: none;
 	}
-}
-
-.highlight-match {
-	color: var(--text-normal);
-	background-color: var(--text-highlight-bg);
 }

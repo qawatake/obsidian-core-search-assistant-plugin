@@ -4,7 +4,6 @@ import {
 	MarkdownView,
 	Modal,
 	SearchResultItem,
-	TFile,
 	WorkspaceLeaf,
 } from 'obsidian';
 import { INTERVAL_MILLISECOND_TO_BE_DETACHED } from 'components/WorkspacePreview';
@@ -18,6 +17,8 @@ export class PreviewModal extends Modal {
 	item: SearchResultItem;
 	plugin: CoreSearchAssistantPlugin;
 	leaf: WorkspaceLeaf;
+	matchEls: HTMLSpanElement[];
+	currentFocus: number;
 
 	constructor(
 		app: App,
@@ -28,12 +29,18 @@ export class PreviewModal extends Modal {
 		this.plugin = plugin;
 		this.item = item;
 		this.leaf = new (WorkspaceLeaf as any)(app) as WorkspaceLeaf;
+		this.matchEls = [];
+		this.currentFocus = -1;
 	}
 
 	override onOpen() {
 		// this.renderPreview();
 		this.renderPreviewWithHighLight();
 		this.plugin.controller?.togglePreviewModalShown(true);
+
+		// too fast to find elements
+		// it should be called after rendering
+		setTimeout(() => this.findMatches(), 100);
 
 		// to prevent the modal immediately close
 		// await new Promise((resolve) => setTimeout(resolve, 1));
@@ -74,6 +81,19 @@ export class PreviewModal extends Modal {
 		});
 		this.scope.register(['Ctrl'], 'p', () => {
 			this.scroll('up', SCROLL_AMOUNT);
+		});
+		this.scope.register([], 'Tab', (evt) => {
+			evt.preventDefault(); // to prevent inserting indent in editing mode in the active leaf
+			this.currentFocus = Math.min(
+				++this.currentFocus,
+				this.matchEls.length - 1
+			);
+			this.focusOn(this.currentFocus);
+		});
+		this.scope.register(['Shift'], 'Tab', (evt) => {
+			evt.preventDefault();
+			this.currentFocus = Math.max(--this.currentFocus, 0);
+			this.focusOn(this.currentFocus);
 		});
 	}
 
@@ -135,5 +155,32 @@ export class PreviewModal extends Modal {
 
 		contentEl.appendChild(previewView.containerEl);
 		previewView.renderer.previewEl.addClass('preview-container');
+	}
+
+	private findMatches() {
+		const { contentEl } = this;
+		const matches = contentEl.querySelectorAll('span.highlight-match');
+		matches.forEach((node) => {
+			if (node instanceof HTMLSpanElement) {
+				this.matchEls.push(node);
+			}
+		});
+	}
+
+	private focusOn(matchId: number) {
+		[-1, 0, 1].forEach((i) => {
+			const el = this.matchEls[matchId + i];
+			if (el instanceof HTMLSpanElement) {
+				if (i === 0) {
+					el.addClass('focus-match');
+					el.scrollIntoView({
+						behavior: 'smooth',
+						block: 'center',
+					});
+				} else {
+					el.removeClass('focus-match');
+				}
+			}
+		});
 	}
 }
