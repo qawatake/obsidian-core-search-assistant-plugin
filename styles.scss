@@ -12,24 +12,17 @@
 
 /* preview modal */
 .core-search-assistant_preview-modal-container {
-	div.workspace-leaf {
-		contain: initial !important;
-	}
-
-	div.workspace-leaf-resize-handle {
-		display: none;
-	}
-
-	div.view-header {
-		display: none;
-	}
-
-	div.markdown-preview-view {
-		padding: 0;
+	div.modal {
+		height: 100%;
 	}
 
 	div.modal-content {
 		margin: 0;
+	}
+
+	div.markdown-preview-view {
+		overflow-y: inherit;
+		padding: 0;
 	}
 
 	.highlight-match {
