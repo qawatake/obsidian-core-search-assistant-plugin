@@ -1,10 +1,13 @@
 import CoreSearchAssistantPlugin from 'main';
 import {
 	App,
+	EditorPosition,
 	MarkdownView,
 	Modal,
 	SearchResultItem,
 	WorkspaceLeaf,
+	Match,
+	EditorRange,
 } from 'obsidian';
 import { INTERVAL_MILLISECOND_TO_BE_DETACHED } from 'components/WorkspacePreview';
 import { highlightMatches } from 'PreProcessor';
@@ -51,7 +54,8 @@ export class PreviewModal extends Modal {
 		});
 
 		this.scope.register(['Ctrl'], 'Enter', () => {
-			this.plugin.controller?.open();
+			// this.plugin.controller?.open();
+			this.openAndFocus(this.currentFocus);
 			this.plugin.controller?.exit();
 			this.shouldRestoreSelection = false;
 			this.close();
@@ -160,6 +164,35 @@ export class PreviewModal extends Modal {
 		previewView.renderer.previewEl.addClass('preview-container');
 	}
 
+	async openAndFocus(matchId: number) {
+		const { item } = this;
+		const match = item?.result?.content?.[matchId];
+		console.log(match);
+		if (!match) {
+			console.log('error match');
+			return;
+		}
+		const range = translateMatch(item.content, match);
+
+		const direction = this.plugin.settings?.splitDirection;
+
+		const leaf =
+			direction === undefined
+				? this.app.workspace.getMostRecentLeaf()
+				: this.app.workspace.splitActiveLeaf(direction);
+		await leaf.openFile(item.file, {
+			state: {
+				mode: 'source',
+			},
+		});
+		this.app.workspace.setActiveLeaf(leaf, true, true);
+		// leaf.view.modes.source.highlightSearchMatch(range.from, range.to);
+		leaf.view.editMode.editor.addHighlights(
+			[range],
+			'obsidian-search-match-highlight'
+		);
+	}
+
 	private findMatches() {
 		const { contentEl } = this;
 		const matches = contentEl.querySelectorAll('span.highlight-match');
@@ -186,4 +219,21 @@ export class PreviewModal extends Modal {
 			}
 		});
 	}
+}
+
+function translatePtr(content: string, ptr: number): EditorPosition {
+	const segments = content.slice(0, ptr).split('\n');
+	const line = segments.length - 1;
+	const ch = segments[line]?.length;
+	if (ch === undefined) {
+		throw `translatePtr failed: content=${content}, ptr=${ptr}`;
+	}
+	return { line, ch };
+}
+
+function translateMatch(content: string, match: Match): EditorRange {
+	return {
+		from: translatePtr(content, match[0]),
+		to: translatePtr(content, match[1]),
+	};
 }
