@@ -38,7 +38,8 @@ export class PreviewModal extends Modal {
 
 	override onOpen() {
 		// this.renderPreview();
-		this.renderPreviewWithHighLight();
+		this.renderEdit();
+		// this.renderPreviewWithHighLight();
 		this.plugin.controller?.togglePreviewModalShown(true);
 
 		// too fast to find elements
@@ -145,6 +146,26 @@ export class PreviewModal extends Modal {
 		contentEl.appendChild(this.leaf.containerEl);
 	}
 
+	private async renderEdit() {
+		const { contentEl, containerEl, leaf, item } = this;
+		contentEl.empty();
+		containerEl.addClass('core-search-assistant_preview-modal-container');
+
+		await leaf.openFile(this.item.file, { state: { mode: 'source' } });
+		contentEl.appendChild(this.leaf.view.editMode.editorEl);
+		this.leaf.view.editMode.editorEl.addClass('markdown-editor-view');
+
+		item.result.content?.forEach((match) => {
+			const range = translateMatch(item.content, match);
+
+			(leaf.view.editMode.editor as any).addHighlights(
+				[range],
+				'highlight-search-match'
+			);
+		});
+		console.log(leaf);
+	}
+
 	private async renderPreviewWithHighLight() {
 		const { contentEl, containerEl, item } = this;
 		contentEl.empty();
@@ -167,7 +188,6 @@ export class PreviewModal extends Modal {
 	async openAndFocus(matchId: number) {
 		const { item } = this;
 		const match = item?.result?.content?.[matchId];
-		console.log(match);
 		if (!match) {
 			console.log('error match');
 			return;
