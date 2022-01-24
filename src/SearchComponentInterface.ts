@@ -202,15 +202,25 @@ export class SearchComponentInterface extends Component {
 	}
 
 	private getSearchLeaf(): WorkspaceLeaf | undefined {
-		const sideDock = this.app.workspace.leftSplit;
-		if (!(sideDock instanceof WorkspaceSidedock)) {
-			return undefined;
-		}
-		const leafs = sideDock.children[0]?.children as WorkspaceLeaf[];
+		const sideDocks = [
+			this.app.workspace.leftSplit,
+			this.app.workspace.rightSplit,
+		];
+		for (const sideDock of sideDocks) {
+			// const sideDock = this.app.workspace.leftSplit;
+			if (!(sideDock instanceof WorkspaceSidedock)) {
+				return undefined;
+			}
+			const leafs = sideDock.children[0]?.children as WorkspaceLeaf[];
 
-		return leafs.find((leaf) => {
-			return leaf.view.getViewType() === 'search';
-		});
+			const searchLeaf = leafs.find((leaf) => {
+				return leaf.view.getViewType() === 'search';
+			});
+			if (searchLeaf !== undefined) {
+				return searchLeaf;
+			}
+		}
+		return undefined;
 	}
 
 	private onObservedCallback: MutationCallback = async (

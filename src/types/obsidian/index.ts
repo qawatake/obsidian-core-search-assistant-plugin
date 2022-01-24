@@ -3,6 +3,10 @@ import { SORT_ORDER_IN_SEARCH } from 'types/Guards';
 export * from 'obsidian';
 
 declare module 'obsidian' {
+	interface App {
+		hotkeyManager: HotkeyManager;
+	}
+
 	interface WorkspaceLeaf {
 		containerEl: HTMLElement;
 	}
@@ -50,8 +54,17 @@ declare module 'obsidian' {
 
 	interface SearchResultItem {
 		file: TFile;
+		content: string;
 		containerEl: HTMLElement;
+		result: SearchResultMatchInfo;
 	}
+
+	interface SearchResultMatchInfo {
+		filename?: Match[];
+		content?: Match[];
+	}
+
+	type Match = [number, number];
 
 	interface SearchHeaderDom {
 		navButtonsEl: HTMLDivElement;
@@ -59,5 +72,37 @@ declare module 'obsidian' {
 
 	interface WorkspaceSplit {
 		containerEl: HTMLElement;
+	}
+
+	interface MarkdownPreviewView {
+		view: PreviewView;
+		renderer: PreviewRenderer;
+	}
+
+	interface PreviewView {
+		file: TFile;
+	}
+
+	interface PreviewRenderer {
+		previewEl: HTMLElement;
+	}
+
+	interface MarkdownView {
+		editMode: MarkdownEditorView;
+		getMode(): MarkdownViewModeType;
+		setMode(mode: MarkdownPreviewView | MarkdownEditorView): void;
+	}
+
+	interface MarkdownEditorView extends MarkdownSubView {
+		editor: Editor;
+	}
+
+	interface Editor {
+		addHighlights(ranges: EditorRange[], cls: string): void;
+	}
+
+	interface HotkeyManager {
+		customKeys: { [commandId: string]: Hotkey[] };
+		defaultKeys: { [commandId: string]: Hotkey[] };
 	}
 }
