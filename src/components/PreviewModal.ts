@@ -1,11 +1,9 @@
 import CoreSearchAssistantPlugin from 'main';
 import {
 	App,
-	EditorPosition,
 	Modal,
 	SearchResultItem,
 	WorkspaceLeaf,
-	Match,
 	EditorRange,
 	MarkdownViewModeType,
 	SplitDirection,
@@ -153,10 +151,14 @@ export class PreviewModal extends Modal {
 	// it can be called even when view mode = 'preview'
 	private highlightMatches() {
 		const { leaf, item } = this;
-
+		const view = leaf.view as MarkdownView;
 		const ranges: EditorRange[] = [];
 		item.result.content?.forEach((match) => {
-			ranges.push(translateMatch(item.content, match));
+			const range = {
+				from: view.editMode.editor.offsetToPos(match[0]),
+				to: view.editMode.editor.offsetToPos(match[1]),
+			};
+			ranges.push(range);
 		});
 		((leaf.view as MarkdownView).editMode.editor as any).addHighlights(
 			ranges,
@@ -229,8 +231,11 @@ export class PreviewModal extends Modal {
 		if (!match) {
 			return;
 		}
-		const range = translateMatch(item.content, match);
 		const view = leaf.view as MarkdownView;
+		const range = {
+			from: view.editMode.editor.offsetToPos(match[0]),
+			to: view.editMode.editor.offsetToPos(match[1]),
+		};
 		// leaf.view.modes.source.highlightSearchMatch(range.from, range.to);
 		view.editMode.editor.addHighlights(
 			[range],
@@ -289,21 +294,4 @@ export class PreviewModal extends Modal {
 	// 	contentEl.appendChild(previewView.containerEl);
 	// 	previewView.renderer.previewEl.addClass('preview-container');
 	// }
-}
-
-function translatePtr(content: string, ptr: number): EditorPosition {
-	const segments = content.slice(0, ptr).split('\n');
-	const line = segments.length - 1;
-	const ch = segments[line]?.length;
-	if (ch === undefined) {
-		throw `translatePtr failed: content=${content}, ptr=${ptr}`;
-	}
-	return { line, ch };
-}
-
-function translateMatch(content: string, match: Match): EditorRange {
-	return {
-		from: translatePtr(content, match[0]),
-		to: translatePtr(content, match[1]),
-	};
 }
