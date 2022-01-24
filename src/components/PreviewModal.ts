@@ -2,15 +2,14 @@ import CoreSearchAssistantPlugin from 'main';
 import {
 	App,
 	EditorPosition,
-	MarkdownView,
 	Modal,
 	SearchResultItem,
 	WorkspaceLeaf,
 	Match,
 	EditorRange,
+	MarkdownViewModeType,
 } from 'obsidian';
 import { INTERVAL_MILLISECOND_TO_BE_DETACHED } from 'components/WorkspacePreview';
-import { highlightMatches } from 'PreProcessor';
 
 type ScrollDirection = 'up' | 'down';
 
@@ -36,18 +35,12 @@ export class PreviewModal extends Modal {
 		this.currentFocus = -1;
 	}
 
-	override onOpen() {
-		// this.renderPreview();
-		this.renderEdit();
-		// this.renderPreviewWithHighLight();
+	override async onOpen() {
+		await this.createView();
+		this.setViewMode('source');
+		this.highlightMatches();
+		this.findMatches();
 		this.plugin.controller?.togglePreviewModalShown(true);
-
-		// too fast to find elements
-		// it should be called after rendering
-		setTimeout(() => this.findMatches(), 100);
-
-		// to prevent the modal immediately close
-		// await new Promise((resolve) => setTimeout(resolve, 1));
 
 		this.scope.register(['Ctrl'], ' ', () => {
 			this.shouldRestoreSelection = true;
@@ -103,6 +96,14 @@ export class PreviewModal extends Modal {
 					: this.currentFocus;
 			this.focusOn(this.currentFocus);
 		});
+		this.scope.register(['Meta'], 'e', () => {
+			const { leaf } = this;
+			if (leaf.view.getMode() === 'preview') {
+				this.setViewMode('source');
+			} else {
+				this.setViewMode('preview');
+			}
+		});
 	}
 
 	override onClose() {
@@ -126,6 +127,54 @@ export class PreviewModal extends Modal {
 		}, millisecond);
 	}
 
+	private async createView() {
+		const { leaf, item, contentEl, containerEl } = this;
+		contentEl.empty();
+		containerEl.addClass('core-search-assistant_preview-modal-container');
+		await leaf.openFile(item.file);
+		contentEl.appendChild(this.leaf.containerEl);
+	}
+
+	private setViewMode(mode: MarkdownViewModeType) {
+		const { leaf } = this;
+
+		leaf.view.setMode(
+			mode === 'preview' ? leaf.view.previewMode : leaf.view.editMode
+		);
+	}
+
+	// it should be called once because is is not idempotent
+	// it can be called even when view mode = 'preview'
+	private highlightMatches() {
+		const { leaf, item } = this;
+
+		const ranges: EditorRange[] = [];
+		item.result.content?.forEach((match) => {
+			ranges.push(translateMatch(item.content, match));
+		});
+		(leaf.view.editMode.editor as any).addHighlights(
+			ranges,
+			'highlight-search-match'
+		);
+
+		// this.matchesHighlighted = true;
+	}
+
+	// it should be called after highlightMatches
+	// it can be called even when view mode = 'preview'
+	private findMatches() {
+		const { contentEl } = this;
+		const matchEls: HTMLSpanElement[] = [];
+		contentEl
+			.querySelectorAll('span.highlight-search-match')
+			.forEach((node) => {
+				if (node instanceof HTMLSpanElement) {
+					matchEls.push(node);
+				}
+			});
+		this.matchEls = matchEls;
+	}
+
 	private scroll(direction: ScrollDirection, px?: number) {
 		const { containerEl, contentEl } = this;
 		const move =
@@ -137,52 +186,21 @@ export class PreviewModal extends Modal {
 		});
 	}
 
-	private renderPreview() {
-		const { contentEl, containerEl } = this;
-		contentEl.empty();
-		containerEl.addClass('core-search-assistant_preview-modal-container');
-
-		this.leaf.openFile(this.item.file, { state: { mode: 'preview' } });
-		contentEl.appendChild(this.leaf.containerEl);
-	}
-
-	private async renderEdit() {
-		const { contentEl, containerEl, leaf, item } = this;
-		contentEl.empty();
-		containerEl.addClass('core-search-assistant_preview-modal-container');
-
-		await leaf.openFile(this.item.file, { state: { mode: 'source' } });
-		contentEl.appendChild(this.leaf.view.editMode.editorEl);
-		this.leaf.view.editMode.editorEl.addClass('markdown-editor-view');
-
-		item.result.content?.forEach((match) => {
-			const range = translateMatch(item.content, match);
-
-			(leaf.view.editMode.editor as any).addHighlights(
-				[range],
-				'highlight-search-match'
-			);
+	private focusOn(matchId: number) {
+		[-1, 0, 1].forEach((i) => {
+			const el = this.matchEls[matchId + i];
+			if (el instanceof HTMLSpanElement) {
+				if (i === 0) {
+					el.addClass('focus-search-match');
+					el.scrollIntoView({
+						behavior: 'smooth',
+						block: 'center',
+					});
+				} else {
+					el.removeClass('focus-search-match');
+				}
+			}
 		});
-		console.log(leaf);
-	}
-
-	private async renderPreviewWithHighLight() {
-		const { contentEl, containerEl, item } = this;
-		contentEl.empty();
-		containerEl.addClass('core-search-assistant_preview-modal-container');
-
-		const previewView = new MarkdownView(this.leaf).previewMode;
-		previewView.view.file = item.file; // necessary to remove error message
-
-		const content = highlightMatches(
-			item.content,
-			item.result.content ?? [],
-			{ cls: 'highlight-match' }
-		);
-		previewView.set(content, false); // load content
-
-		contentEl.appendChild(previewView.containerEl);
-		previewView.renderer.previewEl.addClass('preview-container');
 	}
 
 	async openAndFocus(matchId: number) {
@@ -213,32 +231,53 @@ export class PreviewModal extends Modal {
 		);
 	}
 
-	private findMatches() {
-		const { contentEl } = this;
-		const matches = contentEl.querySelectorAll('span.highlight-match');
-		matches.forEach((node) => {
-			if (node instanceof HTMLSpanElement) {
-				this.matchEls.push(node);
-			}
-		});
-	}
+	// private renderPreview() {
+	// 	const { contentEl, containerEl } = this;
+	// 	contentEl.empty();
+	// 	containerEl.addClass('core-search-assistant_preview-modal-container');
 
-	private focusOn(matchId: number) {
-		[-1, 0, 1].forEach((i) => {
-			const el = this.matchEls[matchId + i];
-			if (el instanceof HTMLSpanElement) {
-				if (i === 0) {
-					el.addClass('focus-match');
-					el.scrollIntoView({
-						behavior: 'smooth',
-						block: 'center',
-					});
-				} else {
-					el.removeClass('focus-match');
-				}
-			}
-		});
-	}
+	// 	this.leaf.openFile(this.item.file, { state: { mode: 'preview' } });
+	// 	contentEl.appendChild(this.leaf.containerEl);
+	// }
+
+	// private async renderEdit() {
+	// 	const { contentEl, containerEl, leaf, item } = this;
+	// 	contentEl.empty();
+	// 	containerEl.addClass('core-search-assistant_preview-modal-container');
+
+	// 	await leaf.openFile(this.item.file, { state: { mode: 'source' } });
+	// 	contentEl.appendChild(this.leaf.view.editMode.editorEl);
+	// 	this.leaf.view.editMode.editorEl.addClass('markdown-editor-view');
+
+	// 	item.result.content?.forEach((match) => {
+	// 		const range = translateMatch(item.content, match);
+
+	// 		(leaf.view.editMode.editor as any).addHighlights(
+	// 			[range],
+	// 			'highlight-search-match'
+	// 		);
+	// 	});
+	// 	console.log(leaf);
+	// }
+
+	// private async renderPreviewWithHighLight() {
+	// 	const { contentEl, containerEl, item } = this;
+	// 	contentEl.empty();
+	// 	containerEl.addClass('core-search-assistant_preview-modal-container');
+
+	// 	const previewView = new MarkdownView(this.leaf).previewMode;
+	// 	previewView.view.file = item.file; // necessary to remove error message
+
+	// 	const content = highlightMatches(
+	// 		item.content,
+	// 		item.result.content ?? [],
+	// 		{ cls: 'highlight-match' }
+	// 	);
+	// 	previewView.set(content, false); // load content
+
+	// 	contentEl.appendChild(previewView.containerEl);
+	// 	previewView.renderer.previewEl.addClass('preview-container');
+	// }
 }
 
 function translatePtr(content: string, ptr: number): EditorPosition {
