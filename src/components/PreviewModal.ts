@@ -9,6 +9,7 @@ import {
 	EditorRange,
 	MarkdownViewModeType,
 	SplitDirection,
+	MarkdownView,
 } from 'obsidian';
 import { INTERVAL_MILLISECOND_TO_BE_DETACHED } from 'components/WorkspacePreview';
 
@@ -101,7 +102,7 @@ export class PreviewModal extends Modal {
 		});
 		this.scope.register(['Meta'], 'e', () => {
 			const { leaf } = this;
-			if (leaf.view.getMode() === 'preview') {
+			if ((leaf.view as MarkdownView).getMode() === 'preview') {
 				this.setViewMode('source');
 			} else {
 				this.setViewMode('preview');
@@ -141,8 +142,10 @@ export class PreviewModal extends Modal {
 	private setViewMode(mode: MarkdownViewModeType) {
 		const { leaf } = this;
 
-		leaf.view.setMode(
-			mode === 'preview' ? leaf.view.previewMode : leaf.view.editMode
+		(leaf.view as MarkdownView).setMode(
+			mode === 'preview'
+				? (leaf.view as MarkdownView).previewMode
+				: (leaf.view as MarkdownView).editMode
 		);
 	}
 
@@ -155,7 +158,7 @@ export class PreviewModal extends Modal {
 		item.result.content?.forEach((match) => {
 			ranges.push(translateMatch(item.content, match));
 		});
-		(leaf.view.editMode.editor as any).addHighlights(
+		((leaf.view as MarkdownView).editMode.editor as any).addHighlights(
 			ranges,
 			'highlight-search-match'
 		);
@@ -227,15 +230,16 @@ export class PreviewModal extends Modal {
 			return;
 		}
 		const range = translateMatch(item.content, match);
+		const view = leaf.view as MarkdownView;
 		// leaf.view.modes.source.highlightSearchMatch(range.from, range.to);
-		leaf.view.editMode.editor.addHighlights(
+		view.editMode.editor.addHighlights(
 			[range],
 			'obsidian-search-match-highlight'
 		);
 
 		// scroll
-		leaf.view.editMode.editor.setCursor(range.from);
-		leaf.view.editMode.editor.scrollIntoView(range, true);
+		view.editMode.editor.setCursor(range.from);
+		view.editMode.editor.scrollIntoView(range, true);
 	}
 
 	// private renderPreview() {

@@ -82,4 +82,18 @@ declare module 'obsidian' {
 	interface PreviewRenderer {
 		previewEl: HTMLElement;
 	}
+
+	interface MarkdownView {
+		editMode: MarkdownEditorView;
+		getMode(): MarkdownViewModeType;
+		setMode(mode: MarkdownPreviewView | MarkdownEditorView): void;
+	}
+
+	interface MarkdownEditorView extends MarkdownSubView {
+		editor: Editor;
+	}
+
+	interface Editor {
+		addHighlights(ranges: EditorRange[], cls: string): void;
+	}
 }
