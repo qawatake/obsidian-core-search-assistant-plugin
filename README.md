@@ -65,6 +65,10 @@ In the preview modal, the following hotkeys are available.
 | `Ctrl + Enter` | Open the selected item. |
 | `Ctrl + Shift + Enter` | Open the selected item in a new pane. |
 | `Esc`, `Ctrl + Space` | Close the modal. |
+| `Tab` | Focus on the next match. |
+| `Shift + Tab` | Focus on the previous match. |
+
+You can also toggle the preview mode by your hotkey.
 
 ### Search options
 
