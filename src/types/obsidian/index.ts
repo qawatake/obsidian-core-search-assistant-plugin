@@ -3,6 +3,10 @@ import { SORT_ORDER_IN_SEARCH } from 'types/Guards';
 export * from 'obsidian';
 
 declare module 'obsidian' {
+	interface App {
+		hotkeyManager: HotkeyManager;
+	}
+
 	interface WorkspaceLeaf {
 		containerEl: HTMLElement;
 	}
@@ -95,5 +99,10 @@ declare module 'obsidian' {
 
 	interface Editor {
 		addHighlights(ranges: EditorRange[], cls: string): void;
+	}
+
+	interface HotkeyManager {
+		customKeys: { [commandId: string]: Hotkey[] };
+		defaultKeys: { [commandId: string]: Hotkey[] };
 	}
 }

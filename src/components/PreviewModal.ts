@@ -8,12 +8,15 @@ import {
 	MarkdownViewModeType,
 	SplitDirection,
 	MarkdownView,
+	Hotkey,
 } from 'obsidian';
 import { INTERVAL_MILLISECOND_TO_BE_DETACHED } from 'components/WorkspacePreview';
 
 type ScrollDirection = 'up' | 'down';
 
 const SCROLL_AMOUNT = 70;
+
+const TOGGLE_PREVIEW_COMMAND_ID = 'markdown:toggle-preview';
 
 export class PreviewModal extends Modal {
 	item: SearchResultItem;
@@ -98,13 +101,18 @@ export class PreviewModal extends Modal {
 					: this.currentFocus;
 			this.focusOn(this.currentFocus);
 		});
-		this.scope.register(['Meta'], 'e', () => {
-			const { leaf } = this;
-			if ((leaf.view as MarkdownView).getMode() === 'preview') {
-				this.setViewMode('source');
-			} else {
-				this.setViewMode('preview');
-			}
+
+		const togglePreviewHotkeys = this.getHotkeys(TOGGLE_PREVIEW_COMMAND_ID);
+		togglePreviewHotkeys.forEach((hotkey) => {
+			this.scope.register(hotkey.modifiers, hotkey.key, (evt) => {
+				evt.preventDefault();
+				const { leaf } = this;
+				if ((leaf.view as MarkdownView).getMode() === 'preview') {
+					this.setViewMode('source');
+				} else {
+					this.setViewMode('preview');
+				}
+			});
 		});
 	}
 
@@ -245,6 +253,22 @@ export class PreviewModal extends Modal {
 		// scroll
 		view.editMode.editor.setCursor(range.from);
 		view.editMode.editor.scrollIntoView(range, true);
+	}
+
+	private getHotkeys(commandId: string): Hotkey[] {
+		const { hotkeyManager } = this.app;
+
+		const customKeys = hotkeyManager.customKeys[commandId];
+		if (customKeys !== undefined && customKeys.length !== 0) {
+			return customKeys;
+		}
+
+		const defaultKeys = hotkeyManager.defaultKeys[commandId];
+		if (defaultKeys !== undefined && defaultKeys.length !== 0) {
+			return defaultKeys;
+		}
+
+		throw `getHotkey failed: command id ${commandId} is invalid`;
 	}
 
 	// private renderPreview() {
