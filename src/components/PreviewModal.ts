@@ -8,6 +8,7 @@ import {
 	Match,
 	EditorRange,
 	MarkdownViewModeType,
+	SplitDirection,
 } from 'obsidian';
 import { INTERVAL_MILLISECOND_TO_BE_DETACHED } from 'components/WorkspacePreview';
 
@@ -48,7 +49,6 @@ export class PreviewModal extends Modal {
 		});
 
 		this.scope.register(['Ctrl'], 'Enter', () => {
-			// this.plugin.controller?.open();
 			this.openAndFocus(this.currentFocus);
 			this.plugin.controller?.exit();
 			this.shouldRestoreSelection = false;
@@ -56,7 +56,10 @@ export class PreviewModal extends Modal {
 		});
 
 		this.scope.register(['Ctrl', 'Shift'], 'Enter', () => {
-			this.plugin.controller?.open(this.plugin.settings?.splitDirection);
+			this.openAndFocus(
+				this.currentFocus,
+				this.plugin.settings?.splitDirection
+			);
 			this.plugin.controller?.exit();
 			this.shouldRestoreSelection = false;
 			this.close();
@@ -203,17 +206,10 @@ export class PreviewModal extends Modal {
 		});
 	}
 
-	async openAndFocus(matchId: number) {
+	async openAndFocus(matchId: number, direction?: SplitDirection) {
 		const { item } = this;
-		const match = item?.result?.content?.[matchId];
-		if (!match) {
-			console.log('error match');
-			return;
-		}
-		const range = translateMatch(item.content, match);
 
-		const direction = this.plugin.settings?.splitDirection;
-
+		// open file
 		const leaf =
 			direction === undefined
 				? this.app.workspace.getMostRecentLeaf()
@@ -224,11 +220,22 @@ export class PreviewModal extends Modal {
 			},
 		});
 		this.app.workspace.setActiveLeaf(leaf, true, true);
+
+		// highlight matches
+		const match = item?.result?.content?.[matchId];
+		if (!match) {
+			return;
+		}
+		const range = translateMatch(item.content, match);
 		// leaf.view.modes.source.highlightSearchMatch(range.from, range.to);
 		leaf.view.editMode.editor.addHighlights(
 			[range],
 			'obsidian-search-match-highlight'
 		);
+
+		// scroll
+		leaf.view.editMode.editor.setCursor(range.from);
+		leaf.view.editMode.editor.scrollIntoView(range, true);
 	}
 
 	// private renderPreview() {
