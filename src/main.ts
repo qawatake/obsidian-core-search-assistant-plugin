@@ -32,6 +32,8 @@ export default class CoreSearchAssistantPlugin extends Plugin {
 		await this.loadSettings();
 
 		this.addSettingTab(new CoreSearchAssistantSettingTab(this.app, this));
+
+		console.log('[Core Search Assistant] plugin loaded');
 	}
 
 	// override onunload() {}

@@ -27,6 +27,10 @@ export class WorkspacePreview extends Component {
 		});
 	}
 
+	override onload(): void {
+		console.log('[Core Search Assistant] Workspace preview loaded');
+	}
+
 	override onunload(): void {
 		this.leaf?.detach();
 		this.containerEl.empty();

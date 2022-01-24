@@ -60,6 +60,8 @@ export class CardView extends Component {
 			}
 			this.plugin.SearchComponentInterface?.open(Number.parseInt(id));
 		});
+
+		console.log('[Core Search Assistant] CardView loaded');
 	}
 
 	override unload() {

@@ -48,6 +48,10 @@ export class SearchComponentInterface extends Component {
 				// this.plugin.controller?.reset(); // it unexpectedly reloads when clicking close button of modals
 			});
 		});
+
+		console.log(
+			'[Core Search Assistant] Search Component Interface loaded'
+		);
 	}
 
 	override onunload(): void {

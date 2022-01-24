@@ -46,6 +46,7 @@ export class Controller extends Component {
 	override onload() {
 		this.registerEvent(
 			this.events.on(EVENT_SEARCH_RESULT_ITEM_DETECTED, () => {
+				console.log('search result detected');
 				if (this.plugin.settings?.autoPreviewMode !== 'cardView') {
 					return;
 				}
@@ -75,6 +76,7 @@ export class Controller extends Component {
 			const inputEl =
 				this.plugin.SearchComponentInterface?.getSearchInput();
 			if (!inputEl) {
+				console.log('[Core Search Assistant] input form not found');
 				return;
 			}
 
@@ -116,6 +118,7 @@ export class Controller extends Component {
 				}
 			});
 		});
+		console.log('[Core Search Assistant] Controller loaded');
 	}
 
 	enter() {
@@ -128,21 +131,25 @@ export class Controller extends Component {
 			evt.preventDefault(); // ← necessary to stop cursor in search input
 			this.navigateForward();
 			this.showWorkspacePreview();
+			console.log('↓');
 		});
 		this.scope.register([], 'ArrowDown', (evt: KeyboardEvent) => {
 			evt.preventDefault();
 			this.navigateForward();
 			this.showWorkspacePreview();
+			console.log('↓');
 		});
 		this.scope.register(['Ctrl'], 'P', (evt: KeyboardEvent) => {
 			evt.preventDefault();
 			this.navigateBack();
 			this.showWorkspacePreview();
+			console.log('↑');
 		});
 		this.scope.register([], 'ArrowUp', (evt: KeyboardEvent) => {
 			evt.preventDefault();
 			this.navigateBack();
 			this.showWorkspacePreview();
+			console.log('↑');
 		});
 		this.scope.register(['Ctrl'], 'Enter', (evt: KeyboardEvent) => {
 			evt.preventDefault(); // ← necessary to prevent renew query, which triggers item detection events
@@ -174,6 +181,7 @@ export class Controller extends Component {
 
 		this.showOutline();
 		this.inSearchMode = true;
+		console.log('[Core Search Assistant] Enter search mode');
 	}
 
 	reset() {
@@ -181,6 +189,7 @@ export class Controller extends Component {
 		this.unfocus();
 		this.plugin.cardView?.hide();
 		this.countSearchItemDetected = 0;
+		console.log('[Core Search Assistant] Reset search mode');
 	}
 
 	exit() {
@@ -197,6 +206,7 @@ export class Controller extends Component {
 
 		this.outlineEl.hide();
 		this.inSearchMode = false;
+		console.log('[Core Search Assistant] Exit search mode');
 	}
 
 	focus() {
