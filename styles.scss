@@ -23,10 +23,12 @@
 	}
 
 	div.modal-content {
+		min-width: 700px; // same as preview view
 		margin: 0;
 	}
 
 	div.modal {
+		max-width: unset;
 		height: 100%;
 	}
 
