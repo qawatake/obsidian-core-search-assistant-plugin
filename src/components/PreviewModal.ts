@@ -108,8 +108,8 @@ export class PreviewModal extends Modal {
 		togglePreviewHotkeys.forEach((hotkey) => {
 			this.scope.register(hotkey.modifiers, hotkey.key, (evt) => {
 				evt.preventDefault();
-				const { leaf } = this;
-				if ((leaf.view as MarkdownView).getMode() === 'preview') {
+				const { markdownView } = this;
+				if (markdownView.getMode() === 'preview') {
 					this.setViewMode('source');
 				} else {
 					this.setViewMode('preview');
