@@ -207,17 +207,18 @@ export class SearchComponentInterface extends Component {
 			this.app.workspace.rightSplit,
 		];
 		for (const sideDock of sideDocks) {
-			// const sideDock = this.app.workspace.leftSplit;
 			if (!(sideDock instanceof WorkspaceSidedock)) {
 				return undefined;
 			}
-			const leafs = sideDock.children[0]?.children as WorkspaceLeaf[];
+			for (const tabParent of sideDock.children) {
+				const tabLeafs = tabParent.children;
 
-			const searchLeaf = leafs.find((leaf) => {
-				return leaf.view.getViewType() === 'search';
-			});
-			if (searchLeaf !== undefined) {
-				return searchLeaf;
+				const searchLeaf = tabLeafs.find((leaf) => {
+					return leaf.view.getViewType() === 'search';
+				});
+				if (searchLeaf !== undefined) {
+					return searchLeaf;
+				}
 			}
 		}
 		return undefined;
