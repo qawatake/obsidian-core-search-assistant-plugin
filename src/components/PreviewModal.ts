@@ -150,7 +150,15 @@ export class PreviewModal extends Modal {
 	private async createView() {
 		const { markdownView, contentEl, containerEl, item } = this;
 		contentEl.empty();
-		containerEl.addClass('core-search-assistant_preview-modal-container');
+		if (this.app.vault.config.legacyEditor) {
+			containerEl.addClass(
+				'core-search-assistant_preview-modal-container_legacy'
+			);
+		} else {
+			containerEl.addClass(
+				'core-search-assistant_preview-modal-container'
+			);
+		}
 		markdownView.file = item.file;
 		markdownView.setViewData(item.content, true);
 		contentEl.appendChild(markdownView.containerEl);
@@ -171,8 +179,12 @@ export class PreviewModal extends Modal {
 		markdownView.setMode(
 			mode === 'preview'
 				? markdownView.previewMode
-				: markdownView.editMode
+				: markdownView.modes.source
 		);
+
+		if (mode === 'source') {
+			this.findMatches();
+		}
 	}
 
 	// it should be called once because is is not idempotent
@@ -200,18 +212,16 @@ export class PreviewModal extends Modal {
 	// it can be called even when view mode = 'preview'
 	private highlightMatches() {
 		const { markdownView, item } = this;
+		const editor = markdownView.modes.source.editor;
 		const ranges: EditorRange[] = [];
 		item.result.content?.forEach((match) => {
 			const range = {
-				from: markdownView.editMode.editor.offsetToPos(match[0]),
-				to: markdownView.editMode.editor.offsetToPos(match[1]),
+				from: editor.offsetToPos(match[0]),
+				to: editor.offsetToPos(match[1]),
 			};
 			ranges.push(range);
 		});
-		markdownView.editMode.editor.addHighlights(
-			ranges,
-			'highlight-search-match'
-		);
+		editor.addHighlights(ranges, 'highlight-search-match');
 	}
 
 	// it should be called after highlightMatches
@@ -277,20 +287,18 @@ export class PreviewModal extends Modal {
 		if (!match) {
 			return;
 		}
-		const view = leaf.view as MarkdownView;
+		// const view = leaf.view as MarkdownView;
+		const editor = (leaf.view as MarkdownView).modes.source.editor;
 		const range = {
-			from: view.editMode.editor.offsetToPos(match[0]),
-			to: view.editMode.editor.offsetToPos(match[1]),
+			from: editor.offsetToPos(match[0]),
+			to: editor.offsetToPos(match[1]),
 		};
 		// leaf.view.modes.source.highlightSearchMatch(range.from, range.to);
-		view.editMode.editor.addHighlights(
-			[range],
-			'obsidian-search-match-highlight'
-		);
+		editor.addHighlights([range], 'obsidian-search-match-highlight');
 
 		// scroll
-		view.editMode.editor.setCursor(range.from);
-		view.editMode.editor.scrollIntoView(range, true);
+		editor.setCursor(range.from);
+		editor.scrollIntoView(range, true);
 	}
 
 	private getHotkeys(commandId: string): Hotkey[] {

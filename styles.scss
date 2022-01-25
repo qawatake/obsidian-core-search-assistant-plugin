@@ -22,11 +22,12 @@
 
 	.workspace-leaf-content {
 		overflow: unset;
+		min-width: 700px; // same as preview view
 	}
 
-	div.workspace-leaf {
-		contain: initial !important;
-	}
+	// div.workspace-leaf {
+	// 	contain: initial !important;
+	// }
 	div.workspace-leaf-resize-handle {
 		display: none;
 	}
@@ -35,7 +36,7 @@
 	}
 
 	div.modal-content {
-		min-width: 700px; // same as preview view
+		// min-width: 700px; // same as preview view
 		margin: 0;
 	}
 
@@ -48,6 +49,20 @@
 		padding: 0;
 	}
 
+	.markdown-source-view {
+		pointer-events: none;
+	}
+
+	.highlight-search-match {
+		color: var(--text-normal);
+		background-color: var(--text-highlight-bg);
+	}
+
+	.focus-search-match {
+		// text-decoration: underline;
+		outline: 1px solid var(--interactive-accent);
+	}
+
 	/*
 		render source view correctly
 	*/
@@ -58,10 +73,44 @@
 	.markdown-source-view.mod-cm6 {
 		display: initial; // overwrite "display: flex"
 	}
-	.markdown-source-view {
-		pointer-events: none;
-	}
 	.markdown-source-view.mod-cm6 .cm-scroller {
+		padding: 0;
+	}
+}
+
+// legacy editor
+.core-search-assistant_preview-modal-container_legacy {
+	.workspace-leaf-content .view-content {
+		overflow: unset;
+	}
+
+	.markdown-preview-view {
+		overflow: unset;
+	}
+
+	.workspace-leaf-content {
+		overflow: unset;
+		min-width: 700px; // same as preview view
+	}
+
+	div.workspace-leaf-resize-handle {
+		display: none;
+	}
+	div.view-header {
+		display: none;
+	}
+
+	div.modal-content {
+		// min-width: 700px; // same as preview view
+		margin: 0;
+	}
+
+	div.modal {
+		max-width: unset;
+		height: 100%;
+	}
+
+	div.markdown-preview-view {
 		padding: 0;
 	}
 
@@ -73,6 +122,34 @@
 	.focus-search-match {
 		// text-decoration: underline;
 		outline: 1px solid var(--interactive-accent);
+	}
+
+	.markdown-source-view {
+		pointer-events: none;
+	}
+
+	// specific to legacy editor
+	.CodeMirror-scroll {
+		width: 100%;
+		overflow: unset !important;
+	}
+
+	.markdown-source-view.mod-cm5 {
+		padding: 0;
+	}
+
+	.CodeMirror-sizer {
+		padding: 0;
+		margin: 0;
+		border-right-width: 0 !important;
+	}
+
+	.CodeMirror {
+		overflow: unset;
+	}
+
+	.CodeMirror-vscrollbar {
+		overflow: unset;
 	}
 }
 
