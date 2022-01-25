@@ -1,5 +1,11 @@
 import CoreSearchAssistantPlugin from 'main';
-import { App, Component, TFile, WorkspaceLeaf } from 'obsidian';
+import {
+	App,
+	Component,
+	MarkdownView,
+	SearchResultItem,
+	WorkspaceLeaf,
+} from 'obsidian';
 
 export const INTERVAL_MILLISECOND_TO_BE_DETACHED = 1000;
 
@@ -33,9 +39,9 @@ export class WorkspacePreview extends Component {
 		this.containerEl.remove();
 	}
 
-	renew(file: TFile) {
+	renew(item: SearchResultItem) {
 		this.detachLater(INTERVAL_MILLISECOND_TO_BE_DETACHED);
-		this.show(file);
+		this.show(item);
 	}
 
 	hide() {
@@ -43,15 +49,26 @@ export class WorkspacePreview extends Component {
 		this.containerEl.hide();
 	}
 
-	private show(file: TFile) {
+	private show(item: SearchResultItem) {
+		// this.leaf.openFile(file, { state: { mode: 'preview' } });
+		// this.containerEl.empty();
+		// this.containerEl.appendChild(this.leaf.containerEl);
+		// if (this.plugin.settings?.hideIframe) {
+		// 	this.containerEl.addClass('hide-iframe');
+		// }
+		// this.containerEl.show();
+
 		this.leaf = new (WorkspaceLeaf as any)(this.app) as WorkspaceLeaf;
-		this.leaf.openFile(file, { state: { mode: 'preview' } });
-		this.containerEl.empty();
-		this.containerEl.appendChild(this.leaf.containerEl);
+		const { containerEl } = this;
+		const markdownView = new MarkdownView(this.leaf);
+		markdownView.file = item.file;
+		markdownView.setViewData(item.content, true);
+		containerEl.empty();
+		containerEl.appendChild(markdownView.containerEl);
 		if (this.plugin.settings?.hideIframe) {
-			this.containerEl.addClass('hide-iframe');
+			containerEl.addClass('hide-iframe');
 		}
-		this.containerEl.show();
+		containerEl.show();
 	}
 
 	// delay detachment because otherwise ↓ occur

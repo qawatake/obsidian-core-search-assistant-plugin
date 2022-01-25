@@ -264,7 +264,7 @@ export class Controller extends Component {
 		if (!item) {
 			return;
 		}
-		this.plugin?.workspacePreview?.renew(item.file);
+		this.plugin?.workspacePreview?.renew(item);
 	}
 
 	private navigateForward() {
