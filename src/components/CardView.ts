@@ -22,30 +22,9 @@ export class CardView extends Component {
 		this.app = app;
 		this.plugin = plugin;
 		this.leafs = [];
-		this.workspaceCoverEl = createEl('div', {
-			attr: { id: `core-search-assistant_card-view` },
-		});
 		this.displayed = false;
-
-		let row = 0;
-		let column = 0;
-		if (this.plugin.settings) {
-			[row, column] = parseCardLayout(
-				this.plugin.settings.cardViewLayout
-			);
-		}
-		this.contentEl = this.workspaceCoverEl.createEl('div', {
-			cls: 'content',
-		});
-		this.contentEl.style.gridTemplateColumns = `repeat(${column}, minmax(0, 1fr))`;
-		this.contentEl.style.gridTemplateRows = `repeat(${row}, 1fr)`;
-
-		this.app.workspace.onLayoutReady(() => {
-			this.app.workspace.rootSplit.containerEl.appendChild(
-				this.workspaceCoverEl
-			);
-			this.hide();
-		});
+		this.workspaceCoverEl = this.createContainerEl();
+		this.contentEl = this.createContentEl();
 	}
 
 	override onload() {
@@ -65,6 +44,11 @@ export class CardView extends Component {
 				return;
 			}
 			this.plugin.SearchComponentInterface?.open(Number.parseInt(id));
+		});
+
+		// rootSplit will be undefined when Obsidian reloaded because dom elements are not fully rendered.
+		this.app.workspace.onLayoutReady(() => {
+			this.attachContainerEl();
 		});
 	}
 
@@ -175,6 +159,36 @@ export class CardView extends Component {
 		);
 		this.contentEl.style.gridTemplateColumns = `repeat(${column}, minmax(0, 1fr))`;
 		this.contentEl.style.gridTemplateRows = `repeat(${row}, 1fr)`;
+	}
+
+	private createContainerEl(): HTMLElement {
+		const workspaceCoverEl = createEl('div', {
+			attr: { id: `core-search-assistant_card-view` },
+		});
+		return workspaceCoverEl;
+	}
+
+	private attachContainerEl() {
+		this.app.workspace.rootSplit.containerEl.appendChild(
+			this.workspaceCoverEl
+		);
+		this.hide();
+	}
+
+	private createContentEl(): HTMLElement {
+		let row = 0;
+		let column = 0;
+		if (this.plugin.settings) {
+			[row, column] = parseCardLayout(
+				this.plugin.settings.cardViewLayout
+			);
+		}
+		const contentEl = this.workspaceCoverEl.createEl('div', {
+			cls: 'content',
+		});
+		contentEl.style.gridTemplateColumns = `repeat(${column}, minmax(0, 1fr))`;
+		contentEl.style.gridTemplateRows = `repeat(${row}, 1fr)`;
+		return contentEl;
 	}
 
 	// delay detachment because otherwise ↓ occur

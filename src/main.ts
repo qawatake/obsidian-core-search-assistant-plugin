@@ -17,17 +17,16 @@ export default class CoreSearchAssistantPlugin extends Plugin {
 	cardView: CardView | undefined;
 
 	override async onload() {
-		this.controller = new Controller(this.app, this);
-		this.addChild(this.controller);
-		this.SearchComponentInterface = new SearchComponentInterface(
-			this.app,
-			this
+		this.controller = this.addChild(new Controller(this.app, this));
+		this.SearchComponentInterface = this.addChild(
+			new SearchComponentInterface(this.app, this)
 		);
-		this.addChild(this.SearchComponentInterface);
-		this.workspacePreview = new WorkspacePreview(this.app, this);
-		this.addChild(this.workspacePreview);
-		this.cardView = new CardView(this.app, this);
-		this.addChild(this.cardView);
+		this.workspacePreview = this.addChild(
+			new WorkspacePreview(this.app, this)
+		);
+		this.cardView = this.addChild(new CardView(this.app, this));
+
+		this.watchLayoutChange();
 
 		await this.loadSettings();
 
@@ -46,5 +45,31 @@ export default class CoreSearchAssistantPlugin extends Plugin {
 
 	async saveSettings() {
 		await this.saveData(this.settings);
+	}
+
+	private renewController() {
+		if (this.controller) {
+			this.removeChild(this.controller);
+		}
+		this.controller = this.addChild(new Controller(this.app, this));
+	}
+
+	private renewCardView() {
+		if (this.cardView) {
+			this.removeChild(this.cardView);
+		}
+		this.cardView = this.addChild(new CardView(this.app, this));
+	}
+
+	private watchLayoutChange() {
+		// ↓ is necessary to skip layout-change when Obsidian reload
+		this.app.workspace.onLayoutReady(() => {
+			// ↓ is necessary because dom elements such as input form and containerEl for card view will be removed when layout change
+			// callback should be idempotent because one layout change triggers 'layout-change' many times.
+			this.app.workspace.on('layout-change', () => {
+				this.renewController();
+				this.renewCardView();
+			});
+		});
 	}
 }
