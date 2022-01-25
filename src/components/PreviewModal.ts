@@ -89,18 +89,19 @@ export class PreviewModal extends Modal {
 		});
 		this.scope.register([], 'Tab', (evt) => {
 			evt.preventDefault(); // to prevent inserting indent in editing mode in the active leaf
-			this.currentFocus =
-				++this.currentFocus > this.matchEls.length - 1
-					? 0
-					: this.currentFocus;
+			this.currentFocus = cyclicId(
+				++this.currentFocus,
+				this.matchEls.length
+			);
 			this.focusOn(this.currentFocus);
 		});
 		this.scope.register(['Shift'], 'Tab', (evt) => {
 			evt.preventDefault();
-			this.currentFocus =
-				--this.currentFocus < 0
-					? this.matchEls.length - 1
-					: this.currentFocus;
+			this.currentFocus = cyclicId(
+				--this.currentFocus,
+				this.matchEls.length
+			);
+			console.log(this.currentFocus);
 			this.focusOn(this.currentFocus);
 		});
 
@@ -252,7 +253,8 @@ export class PreviewModal extends Modal {
 
 	private focusOn(matchId: number) {
 		[-1, 0, 1].forEach((i) => {
-			const el = this.matchEls[matchId + i];
+			const id = cyclicId(matchId + i, this.matchEls.length);
+			const el = this.matchEls[id];
 			if (el instanceof HTMLSpanElement) {
 				if (i === 0) {
 					el.addClass('focus-search-match');
@@ -364,4 +366,8 @@ export class PreviewModal extends Modal {
 	// 	contentEl.appendChild(previewView.containerEl);
 	// 	previewView.renderer.previewEl.addClass('preview-container');
 	// }
+}
+
+function cyclicId(id: number, total: number): number {
+	return ((id % total) + total) % total;
 }
