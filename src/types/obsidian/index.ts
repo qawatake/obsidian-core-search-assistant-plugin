@@ -7,6 +7,14 @@ declare module 'obsidian' {
 		hotkeyManager: HotkeyManager;
 	}
 
+	interface Vault {
+		config: BuiltInConfig;
+	}
+
+	interface BuiltInConfig {
+		legacyEditor: boolean;
+	}
+
 	interface WorkspaceLeaf {
 		containerEl: HTMLElement;
 	}
@@ -88,12 +96,18 @@ declare module 'obsidian' {
 	}
 
 	interface MarkdownView {
-		editMode: MarkdownEditorView;
+		// editMode: MarkdownEditorView;
 		getMode(): MarkdownViewModeType;
-		setMode(mode: MarkdownPreviewView | MarkdownEditorView): void;
+		setMode(mode: MarkdownPreviewView | MarkdownEditView): void;
+		modes: MarkdownViewModes;
 	}
 
-	interface MarkdownEditorView extends MarkdownSubView {
+	interface MarkdownViewModes {
+		preview: MarkdownPreviewView;
+		source: MarkdownEditView;
+	}
+
+	interface MarkdownEditView {
 		editor: Editor;
 	}
 

@@ -24,6 +24,7 @@ export class PreviewModal extends Modal {
 	leaf: WorkspaceLeaf;
 	matchEls: HTMLSpanElement[];
 	currentFocus: number;
+	markdownView: MarkdownView;
 
 	constructor(
 		app: App,
@@ -34,6 +35,7 @@ export class PreviewModal extends Modal {
 		this.plugin = plugin;
 		this.item = item;
 		this.leaf = new (WorkspaceLeaf as any)(app) as WorkspaceLeaf;
+		this.markdownView = new MarkdownView(this.leaf);
 		this.matchEls = [];
 		this.currentFocus = -1;
 	}
@@ -106,8 +108,8 @@ export class PreviewModal extends Modal {
 		togglePreviewHotkeys.forEach((hotkey) => {
 			this.scope.register(hotkey.modifiers, hotkey.key, (evt) => {
 				evt.preventDefault();
-				const { leaf } = this;
-				if ((leaf.view as MarkdownView).getMode() === 'preview') {
+				const { markdownView } = this;
+				if (markdownView.getMode() === 'preview') {
 					this.setViewMode('source');
 				} else {
 					this.setViewMode('preview');
@@ -137,43 +139,89 @@ export class PreviewModal extends Modal {
 		}, millisecond);
 	}
 
+	// private async createView() {
+	// 	const { leaf, item, contentEl, containerEl } = this;
+	// 	contentEl.empty();
+	// 	containerEl.addClass('core-search-assistant_preview-modal-container');
+	// 	await leaf.openFile(item.file);
+	// 	contentEl.appendChild(this.leaf.containerEl);
+	// }
+
 	private async createView() {
-		const { leaf, item, contentEl, containerEl } = this;
+		const { markdownView, contentEl, containerEl, item } = this;
 		contentEl.empty();
-		containerEl.addClass('core-search-assistant_preview-modal-container');
-		await leaf.openFile(item.file);
-		contentEl.appendChild(this.leaf.containerEl);
+		if (this.app.vault.config.legacyEditor) {
+			containerEl.addClass(
+				'core-search-assistant_preview-modal-container_legacy'
+			);
+		} else {
+			containerEl.addClass(
+				'core-search-assistant_preview-modal-container'
+			);
+		}
+		markdownView.file = item.file;
+		markdownView.setViewData(item.content, true);
+		contentEl.appendChild(markdownView.containerEl);
 	}
 
-	private setViewMode(mode: MarkdownViewModeType) {
-		const { leaf } = this;
+	// private setViewMode(mode: MarkdownViewModeType) {
+	// 	const { leaf } = this;
 
-		(leaf.view as MarkdownView).setMode(
+	// 	(leaf.view as MarkdownView).setMode(
+	// 		mode === 'preview'
+	// 			? (leaf.view as MarkdownView).previewMode
+	// 			: (leaf.view as MarkdownView).editMode
+	// 	);
+	// }
+
+	private setViewMode(mode: MarkdownViewModeType) {
+		const { markdownView } = this;
+		markdownView.setMode(
 			mode === 'preview'
-				? (leaf.view as MarkdownView).previewMode
-				: (leaf.view as MarkdownView).editMode
+				? markdownView.previewMode
+				: markdownView.modes.source
 		);
+
+		if (mode === 'source') {
+			this.findMatches();
+		}
 	}
 
 	// it should be called once because is is not idempotent
 	// it can be called even when view mode = 'preview'
+	// private highlightMatches() {
+	// 	const { leaf, item } = this;
+	// 	const view = leaf.view as MarkdownView;
+	// 	const ranges: EditorRange[] = [];
+	// 	item.result.content?.forEach((match) => {
+	// 		const range = {
+	// 			from: view.editMode.editor.offsetToPos(match[0]),
+	// 			to: view.editMode.editor.offsetToPos(match[1]),
+	// 		};
+	// 		ranges.push(range);
+	// 	});
+	// 	((leaf.view as MarkdownView).editMode.editor as any).addHighlights(
+	// 		ranges,
+	// 		'highlight-search-match'
+	// 	);
+
+	// 	// this.matchesHighlighted = true;
+	// }
+
+	// it should be called once because is is not idempotent
+	// it can be called even when view mode = 'preview'
 	private highlightMatches() {
-		const { leaf, item } = this;
-		const view = leaf.view as MarkdownView;
+		const { markdownView, item } = this;
+		const editor = markdownView.modes.source.editor;
 		const ranges: EditorRange[] = [];
 		item.result.content?.forEach((match) => {
 			const range = {
-				from: view.editMode.editor.offsetToPos(match[0]),
-				to: view.editMode.editor.offsetToPos(match[1]),
+				from: editor.offsetToPos(match[0]),
+				to: editor.offsetToPos(match[1]),
 			};
 			ranges.push(range);
 		});
-		((leaf.view as MarkdownView).editMode.editor as any).addHighlights(
-			ranges,
-			'highlight-search-match'
-		);
-
-		// this.matchesHighlighted = true;
+		editor.addHighlights(ranges, 'highlight-search-match');
 	}
 
 	// it should be called after highlightMatches
@@ -239,20 +287,18 @@ export class PreviewModal extends Modal {
 		if (!match) {
 			return;
 		}
-		const view = leaf.view as MarkdownView;
+		// const view = leaf.view as MarkdownView;
+		const editor = (leaf.view as MarkdownView).modes.source.editor;
 		const range = {
-			from: view.editMode.editor.offsetToPos(match[0]),
-			to: view.editMode.editor.offsetToPos(match[1]),
+			from: editor.offsetToPos(match[0]),
+			to: editor.offsetToPos(match[1]),
 		};
 		// leaf.view.modes.source.highlightSearchMatch(range.from, range.to);
-		view.editMode.editor.addHighlights(
-			[range],
-			'obsidian-search-match-highlight'
-		);
+		editor.addHighlights([range], 'obsidian-search-match-highlight');
 
 		// scroll
-		view.editMode.editor.setCursor(range.from);
-		view.editMode.editor.scrollIntoView(range, true);
+		editor.setCursor(range.from);
+		editor.scrollIntoView(range, true);
 	}
 
 	private getHotkeys(commandId: string): Hotkey[] {
