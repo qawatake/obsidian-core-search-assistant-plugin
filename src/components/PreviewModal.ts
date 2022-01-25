@@ -24,6 +24,7 @@ export class PreviewModal extends Modal {
 	leaf: WorkspaceLeaf;
 	matchEls: HTMLSpanElement[];
 	currentFocus: number;
+	markdownView: MarkdownView;
 
 	constructor(
 		app: App,
@@ -34,6 +35,7 @@ export class PreviewModal extends Modal {
 		this.plugin = plugin;
 		this.item = item;
 		this.leaf = new (WorkspaceLeaf as any)(app) as WorkspaceLeaf;
+		this.markdownView = new MarkdownView(this.leaf);
 		this.matchEls = [];
 		this.currentFocus = -1;
 	}
@@ -137,43 +139,79 @@ export class PreviewModal extends Modal {
 		}, millisecond);
 	}
 
+	// private async createView() {
+	// 	const { leaf, item, contentEl, containerEl } = this;
+	// 	contentEl.empty();
+	// 	containerEl.addClass('core-search-assistant_preview-modal-container');
+	// 	await leaf.openFile(item.file);
+	// 	contentEl.appendChild(this.leaf.containerEl);
+	// }
+
 	private async createView() {
-		const { leaf, item, contentEl, containerEl } = this;
+		const { markdownView, contentEl, containerEl, item } = this;
 		contentEl.empty();
 		containerEl.addClass('core-search-assistant_preview-modal-container');
-		await leaf.openFile(item.file);
-		contentEl.appendChild(this.leaf.containerEl);
+		markdownView.file = item.file;
+		markdownView.setViewData(item.content, true);
+		contentEl.appendChild(markdownView.containerEl);
 	}
 
-	private setViewMode(mode: MarkdownViewModeType) {
-		const { leaf } = this;
+	// private setViewMode(mode: MarkdownViewModeType) {
+	// 	const { leaf } = this;
 
-		(leaf.view as MarkdownView).setMode(
+	// 	(leaf.view as MarkdownView).setMode(
+	// 		mode === 'preview'
+	// 			? (leaf.view as MarkdownView).previewMode
+	// 			: (leaf.view as MarkdownView).editMode
+	// 	);
+	// }
+
+	private setViewMode(mode: MarkdownViewModeType) {
+		const { markdownView } = this;
+		markdownView.setMode(
 			mode === 'preview'
-				? (leaf.view as MarkdownView).previewMode
-				: (leaf.view as MarkdownView).editMode
+				? markdownView.previewMode
+				: markdownView.editMode
 		);
 	}
 
 	// it should be called once because is is not idempotent
 	// it can be called even when view mode = 'preview'
+	// private highlightMatches() {
+	// 	const { leaf, item } = this;
+	// 	const view = leaf.view as MarkdownView;
+	// 	const ranges: EditorRange[] = [];
+	// 	item.result.content?.forEach((match) => {
+	// 		const range = {
+	// 			from: view.editMode.editor.offsetToPos(match[0]),
+	// 			to: view.editMode.editor.offsetToPos(match[1]),
+	// 		};
+	// 		ranges.push(range);
+	// 	});
+	// 	((leaf.view as MarkdownView).editMode.editor as any).addHighlights(
+	// 		ranges,
+	// 		'highlight-search-match'
+	// 	);
+
+	// 	// this.matchesHighlighted = true;
+	// }
+
+	// it should be called once because is is not idempotent
+	// it can be called even when view mode = 'preview'
 	private highlightMatches() {
-		const { leaf, item } = this;
-		const view = leaf.view as MarkdownView;
+		const { markdownView, item } = this;
 		const ranges: EditorRange[] = [];
 		item.result.content?.forEach((match) => {
 			const range = {
-				from: view.editMode.editor.offsetToPos(match[0]),
-				to: view.editMode.editor.offsetToPos(match[1]),
+				from: markdownView.editMode.editor.offsetToPos(match[0]),
+				to: markdownView.editMode.editor.offsetToPos(match[1]),
 			};
 			ranges.push(range);
 		});
-		((leaf.view as MarkdownView).editMode.editor as any).addHighlights(
+		markdownView.editMode.editor.addHighlights(
 			ranges,
 			'highlight-search-match'
 		);
-
-		// this.matchesHighlighted = true;
 	}
 
 	// it should be called after highlightMatches

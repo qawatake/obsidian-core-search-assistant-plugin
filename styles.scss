@@ -12,6 +12,18 @@
 
 /* preview modal */
 .core-search-assistant_preview-modal-container {
+	.workspace-leaf-content .view-content {
+		overflow: unset;
+	}
+
+	.markdown-preview-view {
+		overflow: unset;
+	}
+
+	.workspace-leaf-content {
+		overflow: unset;
+	}
+
 	div.workspace-leaf {
 		contain: initial !important;
 	}
