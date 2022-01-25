@@ -61,6 +61,7 @@ export class WorkspacePreview extends Component {
 		this.leaf = new (WorkspaceLeaf as any)(this.app) as WorkspaceLeaf;
 		const { containerEl } = this;
 		const markdownView = new MarkdownView(this.leaf);
+		markdownView.setMode(markdownView.modes.preview);
 		markdownView.file = item.file;
 		markdownView.setViewData(item.content, true);
 		containerEl.empty();

@@ -76,9 +76,13 @@ export class CardView extends Component {
 	private async renderItemByPreviewView(item: SearchResultItem, id: number) {
 		const previewContainerEl = this.createPreviewContainerEl(item, id);
 		const leaf = new (WorkspaceLeaf as any)(this.app) as WorkspaceLeaf;
-		const previewView = new MarkdownView(leaf).previewMode;
-		previewView.view.file = item.file; // necessary to remove error message
-		previewView.set(item.content, false); // load content
+		const markdownView = new MarkdownView(leaf);
+
+		markdownView.setMode(markdownView.modes.preview);
+		markdownView.file = item.file; // necessary to remove error message
+		markdownView.setViewData(item.content, true);
+		previewContainerEl.empty();
+		const previewView = markdownView.previewMode;
 		previewContainerEl.appendChild(previewView.containerEl);
 		previewView.renderer.previewEl.addClass('preview-container');
 		this.leafs.push(leaf);
