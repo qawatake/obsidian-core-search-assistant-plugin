@@ -1,11 +1,5 @@
 import CoreSearchAssistantPlugin from 'main';
-import {
-	App,
-	Component,
-	MarkdownView,
-	SearchResultItem,
-	WorkspaceLeaf,
-} from 'obsidian';
+import { App, Component, SearchResultItem } from 'obsidian';
 import { parseCardLayout } from 'Setting';
 import { INTERVAL_MILLISECOND_TO_BE_DETACHED } from 'components/WorkspacePreview';
 import { MarkdownViewRenderer } from 'MarkdownViewRenderer';
@@ -13,7 +7,7 @@ import { MarkdownViewRenderer } from 'MarkdownViewRenderer';
 export class CardView extends Component {
 	private app: App;
 	private plugin: CoreSearchAssistantPlugin;
-	private leafs: WorkspaceLeaf[];
+	// private leafs: WorkspaceLeaf[];
 	private workspaceCoverEl: HTMLElement;
 	private contentEl: HTMLElement;
 	private displayed: boolean;
@@ -23,7 +17,7 @@ export class CardView extends Component {
 		super();
 		this.app = app;
 		this.plugin = plugin;
-		this.leafs = [];
+		// this.leafs = [];
 		this.displayed = false;
 		this.workspaceCoverEl = this.createContainerEl();
 		this.contentEl = this.createContentEl();
@@ -55,18 +49,31 @@ export class CardView extends Component {
 		});
 	}
 
-	override unload() {
-		this.leafs.forEach((leaf) => {
-			leaf.detach();
+	// override unload() {
+	// 	this.leafs.forEach((leaf) => {
+	// 		leaf.detach();
+	// 	});
+	// 	this.leafs = [];
+	// 	this.workspaceCoverEl.empty();
+	// 	this.workspaceCoverEl.remove();
+	// }
+
+	override onunload(): void {
+		// this.leafs.forEach((leaf) => {
+		// 	leaf.detach();
+		// });
+		// this.leafs = [];
+		this.renderers.forEach((renderer) => {
+			renderer.unload();
 		});
-		this.leafs = [];
+		this.renderers = [];
 		this.workspaceCoverEl.empty();
 		this.workspaceCoverEl.remove();
 	}
 
 	// id is necessary to open the selected item when clicked
 	renderItem(item: SearchResultItem, id: number) {
-		this.renderItemByPreviewView(item, id);
+		this.renderItemByMarkdownViewRenderer(item, id);
 		// const previewContainerEl = this.createPreviewContainerEl(item, id);
 		// const leaf = new (WorkspaceLeaf as any)(this.app) as WorkspaceLeaf;
 		// leaf.openFile(item.file, { state: { mode: 'preview' } });
@@ -75,21 +82,21 @@ export class CardView extends Component {
 		// this.leafs.push(leaf);
 	}
 
-	// id is necessary to open the selected item when clicked
-	private async renderItemByPreviewView(item: SearchResultItem, id: number) {
-		const previewContainerEl = this.createPreviewContainerEl(item, id);
-		const leaf = new (WorkspaceLeaf as any)(this.app) as WorkspaceLeaf;
-		const markdownView = new MarkdownView(leaf);
+	// // id is necessary to open the selected item when clicked
+	// private async renderItemByPreviewView(item: SearchResultItem, id: number) {
+	// 	const previewContainerEl = this.createPreviewContainerEl(item, id);
+	// 	const leaf = new (WorkspaceLeaf as any)(this.app) as WorkspaceLeaf;
+	// 	const markdownView = new MarkdownView(leaf);
 
-		markdownView.setMode(markdownView.modes.preview);
-		markdownView.file = item.file; // necessary to remove error message
-		markdownView.setViewData(item.content, true);
-		previewContainerEl.empty();
-		const previewView = markdownView.previewMode;
-		previewContainerEl.appendChild(previewView.containerEl);
-		previewView.renderer.previewEl.addClass('preview-container');
-		this.leafs.push(leaf);
-	}
+	// 	markdownView.setMode(markdownView.modes.preview);
+	// 	markdownView.file = item.file; // necessary to remove error message
+	// 	markdownView.setViewData(item.content, true);
+	// 	previewContainerEl.empty();
+	// 	const previewView = markdownView.previewMode;
+	// 	previewContainerEl.appendChild(previewView.containerEl);
+	// 	previewView.renderer.previewEl.addClass('preview-container');
+	// 	this.leafs.push(leaf);
+	// }
 
 	private async renderItemByMarkdownViewRenderer(
 		item: SearchResultItem,
@@ -102,6 +109,7 @@ export class CardView extends Component {
 			previewContainerEl,
 			item.file
 		).load();
+		renderer.togglePreview();
 		this.renderers.push(renderer);
 	}
 
@@ -215,14 +223,14 @@ export class CardView extends Component {
 	// delay detachment because otherwise ↓ occur
 	// "Uncaught TypeError: Cannot read property 'onResize' of null"
 	private detachLeafsLater() {
-		const leafsToBeDetached = this.leafs;
+		// const leafsToBeDetached = this.leafs;
 		const renderersToUnload = this.renderers;
-		this.leafs = [];
+		// this.leafs = [];
 		this.renderers = [];
 		setTimeout(() => {
-			leafsToBeDetached.forEach((leaf) => {
-				leaf.detach();
-			});
+			// leafsToBeDetached.forEach((leaf) => {
+			// 	leaf.detach();
+			// });
 			renderersToUnload.forEach((renderer) => {
 				renderer.unload();
 			});
