@@ -1,7 +1,7 @@
 import { CardView } from 'components/CardView';
 import { Controller } from 'Controller';
 import { SearchComponentInterface } from 'SearchComponentInterface';
-import { Plugin } from 'obsidian';
+import { Plugin, WorkspaceLeaf } from 'obsidian';
 import {
 	CoreSearchAssistantPluginSettings,
 	CoreSearchAssistantSettingTab,
@@ -26,7 +26,7 @@ export default class CoreSearchAssistantPlugin extends Plugin {
 		);
 		this.cardView = this.addChild(new CardView(this.app, this));
 
-		this.watchLayoutChange();
+		// this.watchLayoutChange();
 
 		await this.loadSettings();
 

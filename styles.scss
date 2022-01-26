@@ -259,6 +259,30 @@ div.core-search-assistant_search-mode-outline {
 	div.modal-content {
 		margin: 0;
 	}
+
+	.markdown-source-view.mod-cm6 .cm-editor {
+		flex: initial; // overwrite "flex: 1 1 0"
+		display: initial; // overwrite "display: flex"
+	}
+	.markdown-source-view.mod-cm6 {
+		display: initial; // overwrite "display: flex"
+	}
+	.markdown-source-view {
+		pointer-events: none;
+	}
+	.markdown-source-view.mod-cm6 .cm-scroller {
+		padding: 0;
+	}
+
+	.highlight-search-match {
+		color: var(--text-normal);
+		background-color: var(--text-highlight-bg);
+	}
+
+	.focus-search-match {
+		// text-decoration: underline;
+		outline: 1px solid var(--interactive-accent);
+	}
 }
 
 /* card view */

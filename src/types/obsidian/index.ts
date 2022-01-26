@@ -96,10 +96,11 @@ declare module 'obsidian' {
 	}
 
 	interface MarkdownView {
-		// editMode: MarkdownEditorView;
+		// editMode: MarkdownEditorView; not found in the legacy editor
 		getMode(): MarkdownViewModeType;
 		setMode(mode: MarkdownPreviewView | MarkdownEditView): void;
 		modes: MarkdownViewModes;
+		currentMode: MarkdownSubView;
 	}
 
 	interface MarkdownViewModes {

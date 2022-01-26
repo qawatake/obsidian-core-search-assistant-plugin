@@ -1,11 +1,6 @@
 import CoreSearchAssistantPlugin from 'main';
-import {
-	App,
-	Component,
-	MarkdownView,
-	SearchResultItem,
-	WorkspaceLeaf,
-} from 'obsidian';
+import { MarkdownViewRenderer } from 'MarkdownViewRenderer';
+import { App, Component, SearchResultItem, WorkspaceLeaf } from 'obsidian';
 
 export const INTERVAL_MILLISECOND_TO_BE_DETACHED = 1000;
 
@@ -49,27 +44,62 @@ export class WorkspacePreview extends Component {
 		this.containerEl.hide();
 	}
 
-	private show(item: SearchResultItem) {
-		// this.leaf.openFile(file, { state: { mode: 'preview' } });
+	private async show(item: SearchResultItem) {
+		this.containerEl.empty();
+		const renderer = await new MarkdownViewRenderer(
+			this.app,
+			this.containerEl,
+			item.file
+		).load();
+		renderer.toggleSource();
+		this.containerEl.show();
+		setTimeout(() => {
+			renderer.togglePreview();
+		}, 1000);
+		setTimeout(() => {
+			renderer.toggleSource();
+		}, 2000);
+		setTimeout(() => {
+			console.log('highlight');
+			renderer.highlightMatches(item.result.content ?? []);
+		}, 3000);
+		console.log('item.length', item.result.content?.length);
+		for (let i = 0; i < (item.result.content?.length ?? 0); i++) {
+			const j = i;
+			setTimeout(() => {
+				console.log(j);
+				renderer.focusOn(j);
+			}, 4000 + j * 1000);
+		}
+
+		// setTimeout(() => {
+		// 	renderer.unload();
+		// }, 3000);
+
+		// this.leaf = new (WorkspaceLeaf as any)(this.app) as WorkspaceLeaf;
+		// await this.leaf.openFile(item.file, { state: { mode: 'preview' } });
 		// this.containerEl.empty();
 		// this.containerEl.appendChild(this.leaf.containerEl);
 		// if (this.plugin.settings?.hideIframe) {
 		// 	this.containerEl.addClass('hide-iframe');
 		// }
 		// this.containerEl.show();
+		// console.log(this.leaf);
+		// console.log(this.leaf.getViewState());
+		// console.log(this.leaf.view.getState());
 
-		this.leaf = new (WorkspaceLeaf as any)(this.app) as WorkspaceLeaf;
-		const { containerEl } = this;
-		const markdownView = new MarkdownView(this.leaf);
-		markdownView.setMode(markdownView.modes.preview);
-		markdownView.file = item.file;
-		markdownView.setViewData(item.content, true);
-		containerEl.empty();
-		containerEl.appendChild(markdownView.containerEl);
-		if (this.plugin.settings?.hideIframe) {
-			containerEl.addClass('hide-iframe');
-		}
-		containerEl.show();
+		// this.leaf = new (WorkspaceLeaf as any)(this.app) as WorkspaceLeaf;
+		// const { containerEl } = this;
+		// const markdownView = new MarkdownView(this.leaf);
+		// markdownView.setMode(markdownView.modes.preview);
+		// markdownView.file = item.file;
+		// markdownView.setViewData(item.content, true);
+		// containerEl.empty();
+		// containerEl.appendChild(markdownView.containerEl);
+		// if (this.plugin.settings?.hideIframe) {
+		// 	containerEl.addClass('hide-iframe');
+		// }
+		// containerEl.show();
 	}
 
 	// delay detachment because otherwise ↓ occur
