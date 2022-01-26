@@ -70,9 +70,6 @@ export class MarkdownViewRenderer {
 				? (leaf.view as MarkdownView).previewMode
 				: (leaf.view as MarkdownView).modes.source
 		);
-		// leaf.view.currentMode.show();
-		console.log(leaf.view.getState());
-		console.log((leaf.view as MarkdownView).currentMode);
 	}
 
 	// it should be called once because is is not idempotent

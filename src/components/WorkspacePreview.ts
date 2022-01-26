@@ -1,24 +1,23 @@
 import CoreSearchAssistantPlugin from 'main';
 import { MarkdownViewRenderer } from 'MarkdownViewRenderer';
-import { App, Component, SearchResultItem, WorkspaceLeaf } from 'obsidian';
+import { App, Component, MarkdownRenderer, SearchResultItem } from 'obsidian';
 
 export const INTERVAL_MILLISECOND_TO_BE_DETACHED = 1000;
 
 export class WorkspacePreview extends Component {
 	private app: App;
 	private plugin: CoreSearchAssistantPlugin;
-	private containerEl: HTMLDivElement;
-	private leaf: WorkspaceLeaf | undefined;
+	private containerEl: HTMLElement;
+	private renderer: MarkdownRenderer | undefined;
 
 	constructor(app: App, plugin: CoreSearchAssistantPlugin) {
 		super();
 		this.app = app;
 		this.plugin = plugin;
-		this.containerEl = createEl('div', {
-			attr: {
-				id: 'core-search-assistant_workspace-preview',
-			},
-		});
+		this.containerEl = this.createContainerEl();
+	}
+
+	override onload(): void {
 		this.hide();
 
 		this.app.workspace.onLayoutReady(() => {
@@ -29,47 +28,49 @@ export class WorkspacePreview extends Component {
 	}
 
 	override onunload(): void {
-		this.leaf?.detach();
+		this.renderer?.unload();
 		this.containerEl.empty();
 		this.containerEl.remove();
 	}
 
 	renew(item: SearchResultItem) {
-		this.detachLater(INTERVAL_MILLISECOND_TO_BE_DETACHED);
+		this.requestUnloadRenderer(INTERVAL_MILLISECOND_TO_BE_DETACHED);
 		this.show(item);
 	}
 
 	hide() {
-		this.detachLater(INTERVAL_MILLISECOND_TO_BE_DETACHED);
 		this.containerEl.hide();
+		this.requestUnloadRenderer(INTERVAL_MILLISECOND_TO_BE_DETACHED);
+	}
+
+	private createContainerEl(): HTMLElement {
+		return createEl('div', {
+			attr: {
+				id: 'core-search-assistant_workspace-preview',
+			},
+		});
+	}
+
+	// delay detachment because otherwise ↓ occur
+	// "Uncaught TypeError: Cannot read property 'onResize' of null"
+	private requestUnloadRenderer(millisecond: number) {
+		const { renderer } = this;
+		this.renderer = undefined;
+		setTimeout(() => {
+			renderer?.unload();
+		}, millisecond);
 	}
 
 	private async show(item: SearchResultItem) {
-		this.containerEl.empty();
+		const { containerEl } = this;
+		containerEl.empty();
 		const renderer = await new MarkdownViewRenderer(
 			this.app,
-			this.containerEl,
+			containerEl,
 			item.file
 		).load();
-		renderer.toggleSource();
+		renderer.togglePreview();
 		this.containerEl.show();
-		setTimeout(() => {
-			renderer.togglePreview();
-		}, 1000);
-		setTimeout(() => {
-			renderer.toggleSource();
-		}, 2000);
-		setTimeout(() => {
-			console.log('highlight');
-			renderer.highlightMatches(item.result.content ?? []);
-		}, 3000);
-		console.log('item.length', item.result.content?.length);
-		item.result.content?.forEach((match, i) => {
-			const id = i;
-			setTimeout(() => {
-				renderer.focusOn(match, true);
-			}, 4000 + id * 1000);
-		});
 
 		// setTimeout(() => {
 		// 	renderer.unload();
@@ -101,15 +102,15 @@ export class WorkspacePreview extends Component {
 		// containerEl.show();
 	}
 
-	// delay detachment because otherwise ↓ occur
-	// "Uncaught TypeError: Cannot read property 'onResize' of null"
-	private detachLater(millisecond: number) {
-		if (!this.leaf) {
-			return;
-		}
-		const leafToBeDetached = this.leaf;
-		setTimeout(() => {
-			leafToBeDetached.detach();
-		}, millisecond);
-	}
+	// // delay detachment because otherwise ↓ occur
+	// // "Uncaught TypeError: Cannot read property 'onResize' of null"
+	// private detachLater(millisecond: number) {
+	// 	if (!this.leaf) {
+	// 		return;
+	// 	}
+	// 	const leafToBeDetached = this.leaf;
+	// 	setTimeout(() => {
+	// 		leafToBeDetached.detach();
+	// 	}, millisecond);
+	// }
 }
