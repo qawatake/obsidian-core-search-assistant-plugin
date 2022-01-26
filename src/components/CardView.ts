@@ -8,6 +8,7 @@ import {
 } from 'obsidian';
 import { parseCardLayout } from 'Setting';
 import { INTERVAL_MILLISECOND_TO_BE_DETACHED } from 'components/WorkspacePreview';
+import { MarkdownViewRenderer } from 'MarkdownViewRenderer';
 
 export class CardView extends Component {
 	private app: App;
@@ -16,6 +17,7 @@ export class CardView extends Component {
 	private workspaceCoverEl: HTMLElement;
 	private contentEl: HTMLElement;
 	private displayed: boolean;
+	private renderers: MarkdownViewRenderer[];
 
 	constructor(app: App, plugin: CoreSearchAssistantPlugin) {
 		super();
@@ -25,6 +27,7 @@ export class CardView extends Component {
 		this.displayed = false;
 		this.workspaceCoverEl = this.createContainerEl();
 		this.contentEl = this.createContentEl();
+		this.renderers = [];
 	}
 
 	override onload() {
@@ -86,6 +89,20 @@ export class CardView extends Component {
 		previewContainerEl.appendChild(previewView.containerEl);
 		previewView.renderer.previewEl.addClass('preview-container');
 		this.leafs.push(leaf);
+	}
+
+	private async renderItemByMarkdownViewRenderer(
+		item: SearchResultItem,
+		id: number
+	) {
+		const previewContainerEl = this.createPreviewContainerEl(item, id);
+		previewContainerEl.empty();
+		const renderer = await new MarkdownViewRenderer(
+			this.app,
+			previewContainerEl,
+			item.file
+		).load();
+		this.renderers.push(renderer);
 	}
 
 	focusOn(pos: number) {
@@ -199,10 +216,15 @@ export class CardView extends Component {
 	// "Uncaught TypeError: Cannot read property 'onResize' of null"
 	private detachLeafsLater() {
 		const leafsToBeDetached = this.leafs;
+		const renderersToUnload = this.renderers;
 		this.leafs = [];
+		this.renderers = [];
 		setTimeout(() => {
 			leafsToBeDetached.forEach((leaf) => {
 				leaf.detach();
+			});
+			renderersToUnload.forEach((renderer) => {
+				renderer.unload();
 			});
 		}, INTERVAL_MILLISECOND_TO_BE_DETACHED);
 	}
