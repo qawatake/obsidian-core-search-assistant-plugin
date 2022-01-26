@@ -13,7 +13,6 @@ export class MarkdownViewRenderer {
 	file: TFile;
 	leaf: WorkspaceLeaf;
 	containerEl: HTMLElement;
-	matchEls: HTMLSpanElement[];
 
 	constructor(app: App, containerEl: HTMLElement, file: TFile) {
 		this.app = app;
@@ -21,7 +20,6 @@ export class MarkdownViewRenderer {
 		this.leaf = new (WorkspaceLeaf as any)(this.app);
 		this.file = file;
 		this.containerEl.appendChild(this.leaf.containerEl);
-		this.matchEls = [];
 	}
 
 	async load(): Promise<MarkdownViewRenderer> {
@@ -43,7 +41,6 @@ export class MarkdownViewRenderer {
 
 	private async onload() {
 		await this.addFile();
-		this.findMatches();
 	}
 
 	private onunload() {
@@ -86,52 +83,36 @@ export class MarkdownViewRenderer {
 			ranges.push(range);
 		});
 		editor.addHighlights(ranges, 'highlight-search-match');
-
-		// this.matchesHighlighted = true;
 	}
 
-	// it should be called after highlightMatches
-	// it can be called even when view mode = 'preview'
-	private findMatches() {
+	scrollIntoView(match: Match, center?: boolean) {
 		const view = this.leaf.view as MarkdownView;
-		// if (view.getMode() !== 'source') {
-		// 	return;
-		// }
-		const { contentContainerEl } = view.modes.source;
-		const matchEls: HTMLSpanElement[] = [];
-		contentContainerEl
-			.querySelectorAll('span.highlight-search-match')
-			.forEach((node) => {
-				if (node instanceof HTMLSpanElement) {
-					matchEls.push(node);
-				}
-			});
-		this.matchEls = matchEls;
+		if (view.getMode() !== 'source') {
+			return;
+		}
+		const editor = view.modes.source.editor;
+		const range = {
+			from: editor.offsetToPos(match[0]),
+			to: editor.offsetToPos(match[1]),
+		};
+		editor.scrollIntoView(range, center);
 	}
 
-	focusOn(matchId: number) {
-		this.findMatches();
-		console.log('matches', this.matchEls.length);
-		[-1, 0, 1].forEach((i) => {
-			const id = cyclicId(matchId + i, this.matchEls.length);
-			const el = this.matchEls[id];
-			if (el instanceof HTMLSpanElement) {
-				if (i === 0) {
-					el.addClass('focus-search-match');
-					el.scrollIntoView({
-						behavior: 'smooth',
-						block: 'center',
-					});
-				} else {
-					el.removeClass('focus-search-match');
-				}
-			}
-		});
-	}
-}
+	focusOn(match: Match, center?: boolean) {
+		const view = this.leaf.view as MarkdownView;
+		if (view.getMode() !== 'source') {
+			return;
+		}
+		this.scrollIntoView(match, center);
+		const { editor } = view.modes.source;
 
-function cyclicId(id: number, total: number): number {
-	return ((id % total) + total) % total;
+		editor.removeHighlights('focus-search-match');
+		const range = {
+			from: editor.offsetToPos(match[0]),
+			to: editor.offsetToPos(match[1]),
+		};
+		editor.addHighlights([range], 'focus-search-match');
+	}
 }
 
 // this.leaf = new (WorkspaceLeaf as any)(this.app) as WorkspaceLeaf;

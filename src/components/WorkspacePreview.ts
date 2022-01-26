@@ -64,13 +64,12 @@ export class WorkspacePreview extends Component {
 			renderer.highlightMatches(item.result.content ?? []);
 		}, 3000);
 		console.log('item.length', item.result.content?.length);
-		for (let i = 0; i < (item.result.content?.length ?? 0); i++) {
-			const j = i;
+		item.result.content?.forEach((match, i) => {
+			const id = i;
 			setTimeout(() => {
-				console.log(j);
-				renderer.focusOn(j);
-			}, 4000 + j * 1000);
-		}
+				renderer.focusOn(match, true);
+			}, 4000 + id * 1000);
+		});
 
 		// setTimeout(() => {
 		// 	renderer.unload();

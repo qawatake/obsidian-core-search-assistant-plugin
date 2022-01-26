@@ -110,10 +110,12 @@ declare module 'obsidian' {
 
 	interface MarkdownEditView {
 		editor: Editor;
+		contentContainerEl: HTMLElement;
 	}
 
 	interface Editor {
 		addHighlights(ranges: EditorRange[], cls: string): void;
+		removeHighlights(cls: string): void;
 	}
 
 	interface HotkeyManager {
