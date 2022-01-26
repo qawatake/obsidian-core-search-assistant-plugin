@@ -16,7 +16,7 @@ In the search mode, you can use the following hotkeys.
 | -- | -- |
 | `Ctrl + N`, `↓` | Select the next item. |
 | `Ctrl + P`, `↑` | Select the previous item. |
-| `Ctrl + Space` | Preview the selected item. ([Manual preview](#manual-preview)) |
+| `Ctrl + Space` | Preview the selected item. Currently **not** supported in the legacy editor. ([Manual preview](#manual-preview)) |
 | `Ctrl + Enter` | Open the selected item. |
 | `Ctrl + Shift + Enter` | Open the selected item in a new pane. |
 | `Shift + Space` | Set search options. |
@@ -55,6 +55,8 @@ If rendered results are wrong, press `Enter` to reload.
 ![card-view-min](https://user-images.githubusercontent.com/38106890/150082177-6a14a509-b6f9-449f-90d1-7e198ae2d3d3.gif)
 
 ### Manual Preview
+**Currently manual preview is not supported in the legacy editor.**
+
 In the preview modal, the following hotkeys are available.
 | Key | Action |
 | -- | -- |

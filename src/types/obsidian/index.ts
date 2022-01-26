@@ -96,10 +96,11 @@ declare module 'obsidian' {
 	}
 
 	interface MarkdownView {
-		// editMode: MarkdownEditorView;
+		// editMode: MarkdownEditorView; not found in the legacy editor
 		getMode(): MarkdownViewModeType;
 		setMode(mode: MarkdownPreviewView | MarkdownEditView): void;
 		modes: MarkdownViewModes;
+		currentMode: MarkdownSubView;
 	}
 
 	interface MarkdownViewModes {
@@ -109,10 +110,12 @@ declare module 'obsidian' {
 
 	interface MarkdownEditView {
 		editor: Editor;
+		contentContainerEl: HTMLElement;
 	}
 
 	interface Editor {
 		addHighlights(ranges: EditorRange[], cls: string): void;
+		removeHighlights(cls: string): void;
 	}
 
 	interface HotkeyManager {

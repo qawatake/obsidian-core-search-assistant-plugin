@@ -21,6 +21,8 @@ export class Controller extends Component {
 	private inSearchMode: boolean;
 	private previewModalShown: boolean;
 	private optionModalShown: boolean;
+	// use for detecting whether layout-change really occurs
+	private inputEl: HTMLElement | undefined;
 
 	constructor(app: App, plugin: CoreSearchAssistantPlugin) {
 		super();
@@ -77,6 +79,7 @@ export class Controller extends Component {
 			if (!inputEl) {
 				return;
 			}
+			this.inputEl = inputEl;
 
 			this.registerDomEvent(document, 'click', () => {
 				if (this.optionModalShown || this.previewModalShown) {
@@ -159,6 +162,9 @@ export class Controller extends Component {
 			}
 		);
 		this.scope.register(['Ctrl'], ' ', () => {
+			if (this.app.vault.config.legacyEditor) {
+				return;
+			}
 			this.openPreviewModal();
 		});
 		this.scope.register(['Shift'], ' ', () => {
@@ -236,6 +242,12 @@ export class Controller extends Component {
 
 	togglePreviewModalShown(shown: boolean) {
 		this.previewModalShown = shown;
+	}
+
+	// check layout change
+	renewRequired(): boolean {
+		const inputEl = this.plugin.SearchComponentInterface?.getSearchInput();
+		return this.inputEl !== inputEl;
 	}
 
 	private forget() {

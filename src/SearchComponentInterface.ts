@@ -109,7 +109,7 @@ export class SearchComponentInterface extends Component {
 		});
 	}
 
-	open(pos: number, direction?: SplitDirection) {
+	async open(pos: number, direction?: SplitDirection) {
 		const item = this.getResultItemAt(pos);
 		if (!item) {
 			return;
@@ -119,7 +119,7 @@ export class SearchComponentInterface extends Component {
 			direction === undefined
 				? this.app.workspace.getMostRecentLeaf()
 				: this.app.workspace.splitActiveLeaf(direction);
-		leaf.openFile(file);
+		await leaf.openFile(file);
 		this.app.workspace.setActiveLeaf(leaf, true, true);
 	}
 

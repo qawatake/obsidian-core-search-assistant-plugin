@@ -65,10 +65,11 @@ export default class CoreSearchAssistantPlugin extends Plugin {
 		// ↓ is necessary to skip layout-change when Obsidian reload
 		this.app.workspace.onLayoutReady(() => {
 			// ↓ is necessary because dom elements such as input form and containerEl for card view will be removed when layout change
-			// callback should be idempotent because one layout change triggers 'layout-change' many times.
 			this.app.workspace.on('layout-change', () => {
-				this.renewController();
-				this.renewCardView();
+				if (this.controller?.renewRequired()) {
+					this.renewController();
+					this.renewCardView();
+				}
 			});
 		});
 	}
