@@ -7,7 +7,7 @@ import {
 	TFile,
 	WorkspaceLeaf,
 } from 'obsidian';
-import { delay } from 'utils/Util';
+import { delay, scrollIteration } from 'utils/Util';
 
 export class MarkdownViewRenderer {
 	app: App;
@@ -104,7 +104,10 @@ export class MarkdownViewRenderer {
 		};
 
 		// if content of a file is too large, we need to call scrollIntoView many times
-		const iter = this.scrollIteration();
+		const iter = scrollIteration(editor);
+		if (iter === undefined) {
+			return;
+		}
 		for (let i = 0; i < iter; i++) {
 			editor.scrollIntoView(range, center);
 			await delay(1);
@@ -127,16 +130,6 @@ export class MarkdownViewRenderer {
 			to: editor.offsetToPos(match[1]),
 		};
 		editor.addHighlights([range], 'focus-search-match');
-	}
-
-	private scrollIteration(): number {
-		return Math.max(Math.floor(this.lineCount() / 1000), 1);
-	}
-
-	private lineCount(): number {
-		const view = this.leaf.view as MarkdownView;
-		// return view.editor.lineCount(); ← always return "1"
-		return (view.editor as any).cm.state.doc.length as number;
 	}
 }
 

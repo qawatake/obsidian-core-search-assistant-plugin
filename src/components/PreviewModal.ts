@@ -9,6 +9,7 @@ import {
 } from 'obsidian';
 import { INTERVAL_MILLISECOND_TO_BE_DETACHED } from 'components/WorkspacePreview';
 import { MarkdownViewRenderer } from 'MarkdownViewRenderer';
+import { scrollIteration } from 'utils/Util';
 
 type ScrollDirection = 'up' | 'down';
 
@@ -203,8 +204,16 @@ export class PreviewModal extends Modal {
 		editor.addHighlights([range], 'obsidian-search-match-highlight');
 
 		// scroll
+		// if content of a file is too large, we need to call scrollIntoView many times
+		const iter = scrollIteration(editor);
+		if (iter === undefined) {
+			return;
+		}
+		for (let i = 0; i < iter; i++) {
+			console.log('a');
+			editor.scrollIntoView(range, true);
+		}
 		editor.setCursor(range.from);
-		editor.scrollIntoView(range, true);
 	}
 
 	private getHotkeys(commandId: string): Hotkey[] {
