@@ -19,10 +19,7 @@ const TOGGLE_PREVIEW_COMMAND_ID = 'markdown:toggle-preview';
 export class PreviewModal extends Modal {
 	item: SearchResultItem;
 	plugin: CoreSearchAssistantPlugin;
-	// leaf: WorkspaceLeaf;
-	// matchEls: HTMLSpanElement[];
 	currentFocus: number;
-	// markdownView: MarkdownView;
 	renderer: MarkdownViewRenderer | undefined;
 
 	constructor(
@@ -37,11 +34,6 @@ export class PreviewModal extends Modal {
 	}
 
 	override async onOpen() {
-		// await this.createView();
-		// this.setViewMode('source');
-		// this.highlightMatches();
-		// this.findMatches();
-
 		await this.renderView();
 		this.renderer?.highlightMatches(this.item.result.content ?? []);
 
@@ -111,12 +103,6 @@ export class PreviewModal extends Modal {
 			this.scope.register(hotkey.modifiers, hotkey.key, (evt) => {
 				evt.preventDefault();
 				this.toggleViewMode();
-				// const { markdownView } = this;
-				// if (markdownView.getMode() === 'preview') {
-				// 	this.setViewMode('source');
-				// } else {
-				// 	this.setViewMode('preview');
-				// }
 			});
 		});
 	}
@@ -124,7 +110,6 @@ export class PreviewModal extends Modal {
 	override onClose() {
 		const { contentEl } = this;
 		contentEl.empty();
-		// this.detachLater(INTERVAL_MILLISECOND_TO_BE_DETACHED);
 		this.requestUnloadRenderer(INTERVAL_MILLISECOND_TO_BE_DETACHED);
 
 		// too fast to remain search mode
@@ -133,16 +118,6 @@ export class PreviewModal extends Modal {
 		}, 100);
 	}
 
-	// private detachLater(millisecond: number) {
-	// 	if (!this.leaf) {
-	// 		return;
-	// 	}
-	// 	const leafToBeDetached = this.leaf;
-	// 	setTimeout(() => {
-	// 		leafToBeDetached.detach();
-	// 	}, millisecond);
-	// }
-
 	private requestUnloadRenderer(millisecond: number) {
 		const renderer = this.renderer;
 		this.renderer = undefined;
@@ -150,14 +125,6 @@ export class PreviewModal extends Modal {
 			renderer?.unload();
 		}, millisecond);
 	}
-
-	// private async createView() {
-	// 	const { leaf, item, contentEl, containerEl } = this;
-	// 	contentEl.empty();
-	// 	containerEl.addClass('core-search-assistant_preview-modal-container');
-	// 	await leaf.openFile(item.file);
-	// 	contentEl.appendChild(this.leaf.containerEl);
-	// }
 
 	private async renderView() {
 		const { contentEl, containerEl, item } = this;
@@ -184,49 +151,93 @@ export class PreviewModal extends Modal {
 		return this.item.result.content?.length;
 	}
 
-	// private async createView() {
-	// 	const { markdownView, contentEl, containerEl, item } = this;
-	// 	contentEl.empty();
-	// 	if (this.app.vault.config.legacyEditor) {
-	// 		containerEl.addClass(
-	// 			'core-search-assistant_preview-modal-container_legacy'
-	// 		);
-	// 	} else {
-	// 		containerEl.addClass(
-	// 			'core-search-assistant_preview-modal-container'
-	// 		);
-	// 	}
-	// 	markdownView.file = item.file;
-	// 	markdownView.setViewData(item.content, true);
-	// 	contentEl.appendChild(markdownView.containerEl);
-	// }
-
-	// private setViewMode(mode: MarkdownViewModeType) {
-	// 	const { leaf } = this;
-
-	// 	(leaf.view as MarkdownView).setMode(
-	// 		mode === 'preview'
-	// 			? (leaf.view as MarkdownView).previewMode
-	// 			: (leaf.view as MarkdownView).editMode
-	// 	);
-	// }
-
-	// private setViewMode(mode: MarkdownViewModeType) {
-	// 	const { markdownView } = this;
-	// 	markdownView.setMode(
-	// 		mode === 'preview'
-	// 			? markdownView.previewMode
-	// 			: markdownView.modes.source
-	// 	);
-
-	// 	if (mode === 'source') {
-	// 		this.findMatches();
-	// 	}
-	// }
-
 	private toggleViewMode() {
 		this.renderer?.toggleViewMode();
 	}
+
+	private scroll(direction: ScrollDirection, px?: number) {
+		const { containerEl, contentEl } = this;
+		const move =
+			(px ?? containerEl.clientHeight / 2) *
+			(direction === 'up' ? -1 : 1);
+		contentEl.scrollBy({
+			top: move,
+			behavior: 'smooth',
+		});
+	}
+
+	private focusOn(matchId: number, center?: boolean) {
+		const { renderer, item } = this;
+		const match = item.result.content?.[matchId];
+		if (match === undefined) {
+			return;
+		}
+		renderer?.focusOn(match, center);
+	}
+
+	async openAndFocus(matchId: number, direction?: SplitDirection) {
+		const { item } = this;
+
+		// open file
+		const leaf =
+			direction === undefined
+				? this.app.workspace.getMostRecentLeaf()
+				: this.app.workspace.splitActiveLeaf(direction);
+		await leaf.openFile(item.file, {
+			state: {
+				mode: 'source',
+			},
+		});
+		this.app.workspace.setActiveLeaf(leaf, true, true);
+
+		// highlight matches
+		const match = item?.result?.content?.[matchId];
+		if (!match) {
+			return;
+		}
+		const editor = (leaf.view as MarkdownView).modes.source.editor;
+		const range = {
+			from: editor.offsetToPos(match[0]),
+			to: editor.offsetToPos(match[1]),
+		};
+		editor.addHighlights([range], 'obsidian-search-match-highlight');
+
+		// scroll
+		editor.setCursor(range.from);
+		editor.scrollIntoView(range, true);
+	}
+
+	private getHotkeys(commandId: string): Hotkey[] {
+		const { hotkeyManager } = this.app;
+
+		const customKeys = hotkeyManager.customKeys[commandId];
+		if (customKeys !== undefined && customKeys.length !== 0) {
+			return customKeys;
+		}
+
+		const defaultKeys = hotkeyManager.defaultKeys[commandId];
+		if (defaultKeys !== undefined && defaultKeys.length !== 0) {
+			return defaultKeys;
+		}
+
+		throw `getHotkey failed: command id ${commandId} is invalid`;
+	}
+
+	// [-1, 0, 1].forEach((i) => {
+	// 	const id = cyclicId(matchId + i, this.matchEls.length);
+	// 	const el = this.matchEls[id];
+	// 	if (el instanceof HTMLSpanElement) {
+	// 		if (i === 0) {
+	// 			el.addClass('focus-search-match');
+	// 			el.scrollIntoView({
+	// 				behavior: 'smooth',
+	// 				block: 'center',
+	// 			});
+	// 		} else {
+	// 			el.removeClass('focus-search-match');
+	// 		}
+	// 	}
+	// });
 
 	// it should be called once because is is not idempotent
 	// it can be called even when view mode = 'preview'
@@ -280,90 +291,63 @@ export class PreviewModal extends Modal {
 	// 	this.matchEls = matchEls;
 	// }
 
-	private scroll(direction: ScrollDirection, px?: number) {
-		const { containerEl, contentEl } = this;
-		const move =
-			(px ?? containerEl.clientHeight / 2) *
-			(direction === 'up' ? -1 : 1);
-		contentEl.scrollBy({
-			top: move,
-			behavior: 'smooth',
-		});
-	}
+	// private async createView() {
+	// 	const { markdownView, contentEl, containerEl, item } = this;
+	// 	contentEl.empty();
+	// 	if (this.app.vault.config.legacyEditor) {
+	// 		containerEl.addClass(
+	// 			'core-search-assistant_preview-modal-container_legacy'
+	// 		);
+	// 	} else {
+	// 		containerEl.addClass(
+	// 			'core-search-assistant_preview-modal-container'
+	// 		);
+	// 	}
+	// 	markdownView.file = item.file;
+	// 	markdownView.setViewData(item.content, true);
+	// 	contentEl.appendChild(markdownView.containerEl);
+	// }
 
-	private focusOn(matchId: number, center?: boolean) {
-		const { renderer, item } = this;
-		const match = item.result.content?.[matchId];
-		if (match === undefined) {
-			return;
-		}
-		renderer?.focusOn(match, center);
-		// [-1, 0, 1].forEach((i) => {
-		// 	const id = cyclicId(matchId + i, this.matchEls.length);
-		// 	const el = this.matchEls[id];
-		// 	if (el instanceof HTMLSpanElement) {
-		// 		if (i === 0) {
-		// 			el.addClass('focus-search-match');
-		// 			el.scrollIntoView({
-		// 				behavior: 'smooth',
-		// 				block: 'center',
-		// 			});
-		// 		} else {
-		// 			el.removeClass('focus-search-match');
-		// 		}
-		// 	}
-		// });
-	}
+	// private setViewMode(mode: MarkdownViewModeType) {
+	// 	const { leaf } = this;
 
-	async openAndFocus(matchId: number, direction?: SplitDirection) {
-		const { item } = this;
+	// 	(leaf.view as MarkdownView).setMode(
+	// 		mode === 'preview'
+	// 			? (leaf.view as MarkdownView).previewMode
+	// 			: (leaf.view as MarkdownView).editMode
+	// 	);
+	// }
 
-		// open file
-		const leaf =
-			direction === undefined
-				? this.app.workspace.getMostRecentLeaf()
-				: this.app.workspace.splitActiveLeaf(direction);
-		await leaf.openFile(item.file, {
-			state: {
-				mode: 'source',
-			},
-		});
-		this.app.workspace.setActiveLeaf(leaf, true, true);
+	// private setViewMode(mode: MarkdownViewModeType) {
+	// 	const { markdownView } = this;
+	// 	markdownView.setMode(
+	// 		mode === 'preview'
+	// 			? markdownView.previewMode
+	// 			: markdownView.modes.source
+	// 	);
 
-		// highlight matches
-		const match = item?.result?.content?.[matchId];
-		if (!match) {
-			return;
-		}
-		// const view = leaf.view as MarkdownView;
-		const editor = (leaf.view as MarkdownView).modes.source.editor;
-		const range = {
-			from: editor.offsetToPos(match[0]),
-			to: editor.offsetToPos(match[1]),
-		};
-		// leaf.view.modes.source.highlightSearchMatch(range.from, range.to);
-		editor.addHighlights([range], 'obsidian-search-match-highlight');
+	// 	if (mode === 'source') {
+	// 		this.findMatches();
+	// 	}
+	// }
 
-		// scroll
-		editor.setCursor(range.from);
-		editor.scrollIntoView(range, true);
-	}
+	// private async createView() {
+	// 	const { leaf, item, contentEl, containerEl } = this;
+	// 	contentEl.empty();
+	// 	containerEl.addClass('core-search-assistant_preview-modal-container');
+	// 	await leaf.openFile(item.file);
+	// 	contentEl.appendChild(this.leaf.containerEl);
+	// }
 
-	private getHotkeys(commandId: string): Hotkey[] {
-		const { hotkeyManager } = this.app;
-
-		const customKeys = hotkeyManager.customKeys[commandId];
-		if (customKeys !== undefined && customKeys.length !== 0) {
-			return customKeys;
-		}
-
-		const defaultKeys = hotkeyManager.defaultKeys[commandId];
-		if (defaultKeys !== undefined && defaultKeys.length !== 0) {
-			return defaultKeys;
-		}
-
-		throw `getHotkey failed: command id ${commandId} is invalid`;
-	}
+	// private detachLater(millisecond: number) {
+	// 	if (!this.leaf) {
+	// 		return;
+	// 	}
+	// 	const leafToBeDetached = this.leaf;
+	// 	setTimeout(() => {
+	// 		leafToBeDetached.detach();
+	// 	}, millisecond);
+	// }
 
 	// private renderPreview() {
 	// 	const { contentEl, containerEl } = this;
