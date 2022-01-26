@@ -210,7 +210,6 @@ export class PreviewModal extends Modal {
 			return;
 		}
 		for (let i = 0; i < iter; i++) {
-			console.log('a');
 			editor.scrollIntoView(range, true);
 		}
 		editor.setCursor(range.from);
