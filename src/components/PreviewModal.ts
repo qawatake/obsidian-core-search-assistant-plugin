@@ -3,14 +3,12 @@ import {
 	App,
 	Modal,
 	SearchResultItem,
-	WorkspaceLeaf,
-	EditorRange,
-	MarkdownViewModeType,
 	SplitDirection,
 	MarkdownView,
 	Hotkey,
 } from 'obsidian';
 import { INTERVAL_MILLISECOND_TO_BE_DETACHED } from 'components/WorkspacePreview';
+import { MarkdownViewRenderer } from 'MarkdownViewRenderer';
 
 type ScrollDirection = 'up' | 'down';
 
@@ -21,10 +19,11 @@ const TOGGLE_PREVIEW_COMMAND_ID = 'markdown:toggle-preview';
 export class PreviewModal extends Modal {
 	item: SearchResultItem;
 	plugin: CoreSearchAssistantPlugin;
-	leaf: WorkspaceLeaf;
-	matchEls: HTMLSpanElement[];
+	// leaf: WorkspaceLeaf;
+	// matchEls: HTMLSpanElement[];
 	currentFocus: number;
-	markdownView: MarkdownView;
+	// markdownView: MarkdownView;
+	renderer: MarkdownViewRenderer | undefined;
 
 	constructor(
 		app: App,
@@ -34,17 +33,18 @@ export class PreviewModal extends Modal {
 		super(app);
 		this.plugin = plugin;
 		this.item = item;
-		this.leaf = new (WorkspaceLeaf as any)(app) as WorkspaceLeaf;
-		this.markdownView = new MarkdownView(this.leaf);
-		this.matchEls = [];
 		this.currentFocus = -1;
 	}
 
 	override async onOpen() {
-		await this.createView();
-		this.setViewMode('source');
-		this.highlightMatches();
-		this.findMatches();
+		// await this.createView();
+		// this.setViewMode('source');
+		// this.highlightMatches();
+		// this.findMatches();
+
+		await this.renderView();
+		this.renderer?.highlightMatches(this.item.result.content ?? []);
+
 		this.plugin.controller?.togglePreviewModalShown(true);
 
 		this.scope.register(['Ctrl'], ' ', () => {
@@ -89,19 +89,20 @@ export class PreviewModal extends Modal {
 		});
 		this.scope.register([], 'Tab', (evt) => {
 			evt.preventDefault(); // to prevent inserting indent in editing mode in the active leaf
-			this.currentFocus = cyclicId(
-				++this.currentFocus,
-				this.matchEls.length
-			);
+			const numMatches = this.countMatches();
+			if (numMatches === undefined || numMatches === 0) {
+				return;
+			}
+			this.currentFocus = cyclicId(++this.currentFocus, numMatches);
 			this.focusOn(this.currentFocus);
 		});
 		this.scope.register(['Shift'], 'Tab', (evt) => {
 			evt.preventDefault();
-			this.currentFocus = cyclicId(
-				--this.currentFocus,
-				this.matchEls.length
-			);
-			console.log(this.currentFocus);
+			const numMatches = this.countMatches();
+			if (numMatches === undefined || numMatches === 0) {
+				return;
+			}
+			this.currentFocus = cyclicId(--this.currentFocus, numMatches);
 			this.focusOn(this.currentFocus);
 		});
 
@@ -109,12 +110,13 @@ export class PreviewModal extends Modal {
 		togglePreviewHotkeys.forEach((hotkey) => {
 			this.scope.register(hotkey.modifiers, hotkey.key, (evt) => {
 				evt.preventDefault();
-				const { markdownView } = this;
-				if (markdownView.getMode() === 'preview') {
-					this.setViewMode('source');
-				} else {
-					this.setViewMode('preview');
-				}
+				this.toggleViewMode();
+				// const { markdownView } = this;
+				// if (markdownView.getMode() === 'preview') {
+				// 	this.setViewMode('source');
+				// } else {
+				// 	this.setViewMode('preview');
+				// }
 			});
 		});
 	}
@@ -122,7 +124,8 @@ export class PreviewModal extends Modal {
 	override onClose() {
 		const { contentEl } = this;
 		contentEl.empty();
-		this.detachLater(INTERVAL_MILLISECOND_TO_BE_DETACHED);
+		// this.detachLater(INTERVAL_MILLISECOND_TO_BE_DETACHED);
+		this.requestUnloadRenderer(INTERVAL_MILLISECOND_TO_BE_DETACHED);
 
 		// too fast to remain search mode
 		setTimeout(() => {
@@ -130,13 +133,21 @@ export class PreviewModal extends Modal {
 		}, 100);
 	}
 
-	private detachLater(millisecond: number) {
-		if (!this.leaf) {
-			return;
-		}
-		const leafToBeDetached = this.leaf;
+	// private detachLater(millisecond: number) {
+	// 	if (!this.leaf) {
+	// 		return;
+	// 	}
+	// 	const leafToBeDetached = this.leaf;
+	// 	setTimeout(() => {
+	// 		leafToBeDetached.detach();
+	// 	}, millisecond);
+	// }
+
+	private requestUnloadRenderer(millisecond: number) {
+		const renderer = this.renderer;
+		this.renderer = undefined;
 		setTimeout(() => {
-			leafToBeDetached.detach();
+			renderer?.unload();
 		}, millisecond);
 	}
 
@@ -148,8 +159,8 @@ export class PreviewModal extends Modal {
 	// 	contentEl.appendChild(this.leaf.containerEl);
 	// }
 
-	private async createView() {
-		const { markdownView, contentEl, containerEl, item } = this;
+	private async renderView() {
+		const { contentEl, containerEl, item } = this;
 		contentEl.empty();
 		if (this.app.vault.config.legacyEditor) {
 			containerEl.addClass(
@@ -160,10 +171,35 @@ export class PreviewModal extends Modal {
 				'core-search-assistant_preview-modal-container'
 			);
 		}
-		markdownView.file = item.file;
-		markdownView.setViewData(item.content, true);
-		contentEl.appendChild(markdownView.containerEl);
+		const renderer = await new MarkdownViewRenderer(
+			this.app,
+			contentEl,
+			item.file
+		).load();
+		renderer.toggleSource();
+		this.renderer = renderer;
 	}
+
+	private countMatches(): number | undefined {
+		return this.item.result.content?.length;
+	}
+
+	// private async createView() {
+	// 	const { markdownView, contentEl, containerEl, item } = this;
+	// 	contentEl.empty();
+	// 	if (this.app.vault.config.legacyEditor) {
+	// 		containerEl.addClass(
+	// 			'core-search-assistant_preview-modal-container_legacy'
+	// 		);
+	// 	} else {
+	// 		containerEl.addClass(
+	// 			'core-search-assistant_preview-modal-container'
+	// 		);
+	// 	}
+	// 	markdownView.file = item.file;
+	// 	markdownView.setViewData(item.content, true);
+	// 	contentEl.appendChild(markdownView.containerEl);
+	// }
 
 	// private setViewMode(mode: MarkdownViewModeType) {
 	// 	const { leaf } = this;
@@ -175,17 +211,21 @@ export class PreviewModal extends Modal {
 	// 	);
 	// }
 
-	private setViewMode(mode: MarkdownViewModeType) {
-		const { markdownView } = this;
-		markdownView.setMode(
-			mode === 'preview'
-				? markdownView.previewMode
-				: markdownView.modes.source
-		);
+	// private setViewMode(mode: MarkdownViewModeType) {
+	// 	const { markdownView } = this;
+	// 	markdownView.setMode(
+	// 		mode === 'preview'
+	// 			? markdownView.previewMode
+	// 			: markdownView.modes.source
+	// 	);
 
-		if (mode === 'source') {
-			this.findMatches();
-		}
+	// 	if (mode === 'source') {
+	// 		this.findMatches();
+	// 	}
+	// }
+
+	private toggleViewMode() {
+		this.renderer?.toggleViewMode();
 	}
 
 	// it should be called once because is is not idempotent
@@ -211,34 +251,34 @@ export class PreviewModal extends Modal {
 
 	// it should be called once because is is not idempotent
 	// it can be called even when view mode = 'preview'
-	private highlightMatches() {
-		const { markdownView, item } = this;
-		const editor = markdownView.modes.source.editor;
-		const ranges: EditorRange[] = [];
-		item.result.content?.forEach((match) => {
-			const range = {
-				from: editor.offsetToPos(match[0]),
-				to: editor.offsetToPos(match[1]),
-			};
-			ranges.push(range);
-		});
-		editor.addHighlights(ranges, 'highlight-search-match');
-	}
+	// private highlightMatches() {
+	// 	const { markdownView, item } = this;
+	// 	const editor = markdownView.modes.source.editor;
+	// 	const ranges: EditorRange[] = [];
+	// 	item.result.content?.forEach((match) => {
+	// 		const range = {
+	// 			from: editor.offsetToPos(match[0]),
+	// 			to: editor.offsetToPos(match[1]),
+	// 		};
+	// 		ranges.push(range);
+	// 	});
+	// 	editor.addHighlights(ranges, 'highlight-search-match');
+	// }
 
 	// it should be called after highlightMatches
 	// it can be called even when view mode = 'preview'
-	private findMatches() {
-		const { contentEl } = this;
-		const matchEls: HTMLSpanElement[] = [];
-		contentEl
-			.querySelectorAll('span.highlight-search-match')
-			.forEach((node) => {
-				if (node instanceof HTMLSpanElement) {
-					matchEls.push(node);
-				}
-			});
-		this.matchEls = matchEls;
-	}
+	// private findMatches() {
+	// 	const { contentEl } = this;
+	// 	const matchEls: HTMLSpanElement[] = [];
+	// 	contentEl
+	// 		.querySelectorAll('span.highlight-search-match')
+	// 		.forEach((node) => {
+	// 			if (node instanceof HTMLSpanElement) {
+	// 				matchEls.push(node);
+	// 			}
+	// 		});
+	// 	this.matchEls = matchEls;
+	// }
 
 	private scroll(direction: ScrollDirection, px?: number) {
 		const { containerEl, contentEl } = this;
@@ -251,22 +291,28 @@ export class PreviewModal extends Modal {
 		});
 	}
 
-	private focusOn(matchId: number) {
-		[-1, 0, 1].forEach((i) => {
-			const id = cyclicId(matchId + i, this.matchEls.length);
-			const el = this.matchEls[id];
-			if (el instanceof HTMLSpanElement) {
-				if (i === 0) {
-					el.addClass('focus-search-match');
-					el.scrollIntoView({
-						behavior: 'smooth',
-						block: 'center',
-					});
-				} else {
-					el.removeClass('focus-search-match');
-				}
-			}
-		});
+	private focusOn(matchId: number, center?: boolean) {
+		const { renderer, item } = this;
+		const match = item.result.content?.[matchId];
+		if (match === undefined) {
+			return;
+		}
+		renderer?.focusOn(match, center);
+		// [-1, 0, 1].forEach((i) => {
+		// 	const id = cyclicId(matchId + i, this.matchEls.length);
+		// 	const el = this.matchEls[id];
+		// 	if (el instanceof HTMLSpanElement) {
+		// 		if (i === 0) {
+		// 			el.addClass('focus-search-match');
+		// 			el.scrollIntoView({
+		// 				behavior: 'smooth',
+		// 				block: 'center',
+		// 			});
+		// 		} else {
+		// 			el.removeClass('focus-search-match');
+		// 		}
+		// 	}
+		// });
 	}
 
 	async openAndFocus(matchId: number, direction?: SplitDirection) {

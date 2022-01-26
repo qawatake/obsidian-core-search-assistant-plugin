@@ -39,12 +39,21 @@ export class MarkdownViewRenderer {
 		this.setViewMode('source');
 	}
 
+	toggleViewMode() {
+		const view = this.leaf.view as MarkdownView;
+		if (view.getMode() === 'preview') {
+			this.toggleSource();
+		} else {
+			this.togglePreview();
+		}
+	}
+
 	private async onload() {
 		await this.addFile();
 	}
 
 	private onunload() {
-		this.containerEl.removeChild(this.leaf.containerEl);
+		this.leaf.containerEl.remove();
 		this.leaf.detach();
 	}
 
