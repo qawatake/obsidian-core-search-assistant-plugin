@@ -86,7 +86,7 @@ export class PreviewModal extends Modal {
 				return;
 			}
 			this.currentFocus = cyclicId(++this.currentFocus, numMatches);
-			this.focusOn(this.currentFocus);
+			this.focusOn(this.currentFocus, true);
 		});
 		this.scope.register(['Shift'], 'Tab', (evt) => {
 			evt.preventDefault();
@@ -95,7 +95,7 @@ export class PreviewModal extends Modal {
 				return;
 			}
 			this.currentFocus = cyclicId(--this.currentFocus, numMatches);
-			this.focusOn(this.currentFocus);
+			this.focusOn(this.currentFocus, true);
 		});
 
 		const togglePreviewHotkeys = this.getHotkeys(TOGGLE_PREVIEW_COMMAND_ID);

@@ -1,7 +1,7 @@
 import { CardView } from 'components/CardView';
 import { Controller } from 'Controller';
 import { SearchComponentInterface } from 'SearchComponentInterface';
-import { Plugin, WorkspaceLeaf } from 'obsidian';
+import { Plugin } from 'obsidian';
 import {
 	CoreSearchAssistantPluginSettings,
 	CoreSearchAssistantSettingTab,
@@ -26,7 +26,7 @@ export default class CoreSearchAssistantPlugin extends Plugin {
 		);
 		this.cardView = this.addChild(new CardView(this.app, this));
 
-		// this.watchLayoutChange();
+		this.watchLayoutChange();
 
 		await this.loadSettings();
 
@@ -65,10 +65,11 @@ export default class CoreSearchAssistantPlugin extends Plugin {
 		// ↓ is necessary to skip layout-change when Obsidian reload
 		this.app.workspace.onLayoutReady(() => {
 			// ↓ is necessary because dom elements such as input form and containerEl for card view will be removed when layout change
-			// callback should be idempotent because one layout change triggers 'layout-change' many times.
 			this.app.workspace.on('layout-change', () => {
-				this.renewController();
-				this.renewCardView();
+				if (this.controller?.renewRequired()) {
+					this.renewController();
+					this.renewCardView();
+				}
 			});
 		});
 	}

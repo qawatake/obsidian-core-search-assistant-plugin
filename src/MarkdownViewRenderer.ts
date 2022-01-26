@@ -7,6 +7,7 @@ import {
 	TFile,
 	WorkspaceLeaf,
 } from 'obsidian';
+import { delay } from 'utils/Util';
 
 export class MarkdownViewRenderer {
 	app: App;
@@ -91,7 +92,7 @@ export class MarkdownViewRenderer {
 		editor.addHighlights(ranges, 'highlight-search-match');
 	}
 
-	scrollIntoView(match: Match, center?: boolean) {
+	async scrollIntoView(match: Match, center?: boolean) {
 		const view = this.leaf.view as MarkdownView;
 		if (view.getMode() !== 'source') {
 			return;
@@ -101,15 +102,23 @@ export class MarkdownViewRenderer {
 			from: editor.offsetToPos(match[0]),
 			to: editor.offsetToPos(match[1]),
 		};
-		editor.scrollIntoView(range, center);
+
+		// if content of a file is too large, we need to call scrollIntoView many times
+		const iter = this.scrollIteration();
+		for (let i = 0; i < iter; i++) {
+			editor.scrollIntoView(range, center);
+			await delay(1);
+		}
 	}
 
-	focusOn(match: Match, center?: boolean) {
+	async focusOn(match: Match, center?: boolean) {
 		const view = this.leaf.view as MarkdownView;
 		if (view.getMode() !== 'source') {
 			return;
 		}
-		this.scrollIntoView(match, center);
+
+		await this.scrollIntoView(match, center);
+
 		const { editor } = view.modes.source;
 
 		editor.removeHighlights('focus-search-match');
@@ -118,6 +127,16 @@ export class MarkdownViewRenderer {
 			to: editor.offsetToPos(match[1]),
 		};
 		editor.addHighlights([range], 'focus-search-match');
+	}
+
+	private scrollIteration(): number {
+		return Math.max(Math.floor(this.lineCount() / 1000), 1);
+	}
+
+	private lineCount(): number {
+		const view = this.leaf.view as MarkdownView;
+		// return view.editor.lineCount(); ← always return "1"
+		return (view.editor as any).cm.state.doc.length as number;
 	}
 }
 
