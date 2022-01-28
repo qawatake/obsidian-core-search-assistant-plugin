@@ -120,7 +120,9 @@ export class PreviewModal extends Modal {
 
 		// too fast to remain search mode
 		setTimeout(() => {
-			this.modeScope.pop();
+			if (this.modeScope.depth > 1) {
+				this.modeScope.pop();
+			}
 		}, 100);
 	}
 

@@ -407,7 +407,7 @@ export class Controller extends Component {
 	private detachHotkeys() {
 		const detachHotkeys = this._detachHotkeys;
 		if (detachHotkeys === undefined) {
-			throw '[ERROR in Core Search Assistant] failed to detach hotkeys: setHotkeys was not called.';
+			return;
 		}
 		detachHotkeys();
 	}
