@@ -1,5 +1,5 @@
 import { Controller } from 'Controller';
-import { SearchComponentInterface } from 'SearchComponentInterface';
+import { SearchComponentInterface } from 'interfaces/SearchComponentInterface';
 import { Plugin } from 'obsidian';
 import {
 	CoreSearchAssistantPluginSettings,

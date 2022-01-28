@@ -2,7 +2,7 @@ import CoreSearchAssistantPlugin from 'main';
 import { App, Component, SearchResultItem } from 'obsidian';
 import { parseCardLayout } from 'Setting';
 import { INTERVAL_MILLISECOND_TO_BE_DETACHED } from 'components/WorkspacePreview';
-import { ViewGenerator } from 'ViewGenerator';
+import { ViewGenerator } from 'interfaces/ViewGenerator';
 
 export class CardView extends Component {
 	private app: App;
@@ -23,7 +23,6 @@ export class CardView extends Component {
 	}
 
 	override onload() {
-		console.log('cardview loaded');
 		this.registerDomEvent(this.contentEl, 'click', (evt: MouseEvent) => {
 			if (!this.displayed) {
 				return;

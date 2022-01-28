@@ -7,7 +7,7 @@ import { App, Component, Scope, SplitDirection } from 'obsidian';
 import { OptionModal } from 'components/OptionModal';
 import { parseCardLayout } from 'Setting';
 import { PreviewModal } from 'components/PreviewModal';
-import { Outline } from 'Outline';
+import { Outline } from 'components/Outline';
 import { WorkspacePreview } from 'components/WorkspacePreview';
 import { CardView } from 'components/CardView';
 

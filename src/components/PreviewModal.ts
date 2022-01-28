@@ -8,7 +8,7 @@ import {
 	Hotkey,
 } from 'obsidian';
 import { INTERVAL_MILLISECOND_TO_BE_DETACHED } from 'components/WorkspacePreview';
-import { ViewGenerator } from 'ViewGenerator';
+import { ViewGenerator } from 'interfaces/ViewGenerator';
 import { scrollIteration } from 'utils/Util';
 
 type ScrollDirection = 'up' | 'down';
