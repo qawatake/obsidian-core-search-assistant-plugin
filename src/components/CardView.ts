@@ -2,7 +2,7 @@ import CoreSearchAssistantPlugin from 'main';
 import { App, Component, SearchResultItem } from 'obsidian';
 import { parseCardLayout } from 'Setting';
 import { INTERVAL_MILLISECOND_TO_BE_DETACHED } from 'components/WorkspacePreview';
-import { MarkdownViewRenderer } from 'MarkdownViewRenderer';
+import { ViewGenerator } from 'ViewGenerator';
 
 export class CardView extends Component {
 	private app: App;
@@ -10,7 +10,7 @@ export class CardView extends Component {
 	private workspaceCoverEl: HTMLElement;
 	private contentEl: HTMLElement;
 	private displayed: boolean;
-	private renderers: MarkdownViewRenderer[];
+	private renderers: ViewGenerator[];
 
 	constructor(app: App, plugin: CoreSearchAssistantPlugin) {
 		super();
@@ -58,7 +58,7 @@ export class CardView extends Component {
 
 	// id is necessary to open the selected item when clicked
 	renderItem(item: SearchResultItem, id: number) {
-		this.renderItemByMarkdownViewRenderer(item, id);
+		this.renderItemByViewGenerator(item, id);
 	}
 
 	focusOn(pos: number) {
@@ -203,13 +203,13 @@ export class CardView extends Component {
 		return contentEl;
 	}
 
-	private async renderItemByMarkdownViewRenderer(
+	private async renderItemByViewGenerator(
 		item: SearchResultItem,
 		id: number
 	) {
 		const previewContainerEl = this.createPreviewContainerEl(item, id);
 		previewContainerEl.empty();
-		const renderer = await new MarkdownViewRenderer(
+		const renderer = await new ViewGenerator(
 			this.app,
 			previewContainerEl,
 			item.file

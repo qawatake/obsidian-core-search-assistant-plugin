@@ -1,5 +1,5 @@
 import CoreSearchAssistantPlugin from 'main';
-import { MarkdownViewRenderer } from 'MarkdownViewRenderer';
+import { ViewGenerator } from 'ViewGenerator';
 import { App, Component, SearchResultItem } from 'obsidian';
 
 export const INTERVAL_MILLISECOND_TO_BE_DETACHED = 1000;
@@ -8,7 +8,7 @@ export class WorkspacePreview extends Component {
 	private app: App;
 	private plugin: CoreSearchAssistantPlugin;
 	private containerEl: HTMLElement;
-	private renderer: MarkdownViewRenderer | undefined;
+	private renderer: ViewGenerator | undefined;
 
 	constructor(app: App, plugin: CoreSearchAssistantPlugin) {
 		super();
@@ -64,7 +64,7 @@ export class WorkspacePreview extends Component {
 	private async show(item: SearchResultItem) {
 		const { containerEl } = this;
 		containerEl.empty();
-		this.renderer = await new MarkdownViewRenderer(
+		this.renderer = await new ViewGenerator(
 			this.app,
 			containerEl,
 			item.file

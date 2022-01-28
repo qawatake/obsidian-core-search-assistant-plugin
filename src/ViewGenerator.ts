@@ -9,7 +9,7 @@ import {
 } from 'obsidian';
 import { delay, scrollIteration } from 'utils/Util';
 
-export class MarkdownViewRenderer {
+export class ViewGenerator {
 	app: App;
 	file: TFile;
 	leaf: WorkspaceLeaf;
@@ -23,7 +23,7 @@ export class MarkdownViewRenderer {
 		this.containerEl.appendChild(this.leaf.containerEl);
 	}
 
-	async load(mode?: MarkdownViewModeType): Promise<MarkdownViewRenderer> {
+	async load(mode?: MarkdownViewModeType): Promise<ViewGenerator> {
 		await this.onload(mode);
 		return this;
 	}
