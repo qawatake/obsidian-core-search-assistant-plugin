@@ -1,4 +1,5 @@
 import CoreSearchAssistantPlugin from 'main';
+import { ModeScope } from 'ModeScope';
 import { App, Modal, setIcon } from 'obsidian';
 import { SearchOptionId, searchOptions } from 'types/Option';
 
@@ -9,12 +10,18 @@ interface OptionItem {
 }
 
 export class OptionModal extends Modal {
-	plugin: CoreSearchAssistantPlugin;
-	items: OptionItem[];
+	private readonly plugin: CoreSearchAssistantPlugin;
+	private readonly modeScope: ModeScope;
+	private readonly items: OptionItem[];
 
-	constructor(app: App, plugin: CoreSearchAssistantPlugin) {
+	constructor(
+		app: App,
+		plugin: CoreSearchAssistantPlugin,
+		modeScope: ModeScope
+	) {
 		super(app);
 		this.plugin = plugin;
+		this.modeScope = modeScope;
 
 		this.items = [
 			{
@@ -135,12 +142,21 @@ export class OptionModal extends Modal {
 	}
 
 	override onOpen() {
+		this.modeScope.push();
+
 		this.items.forEach((item) => {
 			this.scope.register([], item.key, item.onChoose);
 		});
 
 		this.renderOptions();
-		this.plugin.controller?.toggleOptionModalShown(true);
+	}
+
+	override onClose() {
+		const { containerEl } = this;
+		containerEl.empty();
+
+		// too fast to remain search mode
+		setTimeout(() => this.modeScope.pop(), 100);
 	}
 
 	renderOptions() {
@@ -164,16 +180,5 @@ export class OptionModal extends Modal {
 				cls: 'suggestion-hotkey',
 			});
 		});
-	}
-
-	override onClose() {
-		const { containerEl } = this;
-		containerEl.empty();
-
-		// too fast to remain search mode
-		setTimeout(
-			() => this.plugin.controller?.toggleOptionModalShown(false),
-			100
-		);
 	}
 }

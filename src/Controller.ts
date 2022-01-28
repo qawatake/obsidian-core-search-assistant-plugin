@@ -10,6 +10,7 @@ import { PreviewModal } from 'components/PreviewModal';
 import { Outline } from 'components/Outline';
 import { WorkspacePreview } from 'components/WorkspacePreview';
 import { CardView } from 'components/CardView';
+import { ModeScope } from 'ModeScope';
 
 const DELAY_TO_RELOAD_IN_MILLISECOND = 1000;
 
@@ -17,6 +18,7 @@ export class Controller extends Component {
 	private readonly app: App;
 	private readonly plugin: CoreSearchAssistantPlugin;
 	private readonly events: CoreSearchAssistantEvents;
+	private readonly modeScope: ModeScope;
 
 	// children
 	private readonly workspacePreview: WorkspacePreview;
@@ -26,9 +28,6 @@ export class Controller extends Component {
 	// state variables
 	private currentFocusId: number | undefined;
 	private countSearchItemDetected: number;
-	private inSearchMode: boolean;
-	private previewModalShown: boolean;
-	private optionModalShown: boolean;
 
 	// closures
 	private _detachHotkeys: (() => void) | undefined;
@@ -39,6 +38,7 @@ export class Controller extends Component {
 		this.app = app;
 		this.plugin = plugin;
 		this.events = new CoreSearchAssistantEvents();
+		this.modeScope = new ModeScope();
 
 		// children
 		this.workspacePreview = new WorkspacePreview(this.app, this.plugin);
@@ -47,9 +47,6 @@ export class Controller extends Component {
 
 		// state variables
 		this.countSearchItemDetected = 0;
-		this.inSearchMode = false;
-		this.previewModalShown = false;
-		this.optionModalShown = false;
 	}
 
 	override onunload() {
@@ -74,7 +71,7 @@ export class Controller extends Component {
 		}
 		this.outline.show(this.plugin.settings.outlineWidth);
 
-		this.inSearchMode = true;
+		this.modeScope.push();
 	}
 
 	reset() {
@@ -94,7 +91,7 @@ export class Controller extends Component {
 		this.plugin.SearchComponentInterface?.stopWatching();
 
 		this.outline?.hide();
-		this.inSearchMode = false;
+		this.modeScope.reset();
 	}
 
 	focus() {
@@ -128,13 +125,6 @@ export class Controller extends Component {
 		this.cardView.reveal();
 	}
 
-	toggleOptionModalShown(shown: boolean) {
-		this.optionModalShown = shown;
-	}
-
-	togglePreviewModalShown(shown: boolean) {
-		this.previewModalShown = shown;
-	}
 	private addChildren() {
 		this.addChild(this.outline);
 		this.addChild(this.workspacePreview);
@@ -222,7 +212,7 @@ export class Controller extends Component {
 		if (!item) {
 			return;
 		}
-		new PreviewModal(this.app, this.plugin, item).open();
+		new PreviewModal(this.app, this.plugin, this.modeScope, item).open();
 	}
 
 	private shouldTransitNextPageInCardView(): boolean {
@@ -322,14 +312,15 @@ export class Controller extends Component {
 			}
 
 			this.registerDomEvent(document, 'click', () => {
-				if (this.optionModalShown || this.previewModalShown) {
+				if (this.modeScope.depth > 1) {
 					return;
 				}
+
 				this.exit();
 			});
 			this.registerDomEvent(inputEl, 'click', (evt) => {
 				evt.stopPropagation();
-				if (!this.inSearchMode) {
+				if (!this.modeScope.inSearchMode) {
 					this.enter();
 				}
 			});
@@ -337,7 +328,7 @@ export class Controller extends Component {
 			// x "keydown" → capture Ctrl + Enter key
 			// x "keypress" → do not recognize Backspace key
 			this.registerDomEvent(inputEl, 'input', () => {
-				if (!this.inSearchMode) {
+				if (!this.modeScope.inSearchMode) {
 					this.enter();
 				}
 				this.reset();
@@ -348,13 +339,13 @@ export class Controller extends Component {
 				if (evt.key !== 'Enter') {
 					return;
 				}
-				if (!this.inSearchMode) {
+				if (!this.modeScope.inSearchMode) {
 					this.enter();
 				}
 				this.reset();
 			});
 			this.registerDomEvent(inputEl, 'focus', () => {
-				if (!this.inSearchMode) {
+				if (!this.modeScope.inSearchMode) {
 					this.enter();
 				}
 			});
@@ -363,9 +354,6 @@ export class Controller extends Component {
 
 	private setHotkeys() {
 		const scope = new Scope();
-		// if (!this.scope) {
-		// this.scope = new Scope();
-		// }
 		this.app.keymap.pushScope(scope);
 
 		scope.register(['Ctrl'], 'N', (evt: KeyboardEvent) => {
@@ -405,7 +393,7 @@ export class Controller extends Component {
 			this.openPreviewModal();
 		});
 		scope.register(['Shift'], ' ', () => {
-			new OptionModal(this.app, this.plugin).open();
+			new OptionModal(this.app, this.plugin, this.modeScope).open();
 		});
 		scope.register([], 'Escape', () => {
 			this.exit();

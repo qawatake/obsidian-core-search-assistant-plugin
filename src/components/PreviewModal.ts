@@ -10,6 +10,7 @@ import {
 import { INTERVAL_MILLISECOND_TO_BE_DETACHED } from 'components/WorkspacePreview';
 import { ViewGenerator } from 'interfaces/ViewGenerator';
 import { scrollIteration } from 'utils/Util';
+import { ModeScope } from 'ModeScope';
 
 type ScrollDirection = 'up' | 'down';
 
@@ -18,18 +19,22 @@ const SCROLL_AMOUNT = 70;
 const TOGGLE_PREVIEW_COMMAND_ID = 'markdown:toggle-preview';
 
 export class PreviewModal extends Modal {
-	item: SearchResultItem;
-	plugin: CoreSearchAssistantPlugin;
+	private readonly plugin: CoreSearchAssistantPlugin;
+	private readonly modeScope: ModeScope;
+	private readonly item: SearchResultItem;
+
 	currentFocus: number;
 	renderer: ViewGenerator | undefined;
 
 	constructor(
 		app: App,
 		plugin: CoreSearchAssistantPlugin,
+		modeScope: ModeScope,
 		item: SearchResultItem
 	) {
 		super(app);
 		this.plugin = plugin;
+		this.modeScope = modeScope;
 		this.item = item;
 		this.currentFocus = -1;
 	}
@@ -38,7 +43,7 @@ export class PreviewModal extends Modal {
 		await this.renderView();
 		this.renderer?.highlightMatches(this.item.result.content ?? []);
 
-		this.plugin.controller?.togglePreviewModalShown(true);
+		this.modeScope.push();
 
 		this.scope.register(['Ctrl'], ' ', () => {
 			this.shouldRestoreSelection = true;
@@ -115,7 +120,7 @@ export class PreviewModal extends Modal {
 
 		// too fast to remain search mode
 		setTimeout(() => {
-			this.plugin.controller?.togglePreviewModalShown(false);
+			this.modeScope.pop();
 		}, 100);
 	}
 
