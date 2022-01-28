@@ -139,13 +139,11 @@ export class PreviewModal extends Modal {
 				'core-search-assistant_preview-modal-container'
 			);
 		}
-		const renderer = await new MarkdownViewRenderer(
+		this.renderer = await new MarkdownViewRenderer(
 			this.app,
 			contentEl,
 			item.file
-		).load();
-		renderer.toggleSource();
-		this.renderer = renderer;
+		).load('source');
 	}
 
 	private countMatches(): number | undefined {

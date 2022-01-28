@@ -64,12 +64,12 @@ export class WorkspacePreview extends Component {
 	private async show(item: SearchResultItem) {
 		const { containerEl } = this;
 		containerEl.empty();
-		containerEl.show();
 		this.renderer = await new MarkdownViewRenderer(
 			this.app,
 			containerEl,
 			item.file
 		).load('preview');
+		containerEl.show();
 		// await delay(1);
 		// await this.renderer.togglePreview();
 

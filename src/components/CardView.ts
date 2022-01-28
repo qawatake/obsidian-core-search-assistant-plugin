@@ -213,7 +213,7 @@ export class CardView extends Component {
 			this.app,
 			previewContainerEl,
 			item.file
-		).load();
+		).load('preview');
 		renderer.togglePreview();
 		this.renderers.push(renderer);
 	}
