@@ -8,7 +8,6 @@ import {
 	SortOrderInSearch,
 	SplitDirection,
 	WorkspaceLeaf,
-	WorkspaceSidedock,
 } from 'obsidian';
 import { isSearchView } from 'types/Guards';
 import { searchOptions } from 'types/Option';
@@ -191,8 +190,17 @@ export class SearchComponentInterface extends Component {
 		this.sortOrderContainerEl.insertAfter(view.searchInfoEl);
 	}
 
+	// private getSearchView(): SearchView | undefined {
+	// 	const leaf = this.getSearchLeaf();
+	// 	if (!leaf) {
+	// 		return undefined;
+	// 	}
+
+	// 	const view = leaf.view;
+	// 	return isSearchView(view) ? view : undefined;
+	// }
 	private getSearchView(): SearchView | undefined {
-		const leaf = this.getSearchLeaf();
+		const leaf = this.searchLeaf;
 		if (!leaf) {
 			return undefined;
 		}
@@ -201,27 +209,8 @@ export class SearchComponentInterface extends Component {
 		return isSearchView(view) ? view : undefined;
 	}
 
-	private getSearchLeaf(): WorkspaceLeaf | undefined {
-		const sideDocks = [
-			this.app.workspace.leftSplit,
-			this.app.workspace.rightSplit,
-		];
-		for (const sideDock of sideDocks) {
-			if (!(sideDock instanceof WorkspaceSidedock)) {
-				return undefined;
-			}
-			for (const tabParent of sideDock.children) {
-				const tabLeafs = tabParent.children;
-
-				const searchLeaf = tabLeafs.find((leaf) => {
-					return leaf.view.getViewType() === 'search';
-				});
-				if (searchLeaf !== undefined) {
-					return searchLeaf;
-				}
-			}
-		}
-		return undefined;
+	private get searchLeaf(): WorkspaceLeaf | undefined {
+		return this.app.workspace.getLeavesOfType('search')[0];
 	}
 
 	private onObservedCallback: MutationCallback = async (
