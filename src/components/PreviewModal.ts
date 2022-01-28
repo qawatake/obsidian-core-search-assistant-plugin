@@ -137,6 +137,7 @@ export class PreviewModal extends Modal {
 	private async renderView() {
 		const { contentEl, containerEl, item } = this;
 		contentEl.empty();
+		contentEl.hide();
 		if (this.app.vault.config.legacyEditor) {
 			containerEl.addClass(
 				'core-search-assistant_preview-modal-container_legacy'
@@ -151,6 +152,7 @@ export class PreviewModal extends Modal {
 			contentEl,
 			item.file
 		).load('source');
+		contentEl.show();
 	}
 
 	private countMatches(): number | undefined {
