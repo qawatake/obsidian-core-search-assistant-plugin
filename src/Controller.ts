@@ -5,17 +5,18 @@ import {
 import CoreSearchAssistantPlugin from 'main';
 import { App, Component, Scope, SplitDirection } from 'obsidian';
 import { OptionModal } from 'components/OptionModal';
-import { parseCardLayout, validOutlineWidth } from 'Setting';
+import { parseCardLayout } from 'Setting';
 import { PreviewModal } from 'components/PreviewModal';
+import { Outline } from 'Outline';
 
 const DELAY_TO_RELOAD_IN_MILLISECOND = 1000;
 
 export class Controller extends Component {
 	private app: App;
 	private plugin: CoreSearchAssistantPlugin;
+	private outline: Outline;
 	private events: CoreSearchAssistantEvents;
 	private currentFocusId: number | undefined;
-	private outlineEl: HTMLElement;
 	private countSearchItemDetected: number;
 	private inSearchMode: boolean;
 	private previewModalShown: boolean;
@@ -28,7 +29,7 @@ export class Controller extends Component {
 		this.app = app;
 		this.plugin = plugin;
 		this.events = new CoreSearchAssistantEvents();
-		this.outlineEl = this.createOutline();
+		this.outline = new Outline();
 		this.countSearchItemDetected = 0;
 		this.inSearchMode = false;
 		this.previewModalShown = false;
@@ -36,12 +37,11 @@ export class Controller extends Component {
 	}
 
 	override onunload() {
-		this.outlineEl.empty();
-		this.outlineEl.remove();
 		this.detachHotkeys();
 	}
 
 	override onload() {
+		this.addChild(this.outline);
 		this.saveLayout();
 		this.setSearchModeTriggers();
 	}
@@ -53,7 +53,10 @@ export class Controller extends Component {
 			this.plugin.SearchComponentInterface?.startWatching(this.events);
 		}
 
-		this.showOutline();
+		if (this.plugin.settings === undefined) {
+			throw '[ERROR in Core Search Assistant] failed to enter the search mode: failed to read setting';
+		}
+		this.outline.show(this.plugin.settings.outlineWidth);
 		this.inSearchMode = true;
 	}
 
@@ -73,7 +76,7 @@ export class Controller extends Component {
 
 		this.plugin.SearchComponentInterface?.stopWatching();
 
-		this.outlineEl.hide();
+		this.outline?.hide();
 		this.inSearchMode = false;
 	}
 
@@ -198,23 +201,6 @@ export class Controller extends Component {
 			return;
 		}
 		new PreviewModal(this.app, this.plugin, item).open();
-	}
-
-	private createOutline(): HTMLElement {
-		const outlineEl = document.body.createEl('div', {
-			cls: 'core-search-assistant_search-mode-outline',
-		});
-		outlineEl.hide();
-		return outlineEl;
-	}
-
-	private showOutline() {
-		const outlineWidth = validOutlineWidth(
-			this.plugin.settings?.outlineWidth
-		);
-		this.outlineEl.style.outline = `${outlineWidth}px solid var(--interactive-accent)`;
-		this.outlineEl.style.outlineOffset = `-${outlineWidth}px`;
-		this.outlineEl.show();
 	}
 
 	private shouldTransitNextPageInCardView(): boolean {

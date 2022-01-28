@@ -2,7 +2,7 @@ import CoreSearchAssistantPlugin from 'main';
 import { App, PluginSettingTab, Setting, SplitDirection } from 'obsidian';
 
 const AVAILABLE_OUTLINE_WIDTHS = [0, 3, 5, 7, 10] as const;
-type AvailableOutlineWidth = typeof AVAILABLE_OUTLINE_WIDTHS[number];
+export type AvailableOutlineWidth = typeof AVAILABLE_OUTLINE_WIDTHS[number];
 
 const AUTO_PREVIEW_MODE_IDS = ['none', 'singleView', 'cardView'] as const;
 type AutoPreviewMode = typeof AUTO_PREVIEW_MODE_IDS[number];
