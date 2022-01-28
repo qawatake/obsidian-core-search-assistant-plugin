@@ -23,6 +23,7 @@ export class CardView extends Component {
 	}
 
 	override onload() {
+		console.log('cardview loaded');
 		this.registerDomEvent(this.contentEl, 'click', (evt: MouseEvent) => {
 			if (!this.displayed) {
 				return;
@@ -48,6 +49,7 @@ export class CardView extends Component {
 	}
 
 	override onunload(): void {
+		console.log('card view unloaded');
 		this.renderers.forEach((renderer) => {
 			renderer.unload();
 		});

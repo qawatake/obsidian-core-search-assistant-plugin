@@ -8,19 +8,29 @@ import { OptionModal } from 'components/OptionModal';
 import { parseCardLayout } from 'Setting';
 import { PreviewModal } from 'components/PreviewModal';
 import { Outline } from 'Outline';
+import { WorkspacePreview } from 'components/WorkspacePreview';
+import { CardView } from 'components/CardView';
 
 const DELAY_TO_RELOAD_IN_MILLISECOND = 1000;
 
 export class Controller extends Component {
-	private app: App;
-	private plugin: CoreSearchAssistantPlugin;
-	private outline: Outline;
-	private events: CoreSearchAssistantEvents;
+	private readonly app: App;
+	private readonly plugin: CoreSearchAssistantPlugin;
+	private readonly events: CoreSearchAssistantEvents;
+
+	// children
+	private readonly workspacePreview: WorkspacePreview;
+	private readonly cardView: CardView;
+	private readonly outline: Outline;
+
+	// state variables
 	private currentFocusId: number | undefined;
 	private countSearchItemDetected: number;
 	private inSearchMode: boolean;
 	private previewModalShown: boolean;
 	private optionModalShown: boolean;
+
+	// closures
 	private _detachHotkeys: (() => void) | undefined;
 	private _layoutChanged: (() => boolean) | undefined;
 
@@ -29,7 +39,13 @@ export class Controller extends Component {
 		this.app = app;
 		this.plugin = plugin;
 		this.events = new CoreSearchAssistantEvents();
+
+		// children
+		this.workspacePreview = new WorkspacePreview(this.app, this.plugin);
+		this.cardView = new CardView(this.app, this.plugin);
 		this.outline = new Outline();
+
+		// state variables
 		this.countSearchItemDetected = 0;
 		this.inSearchMode = false;
 		this.previewModalShown = false;
@@ -37,12 +53,12 @@ export class Controller extends Component {
 	}
 
 	override onunload() {
-		this.detachHotkeys();
+		this.exit();
 	}
 
 	override onload() {
-		this.addChild(this.outline);
-		this.saveLayout();
+		this.addChildren();
+		this.saveLayout(); // use to check whether to renew controller
 		this.setSearchModeTriggers();
 	}
 
@@ -57,21 +73,22 @@ export class Controller extends Component {
 			throw '[ERROR in Core Search Assistant] failed to enter the search mode: failed to read setting';
 		}
 		this.outline.show(this.plugin.settings.outlineWidth);
+
 		this.inSearchMode = true;
 	}
 
 	reset() {
 		this.forget();
 		this.unfocus();
-		this.plugin.cardView?.hide();
+		this.cardView.hide();
 		this.countSearchItemDetected = 0;
 	}
 
 	exit() {
 		this.detachHotkeys();
 		this.unfocus();
-		this.plugin?.workspacePreview?.hide();
-		this.plugin.cardView?.hide();
+		this.workspacePreview.hide();
+		this.cardView.hide();
 		this.countSearchItemDetected = 0;
 
 		this.plugin.SearchComponentInterface?.stopWatching();
@@ -89,7 +106,7 @@ export class Controller extends Component {
 		if (pos === undefined) {
 			return;
 		}
-		this.plugin.cardView?.focusOn(pos);
+		this.cardView.focusOn(pos);
 	}
 
 	open(direction?: SplitDirection) {
@@ -106,9 +123,9 @@ export class Controller extends Component {
 		if (this.plugin.settings?.autoPreviewMode !== 'cardView') {
 			return;
 		}
-		this.plugin.cardView?.hide();
-		this.plugin.cardView?.renderPage(this.currentFocusId ?? 0);
-		this.plugin.cardView?.reveal();
+		this.cardView.hide();
+		this.cardView.renderPage(this.currentFocusId ?? 0);
+		this.cardView.reveal();
 	}
 
 	toggleOptionModalShown(shown: boolean) {
@@ -117,6 +134,11 @@ export class Controller extends Component {
 
 	togglePreviewModalShown(shown: boolean) {
 		this.previewModalShown = shown;
+	}
+	private addChildren() {
+		this.addChild(this.outline);
+		this.addChild(this.workspacePreview);
+		this.addChild(this.cardView);
 	}
 
 	private forget() {
@@ -129,9 +151,9 @@ export class Controller extends Component {
 		if (!item) {
 			return;
 		}
-		this.plugin.cardView?.renderItem(item, id);
-		this.plugin.cardView?.setLayout();
-		this.plugin.cardView?.reveal();
+		this.cardView.renderItem(item, id);
+		this.cardView.setLayout();
+		this.cardView.reveal();
 	}
 
 	private showWorkspacePreview() {
@@ -145,7 +167,7 @@ export class Controller extends Component {
 		if (!item) {
 			return;
 		}
-		this.plugin?.workspacePreview?.renew(item);
+		this.workspacePreview.renew(item);
 	}
 
 	private navigateForward() {
@@ -185,7 +207,7 @@ export class Controller extends Component {
 
 	private unfocus() {
 		this.plugin.SearchComponentInterface?.unfocus();
-		this.plugin.cardView?.unfocus();
+		this.cardView.unfocus();
 	}
 
 	private openPreviewModal() {
@@ -257,7 +279,7 @@ export class Controller extends Component {
 	private retryCardView(delayMillisecond: number) {
 		// i don't retry many times because it looks bad.
 		setTimeout(() => {
-			if (!this.plugin.cardView?.itemsRenderedCorrectly()) {
+			if (!this.cardView.itemsRenderedCorrectly()) {
 				this.reset();
 				this.renewCardViewPage();
 			}
@@ -417,7 +439,7 @@ export class Controller extends Component {
 			}
 
 			if (this.countSearchItemDetected === 0) {
-				this.plugin.cardView?.hide();
+				this.cardView.hide();
 			}
 
 			this.showCardViewItem(this.countSearchItemDetected);
