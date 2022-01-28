@@ -199,7 +199,11 @@ export class PreviewModal extends Modal {
 		if (!match) {
 			return;
 		}
-		const editor = (leaf.view as MarkdownView).modes.source.editor;
+		const { view } = leaf;
+		if (!(view instanceof MarkdownView)) {
+			throw '[ERROR in Core Search Assistant] failed to openAndFocus: view is not an instance of MarkdownView';
+		}
+		const editor = view.modes.source.editor;
 		const range = {
 			from: editor.offsetToPos(match[0]),
 			to: editor.offsetToPos(match[1]),
