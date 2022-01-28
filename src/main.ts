@@ -66,7 +66,7 @@ export default class CoreSearchAssistantPlugin extends Plugin {
 		this.app.workspace.onLayoutReady(() => {
 			// ↓ is necessary because dom elements such as input form and containerEl for card view will be removed when layout change
 			this.app.workspace.on('layout-change', () => {
-				if (this.controller?.renewRequired()) {
+				if (this.controller?.renewRequired) {
 					this.renewController();
 					this.renewCardView();
 				}

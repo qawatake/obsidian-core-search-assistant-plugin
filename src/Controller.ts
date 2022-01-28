@@ -21,8 +21,7 @@ export class Controller extends Component {
 	private inSearchMode: boolean;
 	private previewModalShown: boolean;
 	private optionModalShown: boolean;
-	// use for detecting whether layout-change really occurs
-	private inputEl: HTMLElement | undefined;
+	private _renewRequired: (() => boolean) | undefined;
 
 	constructor(app: App, plugin: CoreSearchAssistantPlugin) {
 		super();
@@ -78,7 +77,7 @@ export class Controller extends Component {
 			if (!inputEl) {
 				return;
 			}
-			this.inputEl = inputEl;
+			this.saveLayout();
 
 			this.registerDomEvent(document, 'click', () => {
 				if (this.optionModalShown || this.previewModalShown) {
@@ -243,10 +242,12 @@ export class Controller extends Component {
 		this.previewModalShown = shown;
 	}
 
-	// check layout change
-	renewRequired(): boolean {
-		const inputEl = this.plugin.SearchComponentInterface?.searchInputEl;
-		return this.inputEl !== inputEl;
+	get renewRequired(): boolean {
+		const required = this._renewRequired?.();
+		if (required === undefined) {
+			throw '[ERROR in Core Search Assistant] failed to renewRequired: saveLayout was not called.';
+		}
+		return required;
 	}
 
 	private forget() {
@@ -409,5 +410,16 @@ export class Controller extends Component {
 				this.renewCardViewPage();
 			}
 		}, delayMillisecond);
+	}
+
+	/**
+	 * check layout change
+	 * use for detecting whether layout-change really occurs
+	 * @returns callback which returns
+	 */
+	private saveLayout() {
+		const inputEl = this.plugin.SearchComponentInterface?.searchInputEl;
+		this._renewRequired = () =>
+			inputEl !== this.plugin.SearchComponentInterface?.searchInputEl;
 	}
 }
