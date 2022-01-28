@@ -77,7 +77,7 @@ export class Controller extends Component {
 	reset() {
 		this.forget();
 		this.unfocus();
-		this.cardView.hide();
+		this.cardView.clear();
 		this.countSearchItemDetected = 0;
 	}
 
@@ -85,7 +85,7 @@ export class Controller extends Component {
 		this.detachHotkeys();
 		this.unfocus();
 		this.workspacePreview.hide();
-		this.cardView.hide();
+		this.cardView.clear();
 		this.countSearchItemDetected = 0;
 
 		this.plugin.SearchComponentInterface?.stopWatching();
@@ -120,7 +120,7 @@ export class Controller extends Component {
 		if (this.plugin.settings?.autoPreviewMode !== 'cardView') {
 			return;
 		}
-		this.cardView.hide();
+		this.cardView.clear();
 		this.cardView.renderPage(this.currentFocusId ?? 0);
 		this.cardView.reveal();
 	}
@@ -269,7 +269,7 @@ export class Controller extends Component {
 	private retryCardView(delayMillisecond: number) {
 		// i don't retry many times because it looks bad.
 		setTimeout(() => {
-			if (!this.cardView.itemsRenderedCorrectly()) {
+			if (!this.cardView.itemsRenderedCorrectly) {
 				this.reset();
 				this.renewCardViewPage();
 			}
@@ -427,9 +427,8 @@ export class Controller extends Component {
 			}
 
 			if (this.countSearchItemDetected === 0) {
-				this.cardView.hide();
+				this.cardView.clear();
 			}
-
 			this.showCardViewItem(this.countSearchItemDetected);
 
 			if (this.countSearchItemDetected === 0) {
