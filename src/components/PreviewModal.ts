@@ -8,7 +8,7 @@ import {
 	Hotkey,
 } from 'obsidian';
 import { INTERVAL_MILLISECOND_TO_BE_DETACHED } from 'components/WorkspacePreview';
-import { MarkdownViewRenderer } from 'MarkdownViewRenderer';
+import { ViewGenerator } from 'ViewGenerator';
 import { scrollIteration } from 'utils/Util';
 
 type ScrollDirection = 'up' | 'down';
@@ -21,7 +21,7 @@ export class PreviewModal extends Modal {
 	item: SearchResultItem;
 	plugin: CoreSearchAssistantPlugin;
 	currentFocus: number;
-	renderer: MarkdownViewRenderer | undefined;
+	renderer: ViewGenerator | undefined;
 
 	constructor(
 		app: App,
@@ -139,13 +139,11 @@ export class PreviewModal extends Modal {
 				'core-search-assistant_preview-modal-container'
 			);
 		}
-		const renderer = await new MarkdownViewRenderer(
+		this.renderer = await new ViewGenerator(
 			this.app,
 			contentEl,
 			item.file
-		).load();
-		renderer.toggleSource();
-		this.renderer = renderer;
+		).load('source');
 	}
 
 	private countMatches(): number | undefined {

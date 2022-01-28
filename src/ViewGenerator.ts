@@ -9,7 +9,7 @@ import {
 } from 'obsidian';
 import { delay, scrollIteration } from 'utils/Util';
 
-export class MarkdownViewRenderer {
+export class ViewGenerator {
 	app: App;
 	file: TFile;
 	leaf: WorkspaceLeaf;
@@ -23,8 +23,8 @@ export class MarkdownViewRenderer {
 		this.containerEl.appendChild(this.leaf.containerEl);
 	}
 
-	async load(): Promise<MarkdownViewRenderer> {
-		await this.onload();
+	async load(mode?: MarkdownViewModeType): Promise<ViewGenerator> {
+		await this.onload(mode);
 		return this;
 	}
 
@@ -32,25 +32,27 @@ export class MarkdownViewRenderer {
 		this.onunload();
 	}
 
-	togglePreview() {
-		this.setViewMode('preview');
+	async togglePreview() {
+		await this.setViewMode('preview');
 	}
 
-	toggleSource() {
-		this.setViewMode('source');
+	async toggleSource() {
+		await this.setViewMode('source');
 	}
 
-	toggleViewMode() {
+	async toggleViewMode() {
 		const view = this.leaf.view as MarkdownView;
 		if (view.getMode() === 'preview') {
-			this.toggleSource();
+			await this.toggleSource();
 		} else {
-			this.togglePreview();
+			await this.togglePreview();
 		}
 	}
 
-	private async onload() {
-		await this.addFile();
+	private async onload(mode?: MarkdownViewModeType) {
+		await this.openFile(this.oppositeMode(mode ?? 'preview'));
+		await delay(1);
+		await this.toggleViewMode();
 	}
 
 	private onunload() {
@@ -58,19 +60,16 @@ export class MarkdownViewRenderer {
 		this.leaf.detach();
 	}
 
-	private async addFile() {
+	private async openFile(mode: MarkdownViewModeType) {
 		const { leaf, file } = this;
-		await leaf.openFile(file);
+		await leaf.openFile(file, { state: { mode: mode } });
 	}
 
-	private setViewMode(mode: MarkdownViewModeType) {
+	private async setViewMode(mode: MarkdownViewModeType) {
 		const { leaf } = this;
-
-		(leaf.view as MarkdownView).setMode(
-			mode === 'preview'
-				? (leaf.view as MarkdownView).previewMode
-				: (leaf.view as MarkdownView).modes.source
-		);
+		const state = leaf.getViewState();
+		state.state.mode = mode;
+		await leaf.setViewState(state);
 	}
 
 	// it should be called once because is is not idempotent
@@ -130,6 +129,10 @@ export class MarkdownViewRenderer {
 			to: editor.offsetToPos(match[1]),
 		};
 		editor.addHighlights([range], 'focus-search-match');
+	}
+
+	private oppositeMode(mode: MarkdownViewModeType): MarkdownViewModeType {
+		return mode === 'preview' ? 'source' : 'preview';
 	}
 }
 
