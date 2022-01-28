@@ -102,7 +102,7 @@ export class CardView extends Component {
 		}
 		const pageId = Math.floor(itemId / cardsPerPage);
 
-		const items = this.plugin.SearchComponentInterface?.getResultItems();
+		const items = this.plugin.SearchComponentInterface?.resultItems;
 		if (!items) {
 			return;
 		}
@@ -139,8 +139,7 @@ export class CardView extends Component {
 	}
 
 	itemsRenderedCorrectly(): boolean {
-		const wantedItems =
-			this.plugin.SearchComponentInterface?.getResultItems();
+		const wantedItems = this.plugin.SearchComponentInterface?.resultItems;
 		if (wantedItems === undefined) {
 			return false;
 		}

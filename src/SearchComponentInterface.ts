@@ -15,8 +15,8 @@ import { LinkedList } from 'utils/LinkedList';
 import { EVENT_SEARCH_RESULT_ITEM_DETECTED } from 'Events';
 
 export class SearchComponentInterface extends Component {
-	app: App;
-	plugin: CoreSearchAssistantPlugin;
+	private readonly app: App;
+	private readonly plugin: CoreSearchAssistantPlugin;
 	private sortOrderContainerEl: HTMLElement | undefined;
 	private sortOrderContentEl: HTMLElement | undefined;
 
@@ -56,27 +56,27 @@ export class SearchComponentInterface extends Component {
 	}
 
 	toggleMatchingCase() {
-		const view = this.getSearchView();
+		const view = this.searchView;
 		view?.setMatchingCase(!view.matchingCase);
 	}
 
 	toggleExplainSearch() {
-		const view = this.getSearchView();
+		const view = this.searchView;
 		view?.setExplainSearch(!view.explainSearch);
 	}
 
 	toggleCollapseAll() {
-		const view = this.getSearchView();
+		const view = this.searchView;
 		view?.setCollapseAll(!view.dom.collapseAll);
 	}
 
 	toggleExtraContext() {
-		const view = this.getSearchView();
+		const view = this.searchView;
 		view?.setExtraContext(!view.dom.extraContext);
 	}
 
 	setSortOrder(sortOrder: SortOrderInSearch): SortOrderChanged {
-		const view = this.getSearchView();
+		const view = this.searchView;
 		const originalOrder = view?.dom.sortOrder;
 		view?.setSortOrder(sortOrder);
 		return sortOrder !== originalOrder;
@@ -100,7 +100,7 @@ export class SearchComponentInterface extends Component {
 	}
 
 	unfocus() {
-		const items = this.getResultItems();
+		const items = this.resultItems;
 		items.forEach((item) => {
 			item.containerEl.removeClass(
 				'core-search-assistant_search-result-items-focus'
@@ -126,7 +126,7 @@ export class SearchComponentInterface extends Component {
 		if (!this.sortOrderContainerEl) {
 			this.createSortOrderEls();
 		}
-		const view = this.getSearchView();
+		const view = this.searchView;
 		if (!view) {
 			return;
 		}
@@ -139,23 +139,23 @@ export class SearchComponentInterface extends Component {
 	}
 
 	count(): number {
-		const results = this.getSearchView()?.dom.children;
+		const results = this.searchView?.dom.children;
 		if (!results) {
 			return 0;
 		}
 		return results.length;
 	}
 
-	getResultItems(): SearchResultItem[] {
-		return this.getSearchView()?.dom.children ?? [];
+	get resultItems(): SearchResultItem[] {
+		return this.searchView?.dom.children ?? [];
 	}
 
 	getResultItemAt(pos: number): SearchResultItem | undefined {
-		return this.getSearchView()?.dom.children[pos];
+		return this.searchView?.dom.children[pos];
 	}
 
-	getSearchInput(): HTMLInputElement | undefined {
-		return this.getSearchView()?.searchComponent.inputEl;
+	get searchInputEl(): HTMLInputElement | undefined {
+		return this.searchView?.searchComponent.inputEl;
 	}
 
 	startWatching(events: Events) {
@@ -165,9 +165,8 @@ export class SearchComponentInterface extends Component {
 			EVENT_SEARCH_RESULT_ITEM_DETECTED
 		);
 
-		const childrenContainerEl =
-			this.plugin.SearchComponentInterface?.getSearchView()?.dom
-				.childrenEl as HTMLElement;
+		const childrenContainerEl = this.plugin.SearchComponentInterface
+			?.searchView?.dom.childrenEl as HTMLElement;
 		this.observer.observe(childrenContainerEl, this.observationConfig);
 	}
 
@@ -183,23 +182,14 @@ export class SearchComponentInterface extends Component {
 		this.sortOrderContentEl = this.sortOrderContainerEl.createEl('div');
 
 		// insert created element
-		const view = this.getSearchView();
+		const view = this.searchView;
 		if (!view) {
 			return undefined;
 		}
 		this.sortOrderContainerEl.insertAfter(view.searchInfoEl);
 	}
 
-	// private getSearchView(): SearchView | undefined {
-	// 	const leaf = this.getSearchLeaf();
-	// 	if (!leaf) {
-	// 		return undefined;
-	// 	}
-
-	// 	const view = leaf.view;
-	// 	return isSearchView(view) ? view : undefined;
-	// }
-	private getSearchView(): SearchView | undefined {
+	private get searchView(): SearchView | undefined {
 		const leaf = this.searchLeaf;
 		if (!leaf) {
 			return undefined;

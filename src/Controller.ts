@@ -74,8 +74,7 @@ export class Controller extends Component {
 		);
 
 		this.app.workspace.onLayoutReady(() => {
-			const inputEl =
-				this.plugin.SearchComponentInterface?.getSearchInput();
+			const inputEl = this.plugin.SearchComponentInterface?.searchInputEl;
 			if (!inputEl) {
 				return;
 			}
@@ -246,7 +245,7 @@ export class Controller extends Component {
 
 	// check layout change
 	renewRequired(): boolean {
-		const inputEl = this.plugin.SearchComponentInterface?.getSearchInput();
+		const inputEl = this.plugin.SearchComponentInterface?.searchInputEl;
 		return this.inputEl !== inputEl;
 	}
 
