@@ -11,18 +11,12 @@ export default class CoreSearchAssistantPlugin extends Plugin {
 	settings: CoreSearchAssistantPluginSettings | undefined;
 	controller: Controller | undefined;
 	SearchComponentInterface: SearchComponentInterface | undefined;
-	// workspacePreview: WorkspacePreview | undefined;
-	// cardView: CardView | undefined;
 
 	override async onload() {
 		this.controller = this.addChild(new Controller(this.app, this));
 		this.SearchComponentInterface = this.addChild(
 			new SearchComponentInterface(this.app, this)
 		);
-		// this.workspacePreview = this.addChild(
-		// 	new WorkspacePreview(this.app, this)
-		// );
-		// this.cardView = this.addChild(new CardView(this.app, this));
 
 		this.watchLayoutChange();
 
@@ -52,13 +46,6 @@ export default class CoreSearchAssistantPlugin extends Plugin {
 		this.controller = this.addChild(new Controller(this.app, this));
 	}
 
-	// private renewCardView() {
-	// 	if (this.cardView) {
-	// 		this.removeChild(this.cardView);
-	// 	}
-	// 	this.cardView = this.addChild(new CardView(this.app, this));
-	// }
-
 	private watchLayoutChange() {
 		// ↓ is necessary to skip layout-change when Obsidian reload
 		this.app.workspace.onLayoutReady(() => {
@@ -66,7 +53,6 @@ export default class CoreSearchAssistantPlugin extends Plugin {
 			this.app.workspace.on('layout-change', () => {
 				if (this.controller?.layoutChanged) {
 					this.renewController();
-					// this.renewCardView();
 				}
 			});
 		});
