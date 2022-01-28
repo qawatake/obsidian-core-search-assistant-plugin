@@ -7,6 +7,7 @@ This plugin enhances the built-in search function by providing
 - **auto preview**,
 
 ![main-min](https://user-images.githubusercontent.com/38106890/150084212-d47733c7-3e84-437c-a257-5dd7ee6a8be5.gif)
+![focus-min](https://user-images.githubusercontent.com/38106890/151547284-739a18a3-3467-4964-b59b-de8c2673018c.gif)
 
 ### How to use
 When you open the built-in search panel, you enter **search mode**.
@@ -71,6 +72,8 @@ In the preview modal, the following hotkeys are available.
 | `Shift + Tab` | Focus on the previous match. |
 
 You can also toggle the preview mode by your hotkey.
+
+![focus-min](https://user-images.githubusercontent.com/38106890/151547284-739a18a3-3467-4964-b59b-de8c2673018c.gif)
 
 ### Search options
 
