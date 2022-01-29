@@ -28,7 +28,7 @@ export class OptionModal extends Modal {
 				id: 'matchingCase',
 				key: 'a',
 				onChoose: () => {
-					this.plugin.SearchComponentInterface?.toggleMatchingCase();
+					this.plugin.searchInterface?.toggleMatchingCase();
 					this.plugin.controller?.reset();
 					// renewCardPageView is not needed because the internal plugin definitely reloads
 				},
@@ -37,21 +37,21 @@ export class OptionModal extends Modal {
 				id: 'explainSearch',
 				key: 's',
 				onChoose: () => {
-					this.plugin.SearchComponentInterface?.toggleExplainSearch();
+					this.plugin.searchInterface?.toggleExplainSearch();
 				},
 			},
 			{
 				id: 'collapseAll',
 				key: 'd',
 				onChoose: () => {
-					this.plugin.SearchComponentInterface?.toggleCollapseAll();
+					this.plugin.searchInterface?.toggleCollapseAll();
 				},
 			},
 			{
 				id: 'extraContext',
 				key: 'f',
 				onChoose: () => {
-					this.plugin.SearchComponentInterface?.toggleExtraContext();
+					this.plugin.searchInterface?.toggleExtraContext();
 				},
 			},
 			{
@@ -59,11 +59,11 @@ export class OptionModal extends Modal {
 				key: 'g',
 				onChoose: () => {
 					const changed =
-						this.plugin.SearchComponentInterface?.setSortOrder(
+						this.plugin.searchInterface?.setSortOrder(
 							'alphabetical'
 						);
 					if (changed) {
-						this.plugin.SearchComponentInterface?.renewSortOrderInfo();
+						this.plugin.searchInterface?.renewSortOrderInfo();
 						this.plugin.controller?.reset();
 					}
 				},
@@ -72,12 +72,11 @@ export class OptionModal extends Modal {
 				id: 'alphabeticalReverse',
 				key: 'h',
 				onChoose: () => {
-					const changed =
-						this.plugin.SearchComponentInterface?.setSortOrder(
-							'alphabeticalReverse'
-						);
+					const changed = this.plugin.searchInterface?.setSortOrder(
+						'alphabeticalReverse'
+					);
 					if (changed) {
-						this.plugin.SearchComponentInterface?.renewSortOrderInfo();
+						this.plugin.searchInterface?.renewSortOrderInfo();
 						this.plugin.controller?.reset();
 					}
 				},
@@ -87,11 +86,11 @@ export class OptionModal extends Modal {
 				key: 'j',
 				onChoose: () => {
 					const changed =
-						this.plugin.SearchComponentInterface?.setSortOrder(
+						this.plugin.searchInterface?.setSortOrder(
 							'byModifiedTime'
 						);
 					if (changed) {
-						this.plugin.SearchComponentInterface?.renewSortOrderInfo();
+						this.plugin.searchInterface?.renewSortOrderInfo();
 						this.plugin.controller?.reset();
 					}
 				},
@@ -100,12 +99,11 @@ export class OptionModal extends Modal {
 				id: 'byModifiedTimeReverse',
 				key: 'k',
 				onChoose: () => {
-					const changed =
-						this.plugin.SearchComponentInterface?.setSortOrder(
-							'byModifiedTimeReverse'
-						);
+					const changed = this.plugin.searchInterface?.setSortOrder(
+						'byModifiedTimeReverse'
+					);
 					if (changed) {
-						this.plugin.SearchComponentInterface?.renewSortOrderInfo();
+						this.plugin.searchInterface?.renewSortOrderInfo();
 						this.plugin.controller?.reset();
 					}
 				},
@@ -115,11 +113,11 @@ export class OptionModal extends Modal {
 				key: 'l',
 				onChoose: () => {
 					const changed =
-						this.plugin.SearchComponentInterface?.setSortOrder(
+						this.plugin.searchInterface?.setSortOrder(
 							'byCreatedTime'
 						);
 					if (changed) {
-						this.plugin.SearchComponentInterface?.renewSortOrderInfo();
+						this.plugin.searchInterface?.renewSortOrderInfo();
 						this.plugin.controller?.reset();
 					}
 				},
@@ -128,12 +126,11 @@ export class OptionModal extends Modal {
 				id: 'byCreatedTimeReverse',
 				key: ';',
 				onChoose: () => {
-					const changed =
-						this.plugin.SearchComponentInterface?.setSortOrder(
-							'byCreatedTimeReverse'
-						);
+					const changed = this.plugin.searchInterface?.setSortOrder(
+						'byCreatedTimeReverse'
+					);
 					if (changed) {
-						this.plugin.SearchComponentInterface?.renewSortOrderInfo();
+						this.plugin.searchInterface?.renewSortOrderInfo();
 						this.plugin.controller?.reset();
 					}
 				},

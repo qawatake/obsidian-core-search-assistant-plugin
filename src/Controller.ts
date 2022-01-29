@@ -11,12 +11,14 @@ import { Outline } from 'components/Outline';
 import { WorkspacePreview } from 'components/WorkspacePreview';
 import { CardView } from 'components/CardView';
 import { ModeScope } from 'ModeScope';
+import { SearchComponentInterface } from 'interfaces/SearchComponentInterface';
 
 const DELAY_TO_RELOAD_IN_MILLISECOND = 1000;
 
 export class Controller extends Component {
 	private readonly app: App;
 	private readonly plugin: CoreSearchAssistantPlugin;
+	private readonly searchInterface: SearchComponentInterface;
 	private readonly events: CoreSearchAssistantEvents;
 	private readonly modeScope: ModeScope;
 
@@ -33,10 +35,15 @@ export class Controller extends Component {
 	private _detachHotkeys: (() => void) | undefined;
 	private _layoutChanged: (() => boolean) | undefined;
 
-	constructor(app: App, plugin: CoreSearchAssistantPlugin) {
+	constructor(
+		app: App,
+		plugin: CoreSearchAssistantPlugin,
+		searchInterface: SearchComponentInterface
+	) {
 		super();
 		this.app = app;
 		this.plugin = plugin;
+		this.searchInterface = searchInterface;
 		this.events = new CoreSearchAssistantEvents();
 		this.modeScope = new ModeScope();
 
@@ -49,7 +56,6 @@ export class Controller extends Component {
 	}
 
 	override onload() {
-		this.addChildren();
 		this.saveLayout(); // use to check whether to renew controller
 		this.setSearchModeTriggers();
 	}
@@ -59,7 +65,7 @@ export class Controller extends Component {
 		this.addChildren();
 
 		if (this.plugin.settings?.autoPreviewMode === 'cardView') {
-			this.plugin.SearchComponentInterface?.startWatching(this.events);
+			this.searchInterface.startWatching(this.events);
 		}
 
 		this.modeScope.push();
@@ -77,7 +83,7 @@ export class Controller extends Component {
 		this.removeChildren();
 
 		this.countSearchItemDetected = 0;
-		this.plugin.SearchComponentInterface?.stopWatching();
+		this.searchInterface.stopWatching();
 
 		this.unfocus();
 		this.modeScope.reset();
@@ -87,7 +93,7 @@ export class Controller extends Component {
 		if (this.currentFocusId === undefined) {
 			return;
 		}
-		this.plugin.SearchComponentInterface?.focusOn(this.currentFocusId);
+		this.searchInterface.focusOn(this.currentFocusId);
 		const pos = this.positionInCardView(this.currentFocusId);
 		if (pos === undefined) {
 			return;
@@ -99,10 +105,7 @@ export class Controller extends Component {
 		if (this.currentFocusId === undefined) {
 			return;
 		}
-		this.plugin.SearchComponentInterface?.open(
-			this.currentFocusId,
-			direction
-		);
+		this.searchInterface.open(this.currentFocusId, direction);
 	}
 
 	renewCardViewPage() {
@@ -147,7 +150,7 @@ export class Controller extends Component {
 	}
 
 	private showCardViewItem(id: number) {
-		const item = this.plugin.SearchComponentInterface?.getResultItemAt(id);
+		const item = this.searchInterface.getResultItemAt(id);
 		if (!item) {
 			return;
 		}
@@ -161,7 +164,7 @@ export class Controller extends Component {
 			return;
 		}
 
-		const item = this.plugin.SearchComponentInterface?.getResultItemAt(
+		const item = this.searchInterface.getResultItemAt(
 			this.currentFocusId ?? 0
 		);
 		if (!item) {
@@ -174,8 +177,7 @@ export class Controller extends Component {
 		if (this.currentFocusId === undefined) {
 			this.currentFocusId = 0;
 		} else {
-			const numResults =
-				this.plugin.SearchComponentInterface?.count() ?? 0;
+			const numResults = this.searchInterface.count() ?? 0;
 			this.currentFocusId++;
 			this.currentFocusId =
 				this.currentFocusId < numResults
@@ -206,7 +208,7 @@ export class Controller extends Component {
 	}
 
 	private unfocus() {
-		this.plugin.SearchComponentInterface?.unfocus();
+		this.searchInterface.unfocus();
 		this.cardView?.unfocus();
 	}
 
@@ -215,10 +217,7 @@ export class Controller extends Component {
 		if (currentFocusId === undefined) {
 			return;
 		}
-		const item =
-			this.plugin.SearchComponentInterface?.getResultItemAt(
-				currentFocusId
-			);
+		const item = this.searchInterface.getResultItemAt(currentFocusId);
 		if (!item) {
 			return;
 		}
@@ -293,9 +292,9 @@ export class Controller extends Component {
 	 */
 	private saveLayout() {
 		this.app.workspace.onLayoutReady(() => {
-			const inputEl = this.plugin.SearchComponentInterface?.searchInputEl;
+			const inputEl = this.searchInterface.searchInputEl;
 			this._layoutChanged = () =>
-				inputEl !== this.plugin.SearchComponentInterface?.searchInputEl;
+				inputEl !== this.searchInterface.searchInputEl;
 		});
 	}
 
@@ -316,7 +315,8 @@ export class Controller extends Component {
 		);
 
 		this.app.workspace.onLayoutReady(() => {
-			const inputEl = this.plugin.SearchComponentInterface?.searchInputEl;
+			const inputEl = this.searchInterface.searchInputEl;
+
 			if (inputEl === undefined) {
 				throw '[ERROR in Core Search Assistant] failed to find the search input form.';
 			}

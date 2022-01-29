@@ -77,7 +77,7 @@ export class CardView extends Component {
 		}
 		const pageId = Math.floor(itemId / cardsPerPage);
 
-		const items = this.plugin.SearchComponentInterface?.resultItems;
+		const items = this.plugin.searchInterface?.resultItems;
 		if (!items) {
 			return;
 		}
@@ -113,7 +113,7 @@ export class CardView extends Component {
 	}
 
 	get itemsRenderedCorrectly(): boolean {
-		const wantedItems = this.plugin.SearchComponentInterface?.resultItems;
+		const wantedItems = this.plugin.searchInterface?.resultItems;
 		if (wantedItems === undefined) {
 			return false;
 		}
@@ -267,7 +267,7 @@ export class CardView extends Component {
 			if (id === undefined) {
 				return;
 			}
-			this.plugin.SearchComponentInterface?.open(Number.parseInt(id));
+			this.plugin.searchInterface?.open(Number.parseInt(id));
 		};
 	}
 

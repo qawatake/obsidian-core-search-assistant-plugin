@@ -165,8 +165,7 @@ export class SearchComponentInterface extends Component {
 			EVENT_SEARCH_RESULT_ITEM_DETECTED
 		);
 
-		const childrenContainerEl = this.plugin.SearchComponentInterface
-			?.searchView?.dom.childrenEl as HTMLElement;
+		const childrenContainerEl = this.searchView?.dom.childrenEl;
 		if (!(childrenContainerEl instanceof HTMLElement)) {
 			throw '[ERROR in Core Search Assistant] failed to SearchComponentInterface#startWatching: childrenContainerEl is not an instance of HTMLElement';
 		}

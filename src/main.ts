@@ -10,14 +10,17 @@ import {
 export default class CoreSearchAssistantPlugin extends Plugin {
 	settings: CoreSearchAssistantPluginSettings | undefined;
 	controller: Controller | undefined;
-	SearchComponentInterface: SearchComponentInterface | undefined;
+	searchInterface: SearchComponentInterface | undefined;
 
 	override async onload() {
 		await this.loadSettings();
 
-		this.controller = this.addChild(new Controller(this.app, this));
-		this.SearchComponentInterface = this.addChild(
+		// should be called before adding controller because controller depends on searchInterface
+		this.searchInterface = this.addChild(
 			new SearchComponentInterface(this.app, this)
+		);
+		this.controller = this.addChild(
+			new Controller(this.app, this, this.searchInterface)
 		);
 
 		this.watchLayoutChange();
@@ -43,7 +46,12 @@ export default class CoreSearchAssistantPlugin extends Plugin {
 		if (this.controller) {
 			this.removeChild(this.controller);
 		}
-		this.controller = this.addChild(new Controller(this.app, this));
+		if (this.searchInterface === undefined) {
+			throw '[ERROR in Core Search Interface] failed to renewController: plugin.searchInterface = undefined';
+		}
+		this.controller = this.addChild(
+			new Controller(this.app, this, this.searchInterface)
+		);
 	}
 
 	private watchLayoutChange() {
