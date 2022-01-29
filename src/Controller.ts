@@ -21,9 +21,9 @@ export class Controller extends Component {
 	private readonly modeScope: ModeScope;
 
 	// children
-	private readonly workspacePreview: WorkspacePreview;
-	private readonly cardView: CardView;
-	private readonly outline: Outline;
+	private workspacePreview: WorkspacePreview | undefined;
+	private cardView: CardView | undefined;
+	private outline: Outline | undefined;
 
 	// state variables
 	private currentFocusId: number | undefined;
@@ -39,11 +39,6 @@ export class Controller extends Component {
 		this.plugin = plugin;
 		this.events = new CoreSearchAssistantEvents();
 		this.modeScope = new ModeScope();
-
-		// children
-		this.workspacePreview = new WorkspacePreview(this.app, this.plugin);
-		this.cardView = new CardView(this.app, this.plugin);
-		this.outline = new Outline();
 
 		// state variables
 		this.countSearchItemDetected = 0;
@@ -61,15 +56,11 @@ export class Controller extends Component {
 
 	enter() {
 		this.setHotkeys();
+		this.addChildren();
 
 		if (this.plugin.settings?.autoPreviewMode === 'cardView') {
 			this.plugin.SearchComponentInterface?.startWatching(this.events);
 		}
-
-		if (this.plugin.settings === undefined) {
-			throw '[ERROR in Core Search Assistant] failed to enter the search mode: failed to read setting';
-		}
-		this.outline.show(this.plugin.settings.outlineWidth);
 
 		this.modeScope.push();
 	}
@@ -77,20 +68,18 @@ export class Controller extends Component {
 	reset() {
 		this.forget();
 		this.unfocus();
-		this.cardView.clear();
+		this.cardView?.clear();
 		this.countSearchItemDetected = 0;
 	}
 
 	exit() {
 		this.detachHotkeys();
-		this.unfocus();
-		this.workspacePreview.hide();
-		this.cardView.clear();
-		this.countSearchItemDetected = 0;
+		this.removeChildren();
 
+		this.countSearchItemDetected = 0;
 		this.plugin.SearchComponentInterface?.stopWatching();
 
-		this.outline?.hide();
+		this.unfocus();
 		this.modeScope.reset();
 	}
 
@@ -103,7 +92,7 @@ export class Controller extends Component {
 		if (pos === undefined) {
 			return;
 		}
-		this.cardView.focusOn(pos);
+		this.cardView?.focusOn(pos);
 	}
 
 	open(direction?: SplitDirection) {
@@ -120,15 +109,36 @@ export class Controller extends Component {
 		if (this.plugin.settings?.autoPreviewMode !== 'cardView') {
 			return;
 		}
-		this.cardView.clear();
-		this.cardView.renderPage(this.currentFocusId ?? 0);
-		this.cardView.reveal();
+		this.cardView?.clear();
+		this.cardView?.renderPage(this.currentFocusId ?? 0);
+		this.cardView?.reveal();
 	}
 
 	private addChildren() {
-		this.addChild(this.outline);
-		this.addChild(this.workspacePreview);
-		this.addChild(this.cardView);
+		this.removeChildren();
+
+		if (this.plugin.settings === undefined) {
+			throw '[ERROR in Core Search Assistant] failed to addChildren: failed to read setting';
+		}
+		this.outline = this.addChild(
+			new Outline(this.plugin.settings.outlineWidth)
+		);
+		this.cardView = this.addChild(new CardView(this.app, this.plugin));
+		this.workspacePreview = this.addChild(
+			new WorkspacePreview(this.app, this.plugin)
+		);
+	}
+
+	private removeChildren() {
+		if (this.outline) {
+			this.removeChild(this.outline);
+		}
+		if (this.cardView) {
+			this.removeChild(this.cardView);
+		}
+		if (this.workspacePreview) {
+			this.removeChild(this.workspacePreview);
+		}
 	}
 
 	private forget() {
@@ -141,9 +151,9 @@ export class Controller extends Component {
 		if (!item) {
 			return;
 		}
-		this.cardView.renderItem(item, id);
-		this.cardView.setLayout();
-		this.cardView.reveal();
+		this.cardView?.renderItem(item, id);
+		this.cardView?.setLayout();
+		this.cardView?.reveal();
 	}
 
 	private showWorkspacePreview() {
@@ -157,7 +167,7 @@ export class Controller extends Component {
 		if (!item) {
 			return;
 		}
-		this.workspacePreview.renew(item);
+		this.workspacePreview?.renew(item);
 	}
 
 	private navigateForward() {
@@ -197,7 +207,7 @@ export class Controller extends Component {
 
 	private unfocus() {
 		this.plugin.SearchComponentInterface?.unfocus();
-		this.cardView.unfocus();
+		this.cardView?.unfocus();
 	}
 
 	private openPreviewModal() {
@@ -269,7 +279,7 @@ export class Controller extends Component {
 	private retryCardView(delayMillisecond: number) {
 		// i don't retry many times because it looks bad.
 		setTimeout(() => {
-			if (!this.cardView.itemsRenderedCorrectly) {
+			if (!this.cardView?.itemsRenderedCorrectly) {
 				this.reset();
 				this.renewCardViewPage();
 			}
@@ -427,7 +437,7 @@ export class Controller extends Component {
 			}
 
 			if (this.countSearchItemDetected === 0) {
-				this.cardView.clear();
+				this.cardView?.clear();
 			}
 			this.showCardViewItem(this.countSearchItemDetected);
 

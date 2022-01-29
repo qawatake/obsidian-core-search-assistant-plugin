@@ -13,14 +13,14 @@ export default class CoreSearchAssistantPlugin extends Plugin {
 	SearchComponentInterface: SearchComponentInterface | undefined;
 
 	override async onload() {
+		await this.loadSettings();
+
 		this.controller = this.addChild(new Controller(this.app, this));
 		this.SearchComponentInterface = this.addChild(
 			new SearchComponentInterface(this.app, this)
 		);
 
 		this.watchLayoutChange();
-
-		await this.loadSettings();
 
 		this.addSettingTab(new CoreSearchAssistantSettingTab(this.app, this));
 	}
