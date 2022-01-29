@@ -2,58 +2,34 @@ import CoreSearchAssistantPlugin from 'main';
 import { App, Component, SearchResultItem } from 'obsidian';
 import { parseCardLayout } from 'Setting';
 import { INTERVAL_MILLISECOND_TO_BE_DETACHED } from 'components/WorkspacePreview';
-import { ViewGenerator } from 'ViewGenerator';
+import { ViewGenerator } from 'interfaces/ViewGenerator';
 
 export class CardView extends Component {
-	private app: App;
-	private plugin: CoreSearchAssistantPlugin;
-	private workspaceCoverEl: HTMLElement;
-	private contentEl: HTMLElement;
-	private displayed: boolean;
+	private readonly app: App;
+	private readonly plugin: CoreSearchAssistantPlugin;
+	private readonly containerEl: HTMLElement;
+	private readonly contentEl: HTMLElement;
 	private renderers: ViewGenerator[];
 
 	constructor(app: App, plugin: CoreSearchAssistantPlugin) {
 		super();
 		this.app = app;
 		this.plugin = plugin;
-		this.displayed = false;
-		this.workspaceCoverEl = this.createContainerEl();
+		this.containerEl = this.createContainerEl();
 		this.contentEl = this.createContentEl();
 		this.renderers = [];
 	}
 
 	override onload() {
-		this.registerDomEvent(this.contentEl, 'click', (evt: MouseEvent) => {
-			if (!this.displayed) {
-				return;
-			}
-			if (!(evt.target instanceof HTMLElement)) {
-				return;
-			}
-			const cardEl = this.getSelectedCardEl(evt.target);
-			if (!cardEl) {
-				return;
-			}
-			const id = cardEl.dataset['id'];
-			if (id === undefined) {
-				return;
-			}
-			this.plugin.SearchComponentInterface?.open(Number.parseInt(id));
-		});
+		this.registerDomEvent(this.contentEl, 'click', this.onCardItemClicked);
 
-		// rootSplit will be undefined when Obsidian reloaded because dom elements are not fully rendered.
-		this.app.workspace.onLayoutReady(() => {
-			this.attachContainerEl();
-		});
+		this.attachContainerEl();
 	}
 
 	override onunload(): void {
-		this.renderers.forEach((renderer) => {
-			renderer.unload();
-		});
-		this.renderers = [];
-		this.workspaceCoverEl.empty();
-		this.workspaceCoverEl.remove();
+		this.requestUnloadRenderers();
+		this.containerEl.empty();
+		this.containerEl.remove();
 	}
 
 	// id is necessary to open the selected item when clicked
@@ -88,11 +64,10 @@ export class CardView extends Component {
 		});
 	}
 
-	hide() {
+	clear() {
 		this.requestUnloadRenderers();
-		this.workspaceCoverEl.toggleVisibility(false);
+		this.containerEl.hide();
 		this.contentEl.empty();
-		this.displayed = false;
 	}
 
 	renderPage(itemId: number) {
@@ -102,7 +77,7 @@ export class CardView extends Component {
 		}
 		const pageId = Math.floor(itemId / cardsPerPage);
 
-		const items = this.plugin.SearchComponentInterface?.getResultItems();
+		const items = this.plugin.searchInterface?.resultItems;
 		if (!items) {
 			return;
 		}
@@ -122,8 +97,7 @@ export class CardView extends Component {
 	}
 
 	reveal() {
-		this.workspaceCoverEl.toggleVisibility(true);
-		this.displayed = true;
+		this.containerEl.show();
 	}
 
 	// set grid layout
@@ -138,9 +112,8 @@ export class CardView extends Component {
 		this.contentEl.style.gridTemplateRows = `repeat(${row}, 1fr)`;
 	}
 
-	itemsRenderedCorrectly(): boolean {
-		const wantedItems =
-			this.plugin.SearchComponentInterface?.getResultItems();
+	get itemsRenderedCorrectly(): boolean {
+		const wantedItems = this.plugin.searchInterface?.resultItems;
 		if (wantedItems === undefined) {
 			return false;
 		}
@@ -174,17 +147,20 @@ export class CardView extends Component {
 	}
 
 	private createContainerEl(): HTMLElement {
-		const workspaceCoverEl = createEl('div', {
+		const containerEl = createEl('div', {
 			attr: { id: `core-search-assistant_card-view` },
 		});
-		return workspaceCoverEl;
+		return containerEl;
 	}
 
 	private attachContainerEl() {
-		this.app.workspace.rootSplit.containerEl.appendChild(
-			this.workspaceCoverEl
-		);
-		this.hide();
+		// rootSplit will be undefined when Obsidian reloaded because dom elements are not fully rendered.
+		this.app.workspace.onLayoutReady(() => {
+			this.app.workspace.rootSplit.containerEl.appendChild(
+				this.containerEl
+			);
+			this.containerEl.hide();
+		});
 	}
 
 	private createContentEl(): HTMLElement {
@@ -195,7 +171,7 @@ export class CardView extends Component {
 				this.plugin.settings.cardViewLayout
 			);
 		}
-		const contentEl = this.workspaceCoverEl.createEl('div', {
+		const contentEl = this.containerEl.createEl('div', {
 			cls: 'content',
 		});
 		contentEl.style.gridTemplateColumns = `repeat(${column}, minmax(0, 1fr))`;
@@ -276,6 +252,23 @@ export class CardView extends Component {
 			this.plugin.settings.cardViewLayout
 		);
 		return row * column;
+	}
+
+	private get onCardItemClicked(): (evt: MouseEvent) => void {
+		return (evt: MouseEvent) => {
+			if (!(evt.target instanceof HTMLElement)) {
+				return;
+			}
+			const cardEl = this.getSelectedCardEl(evt.target);
+			if (!cardEl) {
+				return;
+			}
+			const id = cardEl.dataset['id'];
+			if (id === undefined) {
+				return;
+			}
+			this.plugin.searchInterface?.open(Number.parseInt(id));
+		};
 	}
 
 	// // delay detachment because otherwise ↓ occur

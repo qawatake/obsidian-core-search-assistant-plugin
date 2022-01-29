@@ -8,8 +8,9 @@ import {
 	Hotkey,
 } from 'obsidian';
 import { INTERVAL_MILLISECOND_TO_BE_DETACHED } from 'components/WorkspacePreview';
-import { ViewGenerator } from 'ViewGenerator';
+import { ViewGenerator } from 'interfaces/ViewGenerator';
 import { scrollIteration } from 'utils/Util';
+import { ModeScope } from 'ModeScope';
 
 type ScrollDirection = 'up' | 'down';
 
@@ -18,18 +19,22 @@ const SCROLL_AMOUNT = 70;
 const TOGGLE_PREVIEW_COMMAND_ID = 'markdown:toggle-preview';
 
 export class PreviewModal extends Modal {
-	item: SearchResultItem;
-	plugin: CoreSearchAssistantPlugin;
+	private readonly plugin: CoreSearchAssistantPlugin;
+	private readonly modeScope: ModeScope;
+	private readonly item: SearchResultItem;
+
 	currentFocus: number;
 	renderer: ViewGenerator | undefined;
 
 	constructor(
 		app: App,
 		plugin: CoreSearchAssistantPlugin,
+		modeScope: ModeScope,
 		item: SearchResultItem
 	) {
 		super(app);
 		this.plugin = plugin;
+		this.modeScope = modeScope;
 		this.item = item;
 		this.currentFocus = -1;
 	}
@@ -38,7 +43,7 @@ export class PreviewModal extends Modal {
 		await this.renderView();
 		this.renderer?.highlightMatches(this.item.result.content ?? []);
 
-		this.plugin.controller?.togglePreviewModalShown(true);
+		this.modeScope.push();
 
 		this.scope.register(['Ctrl'], ' ', () => {
 			this.shouldRestoreSelection = true;
@@ -115,7 +120,9 @@ export class PreviewModal extends Modal {
 
 		// too fast to remain search mode
 		setTimeout(() => {
-			this.plugin.controller?.togglePreviewModalShown(false);
+			if (this.modeScope.depth > 1) {
+				this.modeScope.pop();
+			}
 		}, 100);
 	}
 
@@ -130,6 +137,7 @@ export class PreviewModal extends Modal {
 	private async renderView() {
 		const { contentEl, containerEl, item } = this;
 		contentEl.empty();
+		contentEl.hide();
 		if (this.app.vault.config.legacyEditor) {
 			containerEl.addClass(
 				'core-search-assistant_preview-modal-container_legacy'
@@ -144,6 +152,7 @@ export class PreviewModal extends Modal {
 			contentEl,
 			item.file
 		).load('source');
+		contentEl.show();
 	}
 
 	private countMatches(): number | undefined {
@@ -194,7 +203,11 @@ export class PreviewModal extends Modal {
 		if (!match) {
 			return;
 		}
-		const editor = (leaf.view as MarkdownView).modes.source.editor;
+		const { view } = leaf;
+		if (!(view instanceof MarkdownView)) {
+			throw '[ERROR in Core Search Assistant] failed to openAndFocus: view is not an instance of MarkdownView';
+		}
+		const editor = view.modes.source.editor;
 		const range = {
 			from: editor.offsetToPos(match[0]),
 			to: editor.offsetToPos(match[1]),

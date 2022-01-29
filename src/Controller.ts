@@ -5,249 +5,143 @@ import {
 import CoreSearchAssistantPlugin from 'main';
 import { App, Component, Scope, SplitDirection } from 'obsidian';
 import { OptionModal } from 'components/OptionModal';
-import { parseCardLayout, validOutlineWidth } from 'Setting';
+import { parseCardLayout } from 'Setting';
 import { PreviewModal } from 'components/PreviewModal';
+import { Outline } from 'components/Outline';
+import { WorkspacePreview } from 'components/WorkspacePreview';
+import { CardView } from 'components/CardView';
+import { ModeScope } from 'ModeScope';
+import { SearchComponentInterface } from 'interfaces/SearchComponentInterface';
 
 const DELAY_TO_RELOAD_IN_MILLISECOND = 1000;
 
 export class Controller extends Component {
-	private app: App;
-	private plugin: CoreSearchAssistantPlugin;
-	private scope: Scope | undefined;
-	private events: CoreSearchAssistantEvents;
-	private currentFocusId: number | undefined;
-	private outlineEl: HTMLElement;
-	private countSearchItemDetected: number;
-	private inSearchMode: boolean;
-	private previewModalShown: boolean;
-	private optionModalShown: boolean;
-	// use for detecting whether layout-change really occurs
-	private inputEl: HTMLElement | undefined;
+	private readonly app: App;
+	private readonly plugin: CoreSearchAssistantPlugin;
+	private readonly searchInterface: SearchComponentInterface;
+	private readonly events: CoreSearchAssistantEvents;
+	private readonly modeScope: ModeScope;
 
-	constructor(app: App, plugin: CoreSearchAssistantPlugin) {
+	// children
+	private workspacePreview: WorkspacePreview | undefined;
+	private cardView: CardView | undefined;
+	private outline: Outline | undefined;
+
+	// state variables
+	private currentFocusId: number | undefined;
+	private countSearchItemDetected: number;
+
+	// closures
+	private _detachHotkeys: (() => void) | undefined;
+	private _layoutChanged: (() => boolean) | undefined;
+
+	constructor(
+		app: App,
+		plugin: CoreSearchAssistantPlugin,
+		searchInterface: SearchComponentInterface
+	) {
 		super();
 		this.app = app;
 		this.plugin = plugin;
+		this.searchInterface = searchInterface;
 		this.events = new CoreSearchAssistantEvents();
-		this.outlineEl = this.createOutline();
+		this.modeScope = new ModeScope();
+
+		// state variables
 		this.countSearchItemDetected = 0;
-		this.inSearchMode = false;
-		this.previewModalShown = false;
-		this.optionModalShown = false;
 	}
 
 	override onunload() {
-		this.outlineEl.empty();
-		this.outlineEl.remove();
-		if (this.scope) {
-			this.app.keymap.popScope(this.scope);
-			this.scope = undefined;
-		}
+		this.exit();
 	}
 
 	override onload() {
-		this.registerEvent(
-			this.events.on(EVENT_SEARCH_RESULT_ITEM_DETECTED, () => {
-				if (this.plugin.settings?.autoPreviewMode !== 'cardView') {
-					return;
-				}
-
-				const cardsPerPage = this.cardsPerPage();
-				if (cardsPerPage === undefined) {
-					return;
-				}
-				if (this.countSearchItemDetected >= cardsPerPage) {
-					return;
-				}
-
-				if (this.countSearchItemDetected === 0) {
-					this.plugin.cardView?.hide();
-				}
-
-				this.showCardViewItem(this.countSearchItemDetected);
-
-				if (this.countSearchItemDetected === 0) {
-					this.retryCardView(DELAY_TO_RELOAD_IN_MILLISECOND);
-				}
-				this.countSearchItemDetected++;
-			})
-		);
-
-		this.app.workspace.onLayoutReady(() => {
-			const inputEl =
-				this.plugin.SearchComponentInterface?.getSearchInput();
-			if (!inputEl) {
-				return;
-			}
-			this.inputEl = inputEl;
-
-			this.registerDomEvent(document, 'click', () => {
-				if (this.optionModalShown || this.previewModalShown) {
-					return;
-				}
-				this.exit();
-			});
-			this.registerDomEvent(inputEl, 'click', (evt) => {
-				evt.stopPropagation();
-				if (!this.inSearchMode) {
-					this.enter();
-				}
-			});
-
-			// x "keydown" → capture Ctrl + Enter key
-			// x "keypress" → do not recognize Backspace key
-			this.registerDomEvent(inputEl, 'input', () => {
-				if (!this.inSearchMode) {
-					this.enter();
-				}
-				this.reset();
-			});
-			// reload card view
-			// Enter key is not recognized by input event
-			this.registerDomEvent(inputEl, 'keypress', (evt) => {
-				if (evt.key !== 'Enter') {
-					return;
-				}
-				if (!this.inSearchMode) {
-					this.enter();
-				}
-				this.reset();
-			});
-			this.registerDomEvent(inputEl, 'focus', () => {
-				if (!this.inSearchMode) {
-					this.enter();
-				}
-			});
-		});
+		this.saveLayout(); // use to check whether to renew controller
+		this.setSearchModeTriggers();
 	}
 
 	enter() {
-		if (!this.scope) {
-			this.scope = new Scope();
-		}
-		this.app.keymap.pushScope(this.scope);
-
-		this.scope.register(['Ctrl'], 'N', (evt: KeyboardEvent) => {
-			evt.preventDefault(); // ← necessary to stop cursor in search input
-			this.navigateForward();
-			this.showWorkspacePreview();
-		});
-		this.scope.register([], 'ArrowDown', (evt: KeyboardEvent) => {
-			evt.preventDefault();
-			this.navigateForward();
-			this.showWorkspacePreview();
-		});
-		this.scope.register(['Ctrl'], 'P', (evt: KeyboardEvent) => {
-			evt.preventDefault();
-			this.navigateBack();
-			this.showWorkspacePreview();
-		});
-		this.scope.register([], 'ArrowUp', (evt: KeyboardEvent) => {
-			evt.preventDefault();
-			this.navigateBack();
-			this.showWorkspacePreview();
-		});
-		this.scope.register(['Ctrl'], 'Enter', (evt: KeyboardEvent) => {
-			evt.preventDefault(); // ← necessary to prevent renew query, which triggers item detection events
-			this.open();
-			this.exit();
-		});
-		this.scope.register(
-			['Ctrl', 'Shift'],
-			'Enter',
-			(evt: KeyboardEvent) => {
-				evt.preventDefault();
-				this.open(this.plugin.settings?.splitDirection);
-				this.exit();
-			}
-		);
-		this.scope.register(['Ctrl'], ' ', () => {
-			if (this.app.vault.config.legacyEditor) {
-				return;
-			}
-			this.openPreviewModal();
-		});
-		this.scope.register(['Shift'], ' ', () => {
-			new OptionModal(this.app, this.plugin).open();
-		});
-		this.scope.register([], 'Escape', () => {
-			this.exit();
-		});
+		this.setHotkeys();
+		this.addChildren();
 
 		if (this.plugin.settings?.autoPreviewMode === 'cardView') {
-			this.plugin.SearchComponentInterface?.startWatching(this.events);
+			this.searchInterface.startWatching(this.events);
 		}
 
-		this.showOutline();
-		this.inSearchMode = true;
+		this.modeScope.push();
 	}
 
 	reset() {
 		this.forget();
 		this.unfocus();
-		this.plugin.cardView?.hide();
+		this.cardView?.clear();
 		this.countSearchItemDetected = 0;
 	}
 
 	exit() {
-		if (this.scope) {
-			this.app.keymap.popScope(this.scope);
-			this.scope = undefined;
-		}
-		this.unfocus();
-		this.plugin?.workspacePreview?.hide();
-		this.plugin.cardView?.hide();
+		this.detachHotkeys();
+		this.removeChildren();
+
 		this.countSearchItemDetected = 0;
+		this.searchInterface.stopWatching();
 
-		this.plugin.SearchComponentInterface?.stopWatching();
-
-		this.outlineEl.hide();
-		this.inSearchMode = false;
+		this.unfocus();
+		this.modeScope.reset();
 	}
 
 	focus() {
 		if (this.currentFocusId === undefined) {
 			return;
 		}
-		this.plugin.SearchComponentInterface?.focusOn(this.currentFocusId);
+		this.searchInterface.focusOn(this.currentFocusId);
 		const pos = this.positionInCardView(this.currentFocusId);
 		if (pos === undefined) {
 			return;
 		}
-		this.plugin.cardView?.focusOn(pos);
+		this.cardView?.focusOn(pos);
 	}
 
 	open(direction?: SplitDirection) {
 		if (this.currentFocusId === undefined) {
 			return;
 		}
-		this.plugin.SearchComponentInterface?.open(
-			this.currentFocusId,
-			direction
-		);
+		this.searchInterface.open(this.currentFocusId, direction);
 	}
 
 	renewCardViewPage() {
 		if (this.plugin.settings?.autoPreviewMode !== 'cardView') {
 			return;
 		}
-		this.plugin.cardView?.hide();
-		this.plugin.cardView?.renderPage(this.currentFocusId ?? 0);
-		this.plugin.cardView?.reveal();
+		this.cardView?.clear();
+		this.cardView?.renderPage(this.currentFocusId ?? 0);
+		this.cardView?.reveal();
 	}
 
-	toggleOptionModalShown(shown: boolean) {
-		this.optionModalShown = shown;
+	private addChildren() {
+		this.removeChildren();
+
+		if (this.plugin.settings === undefined) {
+			throw '[ERROR in Core Search Assistant] failed to addChildren: failed to read setting';
+		}
+		this.outline = this.addChild(
+			new Outline(this.plugin.settings.outlineWidth)
+		);
+		this.cardView = this.addChild(new CardView(this.app, this.plugin));
+		this.workspacePreview = this.addChild(
+			new WorkspacePreview(this.app, this.plugin)
+		);
 	}
 
-	togglePreviewModalShown(shown: boolean) {
-		this.previewModalShown = shown;
-	}
-
-	// check layout change
-	renewRequired(): boolean {
-		const inputEl = this.plugin.SearchComponentInterface?.getSearchInput();
-		return this.inputEl !== inputEl;
+	private removeChildren() {
+		if (this.outline) {
+			this.removeChild(this.outline);
+		}
+		if (this.cardView) {
+			this.removeChild(this.cardView);
+		}
+		if (this.workspacePreview) {
+			this.removeChild(this.workspacePreview);
+		}
 	}
 
 	private forget() {
@@ -256,13 +150,13 @@ export class Controller extends Component {
 	}
 
 	private showCardViewItem(id: number) {
-		const item = this.plugin.SearchComponentInterface?.getResultItemAt(id);
+		const item = this.searchInterface.getResultItemAt(id);
 		if (!item) {
 			return;
 		}
-		this.plugin.cardView?.renderItem(item, id);
-		this.plugin.cardView?.setLayout();
-		this.plugin.cardView?.reveal();
+		this.cardView?.renderItem(item, id);
+		this.cardView?.setLayout();
+		this.cardView?.reveal();
 	}
 
 	private showWorkspacePreview() {
@@ -270,21 +164,20 @@ export class Controller extends Component {
 			return;
 		}
 
-		const item = this.plugin.SearchComponentInterface?.getResultItemAt(
+		const item = this.searchInterface.getResultItemAt(
 			this.currentFocusId ?? 0
 		);
 		if (!item) {
 			return;
 		}
-		this.plugin?.workspacePreview?.renew(item);
+		this.workspacePreview?.renew(item);
 	}
 
 	private navigateForward() {
 		if (this.currentFocusId === undefined) {
 			this.currentFocusId = 0;
 		} else {
-			const numResults =
-				this.plugin.SearchComponentInterface?.count() ?? 0;
+			const numResults = this.searchInterface.count() ?? 0;
 			this.currentFocusId++;
 			this.currentFocusId =
 				this.currentFocusId < numResults
@@ -315,8 +208,8 @@ export class Controller extends Component {
 	}
 
 	private unfocus() {
-		this.plugin.SearchComponentInterface?.unfocus();
-		this.plugin.cardView?.unfocus();
+		this.searchInterface.unfocus();
+		this.cardView?.unfocus();
 	}
 
 	private openPreviewModal() {
@@ -324,31 +217,11 @@ export class Controller extends Component {
 		if (currentFocusId === undefined) {
 			return;
 		}
-		const item =
-			this.plugin.SearchComponentInterface?.getResultItemAt(
-				currentFocusId
-			);
+		const item = this.searchInterface.getResultItemAt(currentFocusId);
 		if (!item) {
 			return;
 		}
-		new PreviewModal(this.app, this.plugin, item).open();
-	}
-
-	private createOutline(): HTMLElement {
-		const outlineEl = document.body.createEl('div', {
-			cls: 'core-search-assistant_search-mode-outline',
-		});
-		outlineEl.hide();
-		return outlineEl;
-	}
-
-	private showOutline() {
-		const outlineWidth = validOutlineWidth(
-			this.plugin.settings?.outlineWidth
-		);
-		this.outlineEl.style.outline = `${outlineWidth}px solid var(--interactive-accent)`;
-		this.outlineEl.style.outlineOffset = `-${outlineWidth}px`;
-		this.outlineEl.show();
+		new PreviewModal(this.app, this.plugin, this.modeScope, item).open();
 	}
 
 	private shouldTransitNextPageInCardView(): boolean {
@@ -405,10 +278,173 @@ export class Controller extends Component {
 	private retryCardView(delayMillisecond: number) {
 		// i don't retry many times because it looks bad.
 		setTimeout(() => {
-			if (!this.plugin.cardView?.itemsRenderedCorrectly()) {
+			if (!this.cardView?.itemsRenderedCorrectly) {
 				this.reset();
 				this.renewCardViewPage();
 			}
 		}, delayMillisecond);
+	}
+
+	/**
+	 * check layout change
+	 * use for detecting whether layout-change really occurs
+	 * @returns callback which returns
+	 */
+	private saveLayout() {
+		this.app.workspace.onLayoutReady(() => {
+			const inputEl = this.searchInterface.searchInputEl;
+			this._layoutChanged = () =>
+				inputEl !== this.searchInterface.searchInputEl;
+		});
+	}
+
+	get layoutChanged(): boolean {
+		const required = this._layoutChanged?.();
+		if (required === undefined) {
+			throw '[ERROR in Core Search Assistant] failed to renewRequired: saveLayout was not called.';
+		}
+		return required;
+	}
+
+	private setSearchModeTriggers() {
+		this.registerEvent(
+			this.events.on(
+				EVENT_SEARCH_RESULT_ITEM_DETECTED,
+				this.onSearchResultItemDetected
+			)
+		);
+
+		this.app.workspace.onLayoutReady(() => {
+			const inputEl = this.searchInterface.searchInputEl;
+
+			if (inputEl === undefined) {
+				throw '[ERROR in Core Search Assistant] failed to find the search input form.';
+			}
+
+			this.registerDomEvent(document, 'click', () => {
+				if (this.modeScope.depth > 1) {
+					return;
+				}
+
+				this.exit();
+			});
+			this.registerDomEvent(inputEl, 'click', (evt) => {
+				evt.stopPropagation();
+				if (!this.modeScope.inSearchMode) {
+					this.enter();
+				}
+			});
+
+			// x "keydown" → capture Ctrl + Enter key
+			// x "keypress" → do not recognize Backspace key
+			this.registerDomEvent(inputEl, 'input', () => {
+				if (!this.modeScope.inSearchMode) {
+					this.enter();
+				}
+				this.reset();
+			});
+			// reload card view
+			// Enter key is not recognized by input event
+			this.registerDomEvent(inputEl, 'keypress', (evt) => {
+				if (evt.key !== 'Enter') {
+					return;
+				}
+				if (!this.modeScope.inSearchMode) {
+					this.enter();
+				}
+				this.reset();
+			});
+			this.registerDomEvent(inputEl, 'focus', () => {
+				if (!this.modeScope.inSearchMode) {
+					this.enter();
+				}
+			});
+		});
+	}
+
+	private setHotkeys() {
+		const scope = new Scope();
+		this.app.keymap.pushScope(scope);
+
+		scope.register(['Ctrl'], 'N', (evt: KeyboardEvent) => {
+			evt.preventDefault(); // ← necessary to stop cursor in search input
+			this.navigateForward();
+			this.showWorkspacePreview();
+		});
+		scope.register([], 'ArrowDown', (evt: KeyboardEvent) => {
+			evt.preventDefault();
+			this.navigateForward();
+			this.showWorkspacePreview();
+		});
+		scope.register(['Ctrl'], 'P', (evt: KeyboardEvent) => {
+			evt.preventDefault();
+			this.navigateBack();
+			this.showWorkspacePreview();
+		});
+		scope.register([], 'ArrowUp', (evt: KeyboardEvent) => {
+			evt.preventDefault();
+			this.navigateBack();
+			this.showWorkspacePreview();
+		});
+		scope.register(['Ctrl'], 'Enter', (evt: KeyboardEvent) => {
+			evt.preventDefault(); // ← necessary to prevent renew query, which triggers item detection events
+			this.open();
+			this.exit();
+		});
+		scope.register(['Ctrl', 'Shift'], 'Enter', (evt: KeyboardEvent) => {
+			evt.preventDefault();
+			this.open(this.plugin.settings?.splitDirection);
+			this.exit();
+		});
+		scope.register(['Ctrl'], ' ', () => {
+			if (this.app.vault.config.legacyEditor) {
+				return;
+			}
+			this.openPreviewModal();
+		});
+		scope.register(['Shift'], ' ', () => {
+			new OptionModal(this.app, this.plugin, this.modeScope).open();
+		});
+		scope.register([], 'Escape', () => {
+			this.exit();
+		});
+
+		this._detachHotkeys = () => {
+			this.app.keymap.popScope(scope);
+		};
+	}
+
+	private detachHotkeys() {
+		const detachHotkeys = this._detachHotkeys;
+		if (detachHotkeys === undefined) {
+			return;
+		}
+		detachHotkeys();
+	}
+
+	private get onSearchResultItemDetected(): () => void {
+		return () => {
+			if (this.plugin.settings?.autoPreviewMode !== 'cardView') {
+				return;
+			}
+
+			const cardsPerPage = this.cardsPerPage();
+			if (cardsPerPage === undefined) {
+				return;
+			}
+			if (this.countSearchItemDetected >= cardsPerPage) {
+				return;
+			}
+
+			if (this.countSearchItemDetected === 0) {
+				this.cardView?.clear();
+			}
+			this.showCardViewItem(this.countSearchItemDetected);
+
+			if (this.countSearchItemDetected === 0) {
+				this.retryCardView(DELAY_TO_RELOAD_IN_MILLISECOND);
+			}
+			this.countSearchItemDetected++;
+		};
 	}
 }

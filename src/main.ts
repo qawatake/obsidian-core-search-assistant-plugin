@@ -1,34 +1,29 @@
-import { CardView } from 'components/CardView';
 import { Controller } from 'Controller';
-import { SearchComponentInterface } from 'SearchComponentInterface';
+import { SearchComponentInterface } from 'interfaces/SearchComponentInterface';
 import { Plugin } from 'obsidian';
 import {
 	CoreSearchAssistantPluginSettings,
 	CoreSearchAssistantSettingTab,
 	DEFAULT_SETTINGS,
 } from 'Setting';
-import { WorkspacePreview } from 'components/WorkspacePreview';
 
 export default class CoreSearchAssistantPlugin extends Plugin {
 	settings: CoreSearchAssistantPluginSettings | undefined;
 	controller: Controller | undefined;
-	SearchComponentInterface: SearchComponentInterface | undefined;
-	workspacePreview: WorkspacePreview | undefined;
-	cardView: CardView | undefined;
+	searchInterface: SearchComponentInterface | undefined;
 
 	override async onload() {
-		this.controller = this.addChild(new Controller(this.app, this));
-		this.SearchComponentInterface = this.addChild(
+		await this.loadSettings();
+
+		// should be called before adding controller because controller depends on searchInterface
+		this.searchInterface = this.addChild(
 			new SearchComponentInterface(this.app, this)
 		);
-		this.workspacePreview = this.addChild(
-			new WorkspacePreview(this.app, this)
+		this.controller = this.addChild(
+			new Controller(this.app, this, this.searchInterface)
 		);
-		this.cardView = this.addChild(new CardView(this.app, this));
 
 		this.watchLayoutChange();
-
-		await this.loadSettings();
 
 		this.addSettingTab(new CoreSearchAssistantSettingTab(this.app, this));
 	}
@@ -51,14 +46,12 @@ export default class CoreSearchAssistantPlugin extends Plugin {
 		if (this.controller) {
 			this.removeChild(this.controller);
 		}
-		this.controller = this.addChild(new Controller(this.app, this));
-	}
-
-	private renewCardView() {
-		if (this.cardView) {
-			this.removeChild(this.cardView);
+		if (this.searchInterface === undefined) {
+			throw '[ERROR in Core Search Interface] failed to renewController: plugin.searchInterface = undefined';
 		}
-		this.cardView = this.addChild(new CardView(this.app, this));
+		this.controller = this.addChild(
+			new Controller(this.app, this, this.searchInterface)
+		);
 	}
 
 	private watchLayoutChange() {
@@ -66,9 +59,8 @@ export default class CoreSearchAssistantPlugin extends Plugin {
 		this.app.workspace.onLayoutReady(() => {
 			// ↓ is necessary because dom elements such as input form and containerEl for card view will be removed when layout change
 			this.app.workspace.on('layout-change', () => {
-				if (this.controller?.renewRequired()) {
+				if (this.controller?.layoutChanged) {
 					this.renewController();
-					this.renewCardView();
 				}
 			});
 		});

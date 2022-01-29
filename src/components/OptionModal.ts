@@ -1,4 +1,5 @@
 import CoreSearchAssistantPlugin from 'main';
+import { ModeScope } from 'ModeScope';
 import { App, Modal, setIcon } from 'obsidian';
 import { SearchOptionId, searchOptions } from 'types/Option';
 
@@ -9,19 +10,25 @@ interface OptionItem {
 }
 
 export class OptionModal extends Modal {
-	plugin: CoreSearchAssistantPlugin;
-	items: OptionItem[];
+	private readonly plugin: CoreSearchAssistantPlugin;
+	private readonly modeScope: ModeScope;
+	private readonly items: OptionItem[];
 
-	constructor(app: App, plugin: CoreSearchAssistantPlugin) {
+	constructor(
+		app: App,
+		plugin: CoreSearchAssistantPlugin,
+		modeScope: ModeScope
+	) {
 		super(app);
 		this.plugin = plugin;
+		this.modeScope = modeScope;
 
 		this.items = [
 			{
 				id: 'matchingCase',
 				key: 'a',
 				onChoose: () => {
-					this.plugin.SearchComponentInterface?.toggleMatchingCase();
+					this.plugin.searchInterface?.toggleMatchingCase();
 					this.plugin.controller?.reset();
 					// renewCardPageView is not needed because the internal plugin definitely reloads
 				},
@@ -30,21 +37,21 @@ export class OptionModal extends Modal {
 				id: 'explainSearch',
 				key: 's',
 				onChoose: () => {
-					this.plugin.SearchComponentInterface?.toggleExplainSearch();
+					this.plugin.searchInterface?.toggleExplainSearch();
 				},
 			},
 			{
 				id: 'collapseAll',
 				key: 'd',
 				onChoose: () => {
-					this.plugin.SearchComponentInterface?.toggleCollapseAll();
+					this.plugin.searchInterface?.toggleCollapseAll();
 				},
 			},
 			{
 				id: 'extraContext',
 				key: 'f',
 				onChoose: () => {
-					this.plugin.SearchComponentInterface?.toggleExtraContext();
+					this.plugin.searchInterface?.toggleExtraContext();
 				},
 			},
 			{
@@ -52,11 +59,11 @@ export class OptionModal extends Modal {
 				key: 'g',
 				onChoose: () => {
 					const changed =
-						this.plugin.SearchComponentInterface?.setSortOrder(
+						this.plugin.searchInterface?.setSortOrder(
 							'alphabetical'
 						);
 					if (changed) {
-						this.plugin.SearchComponentInterface?.renewSortOrderInfo();
+						this.plugin.searchInterface?.renewSortOrderInfo();
 						this.plugin.controller?.reset();
 					}
 				},
@@ -65,12 +72,11 @@ export class OptionModal extends Modal {
 				id: 'alphabeticalReverse',
 				key: 'h',
 				onChoose: () => {
-					const changed =
-						this.plugin.SearchComponentInterface?.setSortOrder(
-							'alphabeticalReverse'
-						);
+					const changed = this.plugin.searchInterface?.setSortOrder(
+						'alphabeticalReverse'
+					);
 					if (changed) {
-						this.plugin.SearchComponentInterface?.renewSortOrderInfo();
+						this.plugin.searchInterface?.renewSortOrderInfo();
 						this.plugin.controller?.reset();
 					}
 				},
@@ -80,11 +86,11 @@ export class OptionModal extends Modal {
 				key: 'j',
 				onChoose: () => {
 					const changed =
-						this.plugin.SearchComponentInterface?.setSortOrder(
+						this.plugin.searchInterface?.setSortOrder(
 							'byModifiedTime'
 						);
 					if (changed) {
-						this.plugin.SearchComponentInterface?.renewSortOrderInfo();
+						this.plugin.searchInterface?.renewSortOrderInfo();
 						this.plugin.controller?.reset();
 					}
 				},
@@ -93,12 +99,11 @@ export class OptionModal extends Modal {
 				id: 'byModifiedTimeReverse',
 				key: 'k',
 				onChoose: () => {
-					const changed =
-						this.plugin.SearchComponentInterface?.setSortOrder(
-							'byModifiedTimeReverse'
-						);
+					const changed = this.plugin.searchInterface?.setSortOrder(
+						'byModifiedTimeReverse'
+					);
 					if (changed) {
-						this.plugin.SearchComponentInterface?.renewSortOrderInfo();
+						this.plugin.searchInterface?.renewSortOrderInfo();
 						this.plugin.controller?.reset();
 					}
 				},
@@ -108,11 +113,11 @@ export class OptionModal extends Modal {
 				key: 'l',
 				onChoose: () => {
 					const changed =
-						this.plugin.SearchComponentInterface?.setSortOrder(
+						this.plugin.searchInterface?.setSortOrder(
 							'byCreatedTime'
 						);
 					if (changed) {
-						this.plugin.SearchComponentInterface?.renewSortOrderInfo();
+						this.plugin.searchInterface?.renewSortOrderInfo();
 						this.plugin.controller?.reset();
 					}
 				},
@@ -121,12 +126,11 @@ export class OptionModal extends Modal {
 				id: 'byCreatedTimeReverse',
 				key: ';',
 				onChoose: () => {
-					const changed =
-						this.plugin.SearchComponentInterface?.setSortOrder(
-							'byCreatedTimeReverse'
-						);
+					const changed = this.plugin.searchInterface?.setSortOrder(
+						'byCreatedTimeReverse'
+					);
 					if (changed) {
-						this.plugin.SearchComponentInterface?.renewSortOrderInfo();
+						this.plugin.searchInterface?.renewSortOrderInfo();
 						this.plugin.controller?.reset();
 					}
 				},
@@ -135,12 +139,21 @@ export class OptionModal extends Modal {
 	}
 
 	override onOpen() {
+		this.modeScope.push();
+
 		this.items.forEach((item) => {
 			this.scope.register([], item.key, item.onChoose);
 		});
 
 		this.renderOptions();
-		this.plugin.controller?.toggleOptionModalShown(true);
+	}
+
+	override onClose() {
+		const { containerEl } = this;
+		containerEl.empty();
+
+		// too fast to remain search mode
+		setTimeout(() => this.modeScope.pop(), 100);
 	}
 
 	renderOptions() {
@@ -164,16 +177,5 @@ export class OptionModal extends Modal {
 				cls: 'suggestion-hotkey',
 			});
 		});
-	}
-
-	override onClose() {
-		const { containerEl } = this;
-		containerEl.empty();
-
-		// too fast to remain search mode
-		setTimeout(
-			() => this.plugin.controller?.toggleOptionModalShown(false),
-			100
-		);
 	}
 }
