@@ -53,9 +53,7 @@ export class ViewGenerator {
 	}
 
 	private async onload(mode?: MarkdownViewModeType) {
-		await this.openFile(this.oppositeMode(mode ?? 'preview'));
-		await delay(1);
-		await this.toggleViewMode();
+		await this.openFile(mode ?? 'preview');
 	}
 
 	private onunload() {
