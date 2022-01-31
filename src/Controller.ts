@@ -12,6 +12,7 @@ import { WorkspacePreview } from 'components/WorkspacePreview';
 import { CardView } from 'components/CardView';
 import { ModeScope } from 'ModeScope';
 import { SearchComponentInterface } from 'interfaces/SearchComponentInterface';
+import { delay } from 'utils/Util';
 
 const DELAY_TO_RELOAD_IN_MILLISECOND = 1000;
 
@@ -34,6 +35,7 @@ export class Controller extends Component {
 	// closures
 	private _detachHotkeys: (() => void) | undefined;
 	private _layoutChanged: (() => boolean) | undefined;
+	private _restoreOppositeSidedock: (() => void) | undefined;
 
 	constructor(
 		app: App,
@@ -63,6 +65,7 @@ export class Controller extends Component {
 	enter() {
 		this.setHotkeys();
 		this.addChildren();
+		this.collapseOppositeSidedock();
 
 		if (this.plugin.settings?.autoPreviewMode === 'cardView') {
 			this.searchInterface.startWatching(this.events);
@@ -79,8 +82,13 @@ export class Controller extends Component {
 	}
 
 	exit() {
+		if (!this.modeScope.inSearchMode) {
+			return;
+		}
 		this.detachHotkeys();
 		this.removeChildren();
+		this.collapseSidedock();
+		this.restoreOppositeSidedock();
 
 		this.countSearchItemDetected = 0;
 		this.searchInterface.stopWatching();
@@ -115,6 +123,31 @@ export class Controller extends Component {
 		this.cardView?.clear();
 		this.cardView?.renderPage(this.currentFocusId ?? 0);
 		this.cardView?.reveal();
+	}
+
+	private collapseSidedock() {
+		this.plugin.searchInterface?.collapseSidedock();
+	}
+
+	private async collapseOppositeSidedock() {
+		const collapsed =
+			this.plugin.searchInterface?.oppositeSidedock?.collapsed;
+		// too fast to fetch information about collapsed
+		await delay(100);
+		this.plugin.searchInterface?.collapseOppositeSidedock();
+		this._restoreOppositeSidedock = () => {
+			if (collapsed === false) {
+				this.plugin.searchInterface?.expandOppositeSidedock();
+			}
+		};
+	}
+
+	private restoreOppositeSidedock() {
+		const restoreOppositeSidedock = this._restoreOppositeSidedock;
+		if (restoreOppositeSidedock === undefined) {
+			return undefined;
+		}
+		return restoreOppositeSidedock();
 	}
 
 	private addChildren() {

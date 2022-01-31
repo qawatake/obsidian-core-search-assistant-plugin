@@ -8,6 +8,7 @@ import {
 	SortOrderInSearch,
 	SplitDirection,
 	WorkspaceLeaf,
+	WorkspaceSidedock,
 } from 'obsidian';
 import { isSearchView } from 'types/Guards';
 import { searchOptions } from 'types/Option';
@@ -176,6 +177,60 @@ export class SearchComponentInterface extends Component {
 		this.observer.disconnect();
 	}
 
+	collapseOppositeSidedock() {
+		const sideDock = this.oppositeSidedock;
+		if (sideDock === undefined) {
+			throw '[ERROR in Core Search Assistant] failed to collapseOppositeSidedock: failed to fetch the opposite sidedock';
+		}
+		sideDock.collapse();
+	}
+
+	expandOppositeSidedock() {
+		const sideDock = this.oppositeSidedock;
+		if (sideDock === undefined) {
+			throw '[ERROR in Core Search Assistant] failed to expandOppositeSidedock: failed to fetch the opposite sidedock';
+		}
+		sideDock.expand();
+	}
+
+	collapseSidedock() {
+		const sideDock = this.sideDock;
+		if (sideDock === undefined) {
+			throw '[ERROR in Core Search Assistant] failed to collapseSidedock: failed to fetch the sidedock';
+		}
+		sideDock.collapse();
+	}
+
+	private get sideDock(): WorkspaceSidedock | undefined {
+		const leaf = this.searchLeaf;
+		if (leaf === undefined) {
+			return undefined;
+		}
+		const parent = leaf.getRoot();
+		if (parent instanceof WorkspaceSidedock) {
+			return parent;
+		} else {
+			return undefined;
+		}
+	}
+
+	get oppositeSidedock(): WorkspaceSidedock | undefined {
+		const leaf = this.searchLeaf;
+		if (leaf === undefined) {
+			return undefined;
+		}
+		const parent = leaf.getRoot();
+		if (parent === this.app.workspace.leftSplit) {
+			const opposite = this.app.workspace.rightSplit;
+			return opposite instanceof WorkspaceSidedock ? opposite : undefined;
+		} else if (parent === this.app.workspace.rightSplit) {
+			const opposite = this.app.workspace.leftSplit;
+			return opposite instanceof WorkspaceSidedock ? opposite : undefined;
+		} else {
+			return undefined;
+		}
+	}
+
 	private createSortOrderEls(): void {
 		// create element
 		this.sortOrderContainerEl = createEl('div', {
@@ -196,7 +251,6 @@ export class SearchComponentInterface extends Component {
 		if (!leaf) {
 			return undefined;
 		}
-
 		const view = leaf.view;
 		return isSearchView(view) ? view : undefined;
 	}
