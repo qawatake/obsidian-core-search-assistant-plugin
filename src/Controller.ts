@@ -12,7 +12,6 @@ import { WorkspacePreview } from 'components/WorkspacePreview';
 import { CardView } from 'components/CardView';
 import { ModeScope } from 'ModeScope';
 import { SearchComponentInterface } from 'interfaces/SearchComponentInterface';
-import { delay } from 'utils/Util';
 
 const DELAY_TO_RELOAD_IN_MILLISECOND = 1000;
 
@@ -129,11 +128,9 @@ export class Controller extends Component {
 		this.plugin.searchInterface?.collapseSidedock();
 	}
 
-	private async collapseOppositeSidedock() {
+	private collapseOppositeSidedock() {
 		const collapsed =
 			this.plugin.searchInterface?.oppositeSidedock?.collapsed;
-		// too fast to fetch information about collapsed
-		await delay(100);
 		this.plugin.searchInterface?.collapseOppositeSidedock();
 		this._restoreOppositeSidedock = () => {
 			if (collapsed === false) {
