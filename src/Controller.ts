@@ -1,6 +1,7 @@
 import {
 	CoreSearchAssistantEvents,
 	EVENT_SEARCH_RESULT_ITEM_DETECTED,
+	EVENT_SORT_ORDER_CHANGED,
 } from 'Events';
 import CoreSearchAssistantPlugin from 'main';
 import { App, Component, Scope, SplitDirection } from 'obsidian';
@@ -42,13 +43,14 @@ export class Controller extends Component {
 	constructor(
 		app: App,
 		plugin: CoreSearchAssistantPlugin,
+		events: CoreSearchAssistantEvents,
 		searchInterface: SearchComponentInterface
 	) {
 		super();
 		this.app = app;
 		this.plugin = plugin;
+		this.events = events;
 		this.searchInterface = searchInterface;
-		this.events = new CoreSearchAssistantEvents();
 		this.modeScope = new ModeScope();
 
 		// state variables
@@ -367,6 +369,10 @@ export class Controller extends Component {
 			)
 		);
 
+		this.registerEvent(
+			this.events.on(EVENT_SORT_ORDER_CHANGED, this.onSortOrderChanged)
+		);
+
 		this.app.workspace.onLayoutReady(async () => {
 			const appContainerEl = await retry(
 				() => this.app.dom.appContainerEl,
@@ -508,7 +514,12 @@ export class Controller extends Component {
 			this.openPreviewModal();
 		});
 		scope.register(['Shift'], ' ', () => {
-			new OptionModal(this.app, this.plugin, this.modeScope).open();
+			new OptionModal(
+				this.app,
+				this.plugin,
+				this.modeScope,
+				this.events
+			).open();
 		});
 		scope.register([], 'Escape', () => {
 			this.exit();
@@ -550,6 +561,15 @@ export class Controller extends Component {
 				this.retryCardView(DELAY_TO_RELOAD_IN_MILLISECOND);
 			}
 			this.countSearchItemDetected++;
+		};
+	}
+
+	private get onSortOrderChanged(): () => void {
+		return () => {
+			this.reset();
+			if (this.plugin.settings?.autoPreviewMode === 'cardView') {
+				this.renewCardViewPage();
+			}
 		};
 	}
 }
