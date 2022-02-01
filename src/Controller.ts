@@ -76,6 +76,7 @@ export class Controller extends Component {
 
 		if (this.plugin.settings?.autoPreviewMode === 'cardView') {
 			this.searchInterface.startWatching(this.events);
+			this.renewCardViewPage();
 		}
 
 		this.modeScope.push();
