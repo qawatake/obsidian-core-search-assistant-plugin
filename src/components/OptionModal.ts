@@ -1,4 +1,3 @@
-import { CoreSearchAssistantEvents } from 'Events';
 import CoreSearchAssistantPlugin from 'main';
 import { ModeScope } from 'ModeScope';
 import { App, Modal, setIcon } from 'obsidian';
@@ -18,8 +17,7 @@ export class OptionModal extends Modal {
 	constructor(
 		app: App,
 		plugin: CoreSearchAssistantPlugin,
-		modeScope: ModeScope,
-		events: CoreSearchAssistantEvents
+		modeScope: ModeScope
 	) {
 		super(app);
 		this.plugin = plugin;
@@ -31,8 +29,8 @@ export class OptionModal extends Modal {
 				key: 'a',
 				onChoose: () => {
 					this.plugin.searchInterface?.toggleMatchingCase();
-					this.plugin.searchInterface?.renewSortOrderInfo(events);
-					// this.plugin.controller?.reset();
+					this.plugin.searchInterface?.renewSortOrderInfo();
+					this.plugin.controller?.reset();
 					// renewCardPageView is not needed because the internal plugin definitely reloads
 				},
 			},
@@ -66,8 +64,8 @@ export class OptionModal extends Modal {
 							'alphabetical'
 						);
 					if (changed) {
-						this.plugin.searchInterface?.renewSortOrderInfo(events);
-						// this.plugin.controller?.reset();
+						this.plugin.searchInterface?.renewSortOrderInfo();
+						this.plugin.controller?.reset();
 					}
 				},
 			},
@@ -79,8 +77,8 @@ export class OptionModal extends Modal {
 						'alphabeticalReverse'
 					);
 					if (changed) {
-						this.plugin.searchInterface?.renewSortOrderInfo(events);
-						// this.plugin.controller?.reset();
+						this.plugin.searchInterface?.renewSortOrderInfo();
+						this.plugin.controller?.reset();
 					}
 				},
 			},
@@ -93,8 +91,8 @@ export class OptionModal extends Modal {
 							'byModifiedTime'
 						);
 					if (changed) {
-						this.plugin.searchInterface?.renewSortOrderInfo(events);
-						// this.plugin.controller?.reset();
+						this.plugin.searchInterface?.renewSortOrderInfo();
+						this.plugin.controller?.reset();
 					}
 				},
 			},
@@ -106,8 +104,8 @@ export class OptionModal extends Modal {
 						'byModifiedTimeReverse'
 					);
 					if (changed) {
-						this.plugin.searchInterface?.renewSortOrderInfo(events);
-						// this.plugin.controller?.reset();
+						this.plugin.searchInterface?.renewSortOrderInfo();
+						this.plugin.controller?.reset();
 					}
 				},
 			},
@@ -120,8 +118,8 @@ export class OptionModal extends Modal {
 							'byCreatedTime'
 						);
 					if (changed) {
-						this.plugin.searchInterface?.renewSortOrderInfo(events);
-						// this.plugin.controller?.reset();
+						this.plugin.searchInterface?.renewSortOrderInfo();
+						this.plugin.controller?.reset();
 					}
 				},
 			},
@@ -133,8 +131,8 @@ export class OptionModal extends Modal {
 						'byCreatedTimeReverse'
 					);
 					if (changed) {
-						this.plugin.searchInterface?.renewSortOrderInfo(events);
-						// this.plugin.controller?.reset();
+						this.plugin.searchInterface?.renewSortOrderInfo();
+						this.plugin.controller?.reset();
 					}
 				},
 			},

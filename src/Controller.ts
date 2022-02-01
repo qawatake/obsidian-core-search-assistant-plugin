@@ -514,12 +514,7 @@ export class Controller extends Component {
 			this.openPreviewModal();
 		});
 		scope.register(['Shift'], ' ', () => {
-			new OptionModal(
-				this.app,
-				this.plugin,
-				this.modeScope,
-				this.events
-			).open();
+			new OptionModal(this.app, this.plugin, this.modeScope).open();
 		});
 		scope.register([], 'Escape', () => {
 			this.exit();
