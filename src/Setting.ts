@@ -31,7 +31,7 @@ export const DEFAULT_SETTINGS: CoreSearchAssistantPluginSettings = {
 	autoPreviewMode: 'cardView',
 	cardViewLayout: '2x3',
 	splitDirection: 'horizontal',
-	autoToggleSidebar: true,
+	autoToggleSidebar: false,
 	hideIframe: false,
 };
 
