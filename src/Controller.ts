@@ -82,6 +82,9 @@ export class Controller extends Component {
 	}
 
 	reset() {
+		if (!this.modeScope.inSearchMode) {
+			return;
+		}
 		this.forget();
 		this.unfocus();
 		this.cardView?.clear();
@@ -364,6 +367,15 @@ export class Controller extends Component {
 		);
 
 		this.app.workspace.onLayoutReady(async () => {
+			const appContainerEl = await retry(
+				() => this.app.dom.appContainerEl,
+				RETRY_INTERVAL,
+				RETRY_TRIALS
+			);
+			if (appContainerEl === undefined) {
+				throw '[ERROR in Core Search Assistant] failed to find the app container element';
+			}
+
 			const inputEl = await retry(
 				() => this.plugin.searchInterface?.searchInputEl,
 				RETRY_INTERVAL,
@@ -382,13 +394,43 @@ export class Controller extends Component {
 				throw '[ERROR in Core Search Assistant] failed to find the search panel.';
 			}
 
-			this.registerDomEvent(document, 'click', () => {
+			// this is not contained in the searchPanelEl
+			const tabHeaderEl = await retry(
+				() => this.plugin.searchInterface?.tabHeaderEl,
+				RETRY_INTERVAL,
+				RETRY_TRIALS
+			);
+			if (tabHeaderEl === undefined) {
+				throw '[ERROR in Core Search Assistant] failed to find the tab header.';
+			}
+
+			// card view should refresh
+			const matchingCaseButtonEl = await retry(
+				() => this.plugin.searchInterface?.matchingCaseButtonEl,
+				RETRY_INTERVAL,
+				RETRY_TRIALS
+			);
+			if (matchingCaseButtonEl === undefined) {
+				throw '[ERROR in Core Search Assistant] failed to find the matching case button.';
+			}
+
+			// by using appContainerEl instead of document, can ignore menu element appearing when changeSortOrderEl clicked
+			this.registerDomEvent(appContainerEl, 'click', () => {
 				if (this.modeScope.depth === 1) {
 					this.exit();
 				}
 			});
 			this.registerDomEvent(searchPanelEl, 'click', (evt) => {
 				evt.stopPropagation();
+			});
+			this.registerDomEvent(tabHeaderEl, 'click', (evt) => {
+				evt.stopPropagation();
+			});
+			this.registerDomEvent(matchingCaseButtonEl, 'click', (evt) => {
+				evt.stopPropagation();
+				if (this.modeScope.inSearchMode) {
+					this.reset();
+				}
 			});
 			this.registerDomEvent(inputEl, 'click', (evt) => {
 				evt.stopPropagation();

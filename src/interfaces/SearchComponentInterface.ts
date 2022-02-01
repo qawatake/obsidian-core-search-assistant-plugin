@@ -246,6 +246,24 @@ export class SearchComponentInterface extends Component {
 		this.sortOrderContainerEl.insertAfter(view.searchInfoEl);
 	}
 
+	get matchingCaseButtonEl(): HTMLElement | undefined {
+		return this.searchView?.matchingCaseButtonEl;
+	}
+
+	get tabHeaderEl(): HTMLElement | undefined {
+		return this.searchLeaf?.tabHeaderEl;
+	}
+
+	// get changeSortOrderButtonEl(): HTMLElement | undefined {
+	// 	const changeSortOrderButtonEl =
+	// 		this.searchView?.headerDom.navButtonsEl.querySelector(
+	// 			'div.nav-action-button[aria-label="Change sort order"]'
+	// 		);
+	// 	return changeSortOrderButtonEl instanceof HTMLElement
+	// 		? changeSortOrderButtonEl
+	// 		: undefined;
+	// }
+
 	private get searchView(): SearchView | undefined {
 		const leaf = this.searchLeaf;
 		if (!leaf) {
