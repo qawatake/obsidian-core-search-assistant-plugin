@@ -255,7 +255,7 @@ export class SearchComponentInterface extends Component {
 		return isSearchView(view) ? view : undefined;
 	}
 
-	private get searchLeaf(): WorkspaceLeaf | undefined {
+	get searchLeaf(): WorkspaceLeaf | undefined {
 		return this.app.workspace.getLeavesOfType('search')[0];
 	}
 

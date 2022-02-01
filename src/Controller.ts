@@ -328,7 +328,6 @@ export class Controller extends Component {
 	 */
 	private saveLayout() {
 		this.app.workspace.onLayoutReady(async () => {
-			// const inputEl = this.searchInterface.searchInputEl;
 			const inputEl = await retry(
 				() => this.searchInterface.searchInputEl,
 				RETRY_INTERVAL,
@@ -361,7 +360,6 @@ export class Controller extends Component {
 		);
 
 		this.app.workspace.onLayoutReady(async () => {
-			// const inputEl = this.searchInterface.searchInputEl;
 			const inputEl = await retry(
 				() => this.plugin.searchInterface?.searchInputEl,
 				RETRY_INTERVAL,
@@ -371,10 +369,22 @@ export class Controller extends Component {
 				throw '[ERROR in Core Search Assistant] failed to find the search input form.';
 			}
 
+			const searchPanelEl = await retry(
+				() => this.plugin.searchInterface?.searchLeaf?.containerEl,
+				RETRY_INTERVAL,
+				RETRY_TRIALS
+			);
+			if (searchPanelEl === undefined) {
+				throw '[ERROR in Core Search Assistant] failed to find the search panel.';
+			}
+
 			this.registerDomEvent(document, 'click', () => {
 				if (this.modeScope.depth === 1) {
 					this.exit();
 				}
+			});
+			this.registerDomEvent(searchPanelEl, 'click', (evt) => {
+				evt.stopPropagation();
 			});
 			this.registerDomEvent(inputEl, 'click', (evt) => {
 				evt.stopPropagation();
