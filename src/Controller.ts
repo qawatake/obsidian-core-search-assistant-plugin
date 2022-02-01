@@ -12,8 +12,11 @@ import { WorkspacePreview } from 'components/WorkspacePreview';
 import { CardView } from 'components/CardView';
 import { ModeScope } from 'ModeScope';
 import { SearchComponentInterface } from 'interfaces/SearchComponentInterface';
+import { retry } from 'utils/Util';
 
 const DELAY_TO_RELOAD_IN_MILLISECOND = 1000;
+const RETRY_INTERVAL = 1;
+const RETRY_TRIALS = 1000;
 
 export class Controller extends Component {
 	private readonly app: App;
@@ -33,7 +36,7 @@ export class Controller extends Component {
 
 	// closures
 	private _detachHotkeys: (() => void) | undefined;
-	private _layoutChanged: (() => boolean) | undefined;
+	private _layoutChanged: (() => Promise<boolean>) | undefined;
 	private _restoreOppositeSidedock: (() => void) | undefined;
 
 	constructor(
@@ -324,15 +327,25 @@ export class Controller extends Component {
 	 * @returns callback which returns
 	 */
 	private saveLayout() {
-		this.app.workspace.onLayoutReady(() => {
-			const inputEl = this.searchInterface.searchInputEl;
-			this._layoutChanged = () =>
-				inputEl !== this.searchInterface.searchInputEl;
+		this.app.workspace.onLayoutReady(async () => {
+			// const inputEl = this.searchInterface.searchInputEl;
+			const inputEl = await retry(
+				() => this.searchInterface.searchInputEl,
+				RETRY_INTERVAL,
+				RETRY_TRIALS
+			);
+			this._layoutChanged = async () =>
+				inputEl !==
+				(await retry(
+					() => this.searchInterface.searchInputEl,
+					RETRY_INTERVAL,
+					RETRY_TRIALS
+				));
 		});
 	}
 
-	get layoutChanged(): boolean {
-		const required = this._layoutChanged?.();
+	async layoutChanged(): Promise<boolean> {
+		const required = await this._layoutChanged?.();
 		if (required === undefined) {
 			throw '[ERROR in Core Search Assistant] failed to renewRequired: saveLayout was not called.';
 		}
@@ -347,9 +360,13 @@ export class Controller extends Component {
 			)
 		);
 
-		this.app.workspace.onLayoutReady(() => {
-			const inputEl = this.searchInterface.searchInputEl;
-
+		this.app.workspace.onLayoutReady(async () => {
+			// const inputEl = this.searchInterface.searchInputEl;
+			const inputEl = await retry(
+				() => this.plugin.searchInterface?.searchInputEl,
+				RETRY_INTERVAL,
+				RETRY_TRIALS
+			);
 			if (inputEl === undefined) {
 				throw '[ERROR in Core Search Assistant] failed to find the search input form.';
 			}
