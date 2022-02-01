@@ -62,6 +62,9 @@ export class Controller extends Component {
 	}
 
 	enter() {
+		if (this.modeScope.inSearchMode) {
+			return;
+		}
 		this.setHotkeys();
 		this.addChildren();
 		this.collapseOppositeSidedock();
@@ -352,11 +355,9 @@ export class Controller extends Component {
 			}
 
 			this.registerDomEvent(document, 'click', () => {
-				if (this.modeScope.depth > 1) {
-					return;
+				if (this.modeScope.depth === 1) {
+					this.exit();
 				}
-
-				this.exit();
 			});
 			this.registerDomEvent(inputEl, 'click', (evt) => {
 				evt.stopPropagation();
