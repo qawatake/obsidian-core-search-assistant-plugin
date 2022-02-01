@@ -70,7 +70,9 @@ export class Controller extends Component {
 		}
 		this.setHotkeys();
 		this.addChildren();
-		this.collapseOppositeSidedock();
+		if (this.plugin.settings?.autoToggleSidebar) {
+			this.collapseOppositeSidedock();
+		}
 
 		if (this.plugin.settings?.autoPreviewMode === 'cardView') {
 			this.searchInterface.startWatching(this.events);
@@ -92,8 +94,10 @@ export class Controller extends Component {
 		}
 		this.detachHotkeys();
 		this.removeChildren();
-		this.collapseSidedock();
-		this.restoreOppositeSidedock();
+		if (this.plugin.settings?.autoToggleSidebar) {
+			this.collapseSidedock();
+			this.restoreOppositeSidedock();
+		}
 
 		this.countSearchItemDetected = 0;
 		this.searchInterface.stopWatching();
