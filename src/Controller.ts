@@ -392,25 +392,6 @@ export class Controller extends Component {
 				throw '[ERROR in Core Search Assistant] failed to find the search input form.';
 			}
 
-			const searchPanelEl = await retry(
-				() => this.plugin.searchInterface?.searchLeaf?.containerEl,
-				RETRY_INTERVAL,
-				RETRY_TRIALS
-			);
-			if (searchPanelEl === undefined) {
-				throw '[ERROR in Core Search Assistant] failed to find the search panel.';
-			}
-
-			// this is not contained in the searchPanelEl
-			const tabHeaderEl = await retry(
-				() => this.plugin.searchInterface?.tabHeaderEl,
-				RETRY_INTERVAL,
-				RETRY_TRIALS
-			);
-			if (tabHeaderEl === undefined) {
-				throw '[ERROR in Core Search Assistant] failed to find the tab header.';
-			}
-
 			// card view should refresh
 			const matchingCaseButtonEl = await retry(
 				() => this.plugin.searchInterface?.matchingCaseButtonEl,
@@ -422,25 +403,35 @@ export class Controller extends Component {
 			}
 
 			// by using appContainerEl instead of document, can ignore menu element appearing when changeSortOrderEl clicked
-			this.registerDomEvent(appContainerEl, 'click', () => {
+			this.registerDomEvent(appContainerEl, 'click', (evt) => {
+				const targetEl = evt.target;
+				if (!(targetEl instanceof HTMLElement)) {
+					return;
+				}
+				// search panel
+				if (
+					this.plugin.searchInterface?.searchLeaf?.containerEl.contains(
+						targetEl
+					)
+				) {
+					return;
+				}
+				// search tab header
+				if (
+					this.plugin.searchInterface?.tabHeaderEl?.contains(targetEl)
+				) {
+					return;
+				}
 				if (this.modeScope.depth === 1) {
 					this.exit();
 				}
 			});
-			this.registerDomEvent(searchPanelEl, 'click', (evt) => {
-				evt.stopPropagation();
-			});
-			this.registerDomEvent(tabHeaderEl, 'click', (evt) => {
-				evt.stopPropagation();
-			});
-			this.registerDomEvent(matchingCaseButtonEl, 'click', (evt) => {
-				evt.stopPropagation();
+			this.registerDomEvent(matchingCaseButtonEl, 'click', () => {
 				if (this.modeScope.inSearchMode) {
 					this.reset();
 				}
 			});
-			this.registerDomEvent(inputEl, 'click', (evt) => {
-				evt.stopPropagation();
+			this.registerDomEvent(inputEl, 'click', () => {
 				if (!this.modeScope.inSearchMode) {
 					this.enter();
 				}
@@ -568,3 +559,27 @@ export class Controller extends Component {
 		};
 	}
 }
+
+// type SearchModeExitReason =
+// 	| SearchModeExitByMouse
+// 	| SearchModeExitByKeyboard
+// 	| SearchModeExitOnOpeningFile
+// 	| SearchModeExitUnknownReason;
+
+// interface SearchModeExitByMouse {
+// 	id: 'mouse';
+// 	event: MouseEvent;
+// }
+
+// interface SearchModeExitByKeyboard {
+// 	id: 'keyboard';
+// 	event: KeyboardEvent;
+// }
+
+// interface SearchModeExitOnOpeningFile {
+// 	id: 'file';
+// }
+
+// interface SearchModeExitUnknownReason {
+// 	id: 'unknown';
+// }
