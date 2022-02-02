@@ -94,14 +94,17 @@ export class Controller extends Component {
 		this.countSearchItemDetected = 0;
 	}
 
-	exit() {
+	exit(reason?: SearchModeExitReason) {
 		if (!this.modeScope.inSearchMode) {
 			return;
 		}
 		this.detachHotkeys();
 		this.removeChildren();
-		if (this.plugin.settings?.autoToggleSidebar) {
+
+		if (this.shouldCollapseSidedock(reason)) {
 			this.collapseSidedock();
+		}
+		if (this.plugin.settings?.autoToggleSidebar) {
 			this.restoreOppositeSidedock();
 		}
 
@@ -423,7 +426,7 @@ export class Controller extends Component {
 					return;
 				}
 				if (this.modeScope.depth === 1) {
-					this.exit();
+					this.exit({ id: 'mouse', event: evt });
 				}
 			});
 			this.registerDomEvent(matchingCaseButtonEl, 'click', () => {
@@ -558,28 +561,45 @@ export class Controller extends Component {
 			}
 		};
 	}
+
+	private shouldCollapseSidedock(reason?: SearchModeExitReason): boolean {
+		if (!this.plugin.settings?.autoToggleSidebar) {
+			return false;
+		}
+		if (reason === undefined) {
+			return true;
+		}
+		if (reason.id !== 'mouse') {
+			return true;
+		}
+		const targetEl = reason.event.target;
+		if (!(targetEl instanceof HTMLElement)) {
+			return true;
+		}
+		return !this.searchInterface.sideDock?.containerEl.contains(targetEl);
+	}
 }
 
-// type SearchModeExitReason =
-// 	| SearchModeExitByMouse
-// 	| SearchModeExitByKeyboard
-// 	| SearchModeExitOnOpeningFile
-// 	| SearchModeExitUnknownReason;
+type SearchModeExitReason =
+	| SearchModeExitByMouse
+	| SearchModeExitByKeyboard
+	| SearchModeExitOnOpeningFile
+	| SearchModeExitUnknownReason;
 
-// interface SearchModeExitByMouse {
-// 	id: 'mouse';
-// 	event: MouseEvent;
-// }
+interface SearchModeExitByMouse {
+	id: 'mouse';
+	event: MouseEvent;
+}
 
-// interface SearchModeExitByKeyboard {
-// 	id: 'keyboard';
-// 	event: KeyboardEvent;
-// }
+interface SearchModeExitByKeyboard {
+	id: 'keyboard';
+	event: KeyboardEvent;
+}
 
-// interface SearchModeExitOnOpeningFile {
-// 	id: 'file';
-// }
+interface SearchModeExitOnOpeningFile {
+	id: 'file';
+}
 
-// interface SearchModeExitUnknownReason {
-// 	id: 'unknown';
-// }
+interface SearchModeExitUnknownReason {
+	id: 'unknown';
+}

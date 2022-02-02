@@ -218,7 +218,7 @@ export class SearchComponentInterface extends Component {
 		sideDock.collapse();
 	}
 
-	private get sideDock(): WorkspaceSidedock | undefined {
+	get sideDock(): WorkspaceSidedock | undefined {
 		const leaf = this.searchLeaf;
 		if (leaf === undefined) {
 			return undefined;
