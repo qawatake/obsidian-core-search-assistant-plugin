@@ -1,6 +1,7 @@
 import {
 	CoreSearchAssistantEvents,
 	EVENT_SEARCH_RESULT_ITEM_DETECTED,
+	EVENT_SORT_ORDER_CHANGED,
 } from 'Events';
 import CoreSearchAssistantPlugin from 'main';
 import { App, Component, Scope, SplitDirection } from 'obsidian';
@@ -12,8 +13,11 @@ import { WorkspacePreview } from 'components/WorkspacePreview';
 import { CardView } from 'components/CardView';
 import { ModeScope } from 'ModeScope';
 import { SearchComponentInterface } from 'interfaces/SearchComponentInterface';
+import { retry } from 'utils/Util';
 
 const DELAY_TO_RELOAD_IN_MILLISECOND = 1000;
+const RETRY_INTERVAL = 1;
+const RETRY_TRIALS = 1000;
 
 export class Controller extends Component {
 	private readonly app: App;
@@ -33,18 +37,20 @@ export class Controller extends Component {
 
 	// closures
 	private _detachHotkeys: (() => void) | undefined;
-	private _layoutChanged: (() => boolean) | undefined;
+	private _layoutChanged: (() => Promise<boolean>) | undefined;
+	private _restoreOppositeSidedock: (() => void) | undefined;
 
 	constructor(
 		app: App,
 		plugin: CoreSearchAssistantPlugin,
+		events: CoreSearchAssistantEvents,
 		searchInterface: SearchComponentInterface
 	) {
 		super();
 		this.app = app;
 		this.plugin = plugin;
+		this.events = events;
 		this.searchInterface = searchInterface;
-		this.events = new CoreSearchAssistantEvents();
 		this.modeScope = new ModeScope();
 
 		// state variables
@@ -61,26 +67,46 @@ export class Controller extends Component {
 	}
 
 	enter() {
+		if (this.modeScope.inSearchMode) {
+			return;
+		}
 		this.setHotkeys();
 		this.addChildren();
+		if (this.plugin.settings?.autoToggleSidebar) {
+			this.collapseOppositeSidedock();
+		}
 
 		if (this.plugin.settings?.autoPreviewMode === 'cardView') {
 			this.searchInterface.startWatching(this.events);
+			this.renewCardViewPage();
 		}
 
 		this.modeScope.push();
 	}
 
 	reset() {
+		if (!this.modeScope.inSearchMode) {
+			return;
+		}
 		this.forget();
 		this.unfocus();
 		this.cardView?.clear();
 		this.countSearchItemDetected = 0;
 	}
 
-	exit() {
+	exit(reason?: SearchModeExitReason) {
+		if (!this.modeScope.inSearchMode) {
+			return;
+		}
 		this.detachHotkeys();
 		this.removeChildren();
+
+		if (this.shouldCollapseSidedock(reason)) {
+			this.collapseSidedock();
+		}
+		if (this.plugin.settings?.autoToggleSidebar) {
+			this.restoreOppositeSidedock();
+		}
 
 		this.countSearchItemDetected = 0;
 		this.searchInterface.stopWatching();
@@ -115,6 +141,29 @@ export class Controller extends Component {
 		this.cardView?.clear();
 		this.cardView?.renderPage(this.currentFocusId ?? 0);
 		this.cardView?.reveal();
+	}
+
+	private collapseSidedock() {
+		this.plugin.searchInterface?.collapseSidedock();
+	}
+
+	private collapseOppositeSidedock() {
+		const collapsed =
+			this.plugin.searchInterface?.oppositeSidedock?.collapsed;
+		this.plugin.searchInterface?.collapseOppositeSidedock();
+		this._restoreOppositeSidedock = () => {
+			if (collapsed === false) {
+				this.plugin.searchInterface?.expandOppositeSidedock();
+			}
+		};
+	}
+
+	private restoreOppositeSidedock() {
+		const restoreOppositeSidedock = this._restoreOppositeSidedock;
+		if (restoreOppositeSidedock === undefined) {
+			return undefined;
+		}
+		return restoreOppositeSidedock();
 	}
 
 	private addChildren() {
@@ -291,15 +340,24 @@ export class Controller extends Component {
 	 * @returns callback which returns
 	 */
 	private saveLayout() {
-		this.app.workspace.onLayoutReady(() => {
-			const inputEl = this.searchInterface.searchInputEl;
-			this._layoutChanged = () =>
-				inputEl !== this.searchInterface.searchInputEl;
+		this.app.workspace.onLayoutReady(async () => {
+			const inputEl = await retry(
+				() => this.searchInterface.searchInputEl,
+				RETRY_INTERVAL,
+				RETRY_TRIALS
+			);
+			this._layoutChanged = async () =>
+				inputEl !==
+				(await retry(
+					() => this.searchInterface.searchInputEl,
+					RETRY_INTERVAL,
+					RETRY_TRIALS
+				));
 		});
 	}
 
-	get layoutChanged(): boolean {
-		const required = this._layoutChanged?.();
+	async layoutChanged(): Promise<boolean> {
+		const required = await this._layoutChanged?.();
 		if (required === undefined) {
 			throw '[ERROR in Core Search Assistant] failed to renewRequired: saveLayout was not called.';
 		}
@@ -314,22 +372,69 @@ export class Controller extends Component {
 			)
 		);
 
-		this.app.workspace.onLayoutReady(() => {
-			const inputEl = this.searchInterface.searchInputEl;
+		this.registerEvent(
+			this.events.on(EVENT_SORT_ORDER_CHANGED, this.onSortOrderChanged)
+		);
 
+		this.app.workspace.onLayoutReady(async () => {
+			const appContainerEl = await retry(
+				() => this.app.dom.appContainerEl,
+				RETRY_INTERVAL,
+				RETRY_TRIALS
+			);
+			if (appContainerEl === undefined) {
+				throw '[ERROR in Core Search Assistant] failed to find the app container element';
+			}
+
+			const inputEl = await retry(
+				() => this.plugin.searchInterface?.searchInputEl,
+				RETRY_INTERVAL,
+				RETRY_TRIALS
+			);
 			if (inputEl === undefined) {
 				throw '[ERROR in Core Search Assistant] failed to find the search input form.';
 			}
 
-			this.registerDomEvent(document, 'click', () => {
-				if (this.modeScope.depth > 1) {
+			// card view should refresh
+			const matchingCaseButtonEl = await retry(
+				() => this.plugin.searchInterface?.matchingCaseButtonEl,
+				RETRY_INTERVAL,
+				RETRY_TRIALS
+			);
+			if (matchingCaseButtonEl === undefined) {
+				throw '[ERROR in Core Search Assistant] failed to find the matching case button.';
+			}
+
+			// by using appContainerEl instead of document, can ignore menu element appearing when changeSortOrderEl clicked
+			this.registerDomEvent(appContainerEl, 'click', (evt) => {
+				const targetEl = evt.target;
+				if (!(targetEl instanceof HTMLElement)) {
 					return;
 				}
-
-				this.exit();
+				// search panel
+				if (
+					this.plugin.searchInterface?.searchLeaf?.containerEl.contains(
+						targetEl
+					)
+				) {
+					return;
+				}
+				// search tab header
+				if (
+					this.plugin.searchInterface?.tabHeaderEl?.contains(targetEl)
+				) {
+					return;
+				}
+				if (this.modeScope.depth === 1) {
+					this.exit({ id: 'mouse', event: evt });
+				}
 			});
-			this.registerDomEvent(inputEl, 'click', (evt) => {
-				evt.stopPropagation();
+			this.registerDomEvent(matchingCaseButtonEl, 'click', () => {
+				if (this.modeScope.inSearchMode) {
+					this.reset();
+				}
+			});
+			this.registerDomEvent(inputEl, 'click', () => {
 				if (!this.modeScope.inSearchMode) {
 					this.enter();
 				}
@@ -447,4 +552,54 @@ export class Controller extends Component {
 			this.countSearchItemDetected++;
 		};
 	}
+
+	private get onSortOrderChanged(): () => void {
+		return () => {
+			this.reset();
+			if (this.plugin.settings?.autoPreviewMode === 'cardView') {
+				this.renewCardViewPage();
+			}
+		};
+	}
+
+	private shouldCollapseSidedock(reason?: SearchModeExitReason): boolean {
+		if (!this.plugin.settings?.autoToggleSidebar) {
+			return false;
+		}
+		if (reason === undefined) {
+			return true;
+		}
+		if (reason.id !== 'mouse') {
+			return true;
+		}
+		const targetEl = reason.event.target;
+		if (!(targetEl instanceof HTMLElement)) {
+			return true;
+		}
+		return !this.searchInterface.sideDock?.containerEl.contains(targetEl);
+	}
+}
+
+type SearchModeExitReason =
+	| SearchModeExitByMouse
+	| SearchModeExitByKeyboard
+	| SearchModeExitOnOpeningFile
+	| SearchModeExitUnknownReason;
+
+interface SearchModeExitByMouse {
+	id: 'mouse';
+	event: MouseEvent;
+}
+
+interface SearchModeExitByKeyboard {
+	id: 'keyboard';
+	event: KeyboardEvent;
+}
+
+interface SearchModeExitOnOpeningFile {
+	id: 'file';
+}
+
+interface SearchModeExitUnknownReason {
+	id: 'unknown';
 }

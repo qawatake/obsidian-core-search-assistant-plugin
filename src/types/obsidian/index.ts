@@ -5,6 +5,11 @@ export * from 'obsidian';
 declare module 'obsidian' {
 	interface App {
 		hotkeyManager: HotkeyManager;
+		dom: AppDom;
+	}
+
+	interface AppDom {
+		appContainerEl: HTMLElement;
 	}
 
 	interface Vault {
@@ -17,6 +22,7 @@ declare module 'obsidian' {
 
 	interface WorkspaceLeaf {
 		containerEl: HTMLElement;
+		tabHeaderEl: HTMLElement;
 	}
 
 	interface WorkspaceSidedock {
@@ -45,6 +51,7 @@ declare module 'obsidian' {
 		dom: SearchDom;
 
 		searchInfoEl: HTMLElement;
+		matchingCaseButtonEl: HTMLElement;
 
 		searchComponent: SearchComponent;
 		headerDom: SearchHeaderDom;

@@ -8,15 +8,21 @@ import {
 	SortOrderInSearch,
 	SplitDirection,
 	WorkspaceLeaf,
+	WorkspaceSidedock,
 } from 'obsidian';
 import { isSearchView } from 'types/Guards';
 import { searchOptions } from 'types/Option';
 import { LinkedList } from 'utils/LinkedList';
-import { EVENT_SEARCH_RESULT_ITEM_DETECTED } from 'Events';
+import {
+	CoreSearchAssistantEvents,
+	EVENT_SEARCH_RESULT_ITEM_DETECTED,
+	EVENT_SORT_ORDER_CHANGED,
+} from 'Events';
 
 export class SearchComponentInterface extends Component {
 	private readonly app: App;
 	private readonly plugin: CoreSearchAssistantPlugin;
+	private readonly events: CoreSearchAssistantEvents;
 	private sortOrderContainerEl: HTMLElement | undefined;
 	private sortOrderContentEl: HTMLElement | undefined;
 
@@ -27,10 +33,15 @@ export class SearchComponentInterface extends Component {
 	};
 	private linkedList: LinkedList<HTMLElement> | undefined;
 
-	constructor(app: App, plugin: CoreSearchAssistantPlugin) {
+	constructor(
+		app: App,
+		plugin: CoreSearchAssistantPlugin,
+		events: CoreSearchAssistantEvents
+	) {
 		super();
 		this.app = app;
 		this.plugin = plugin;
+		this.events = events;
 
 		this.observer = new MutationObserver(
 			this.onObservedCallback.bind(this)
@@ -43,7 +54,7 @@ export class SearchComponentInterface extends Component {
 			this.renewSortOrderInfo();
 
 			this.registerDomEvent(document, 'click', () => {
-				this.renewSortOrderInfo();
+				this.renewSortOrderInfo(this.events);
 				// this.plugin.controller?.reset(); // it unexpectedly reloads when clicking close button of modals
 			});
 		});
@@ -122,7 +133,7 @@ export class SearchComponentInterface extends Component {
 		this.app.workspace.setActiveLeaf(leaf, true, true);
 	}
 
-	renewSortOrderInfo(): void {
+	renewSortOrderInfo(events?: CoreSearchAssistantEvents): void {
 		if (!this.sortOrderContainerEl) {
 			this.createSortOrderEls();
 		}
@@ -134,8 +145,15 @@ export class SearchComponentInterface extends Component {
 		if (!this.sortOrderContentEl) {
 			return;
 		}
+		const originalContent = this.sortOrderContentEl.textContent;
 		this.sortOrderContentEl.textContent =
 			searchOptions[sortOrder].description;
+		if (
+			events !== undefined &&
+			originalContent !== this.sortOrderContentEl.textContent
+		) {
+			events.trigger(EVENT_SORT_ORDER_CHANGED);
+		}
 	}
 
 	count(): number {
@@ -176,6 +194,60 @@ export class SearchComponentInterface extends Component {
 		this.observer.disconnect();
 	}
 
+	collapseOppositeSidedock() {
+		const sideDock = this.oppositeSidedock;
+		if (sideDock === undefined) {
+			throw '[ERROR in Core Search Assistant] failed to collapseOppositeSidedock: failed to fetch the opposite sidedock';
+		}
+		sideDock.collapse();
+	}
+
+	expandOppositeSidedock() {
+		const sideDock = this.oppositeSidedock;
+		if (sideDock === undefined) {
+			throw '[ERROR in Core Search Assistant] failed to expandOppositeSidedock: failed to fetch the opposite sidedock';
+		}
+		sideDock.expand();
+	}
+
+	collapseSidedock() {
+		const sideDock = this.sideDock;
+		if (sideDock === undefined) {
+			throw '[ERROR in Core Search Assistant] failed to collapseSidedock: failed to fetch the sidedock';
+		}
+		sideDock.collapse();
+	}
+
+	get sideDock(): WorkspaceSidedock | undefined {
+		const leaf = this.searchLeaf;
+		if (leaf === undefined) {
+			return undefined;
+		}
+		const parent = leaf.getRoot();
+		if (parent instanceof WorkspaceSidedock) {
+			return parent;
+		} else {
+			return undefined;
+		}
+	}
+
+	get oppositeSidedock(): WorkspaceSidedock | undefined {
+		const leaf = this.searchLeaf;
+		if (leaf === undefined) {
+			return undefined;
+		}
+		const parent = leaf.getRoot();
+		if (parent === this.app.workspace.leftSplit) {
+			const opposite = this.app.workspace.rightSplit;
+			return opposite instanceof WorkspaceSidedock ? opposite : undefined;
+		} else if (parent === this.app.workspace.rightSplit) {
+			const opposite = this.app.workspace.leftSplit;
+			return opposite instanceof WorkspaceSidedock ? opposite : undefined;
+		} else {
+			return undefined;
+		}
+	}
+
 	private createSortOrderEls(): void {
 		// create element
 		this.sortOrderContainerEl = createEl('div', {
@@ -191,17 +263,34 @@ export class SearchComponentInterface extends Component {
 		this.sortOrderContainerEl.insertAfter(view.searchInfoEl);
 	}
 
+	get matchingCaseButtonEl(): HTMLElement | undefined {
+		return this.searchView?.matchingCaseButtonEl;
+	}
+
+	get tabHeaderEl(): HTMLElement | undefined {
+		return this.searchLeaf?.tabHeaderEl;
+	}
+
+	// get changeSortOrderButtonEl(): HTMLElement | undefined {
+	// 	const changeSortOrderButtonEl =
+	// 		this.searchView?.headerDom.navButtonsEl.querySelector(
+	// 			'div.nav-action-button[aria-label="Change sort order"]'
+	// 		);
+	// 	return changeSortOrderButtonEl instanceof HTMLElement
+	// 		? changeSortOrderButtonEl
+	// 		: undefined;
+	// }
+
 	private get searchView(): SearchView | undefined {
 		const leaf = this.searchLeaf;
 		if (!leaf) {
 			return undefined;
 		}
-
 		const view = leaf.view;
 		return isSearchView(view) ? view : undefined;
 	}
 
-	private get searchLeaf(): WorkspaceLeaf | undefined {
+	get searchLeaf(): WorkspaceLeaf | undefined {
 		return this.app.workspace.getLeavesOfType('search')[0];
 	}
 

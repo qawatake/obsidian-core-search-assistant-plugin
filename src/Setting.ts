@@ -21,6 +21,7 @@ export interface CoreSearchAssistantPluginSettings {
 	autoPreviewMode: AutoPreviewMode;
 	cardViewLayout: AvailableCardLayout;
 	splitDirection: SplitDirection;
+	autoToggleSidebar: boolean;
 	hideIframe: boolean;
 }
 
@@ -30,6 +31,7 @@ export const DEFAULT_SETTINGS: CoreSearchAssistantPluginSettings = {
 	autoPreviewMode: 'cardView',
 	cardViewLayout: '2x3',
 	splitDirection: 'horizontal',
+	autoToggleSidebar: false,
 	hideIframe: false,
 };
 
@@ -170,6 +172,26 @@ export class CoreSearchAssistantSettingTab extends PluginSettingTab {
 							this.plugin.settings.splitDirection = direction;
 							await this.plugin.saveSettings();
 						}
+					});
+			});
+
+		new Setting(containerEl)
+			.setName('Toggle sidebars automatically')
+			.setDesc(
+				'Automatically collapse the other sidebar when entering the search mode and the search panel when exiting the search mode'
+			)
+			.addToggle((component) => {
+				if (!this.plugin.settings) {
+					return;
+				}
+				component
+					.setValue(this.plugin.settings.autoToggleSidebar)
+					.onChange((value) => {
+						if (!this.plugin.settings) {
+							return;
+						}
+						this.plugin.settings.autoToggleSidebar = value;
+						this.plugin.saveSettings();
 					});
 			});
 

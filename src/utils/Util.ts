@@ -19,3 +19,20 @@ export function lineCount(editor: Editor): number | undefined {
 	const line = (editor as any)?.['cm']?.['state']?.['doc']?.length;
 	return typeof line === 'number' ? line : undefined;
 }
+
+export async function retry<U>(
+	cb: () => U | undefined,
+	interval: number,
+	trials: number,
+	check: (got: U | undefined) => boolean = (got: U | undefined) =>
+		got !== undefined
+): Promise<U | undefined> {
+	for (let i = 0; i < trials; i++) {
+		const got = cb();
+		if (check(got)) {
+			return got;
+		}
+		await delay(interval);
+	}
+	return undefined;
+}

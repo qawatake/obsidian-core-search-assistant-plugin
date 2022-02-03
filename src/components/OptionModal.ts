@@ -29,6 +29,7 @@ export class OptionModal extends Modal {
 				key: 'a',
 				onChoose: () => {
 					this.plugin.searchInterface?.toggleMatchingCase();
+					this.plugin.searchInterface?.renewSortOrderInfo();
 					this.plugin.controller?.reset();
 					// renewCardPageView is not needed because the internal plugin definitely reloads
 				},

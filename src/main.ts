@@ -1,4 +1,5 @@
 import { Controller } from 'Controller';
+import { CoreSearchAssistantEvents } from 'Events';
 import { SearchComponentInterface } from 'interfaces/SearchComponentInterface';
 import { Plugin } from 'obsidian';
 import {
@@ -9,18 +10,20 @@ import {
 
 export default class CoreSearchAssistantPlugin extends Plugin {
 	settings: CoreSearchAssistantPluginSettings | undefined;
-	controller: Controller | undefined;
+	events: CoreSearchAssistantEvents | undefined;
 	searchInterface: SearchComponentInterface | undefined;
+	controller: Controller | undefined;
 
 	override async onload() {
 		await this.loadSettings();
 
+		this.events = new CoreSearchAssistantEvents();
 		// should be called before adding controller because controller depends on searchInterface
 		this.searchInterface = this.addChild(
-			new SearchComponentInterface(this.app, this)
+			new SearchComponentInterface(this.app, this, this.events)
 		);
 		this.controller = this.addChild(
-			new Controller(this.app, this, this.searchInterface)
+			new Controller(this.app, this, this.events, this.searchInterface)
 		);
 
 		this.watchLayoutChange();
@@ -46,11 +49,14 @@ export default class CoreSearchAssistantPlugin extends Plugin {
 		if (this.controller) {
 			this.removeChild(this.controller);
 		}
+		if (this.events === undefined) {
+			throw '[ERROR in Core Search Interface] failed to renewController: plugin.events = undefined';
+		}
 		if (this.searchInterface === undefined) {
 			throw '[ERROR in Core Search Interface] failed to renewController: plugin.searchInterface = undefined';
 		}
 		this.controller = this.addChild(
-			new Controller(this.app, this, this.searchInterface)
+			new Controller(this.app, this, this.events, this.searchInterface)
 		);
 	}
 
@@ -58,8 +64,8 @@ export default class CoreSearchAssistantPlugin extends Plugin {
 		// ↓ is necessary to skip layout-change when Obsidian reload
 		this.app.workspace.onLayoutReady(() => {
 			// ↓ is necessary because dom elements such as input form and containerEl for card view will be removed when layout change
-			this.app.workspace.on('layout-change', () => {
-				if (this.controller?.layoutChanged) {
+			this.app.workspace.on('layout-change', async () => {
+				if (await this.controller?.layoutChanged()) {
 					this.renewController();
 				}
 			});
