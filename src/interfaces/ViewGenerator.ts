@@ -67,10 +67,13 @@ export class ViewGenerator {
 	}
 
 	private async setViewMode(mode: MarkdownViewModeType) {
-		const { leaf } = this;
-		const state = leaf.getViewState();
-		state.state.mode = mode;
-		await leaf.setViewState(state);
+		await this.leaf.view.setState(
+			{
+				...this.leaf.view.getState(),
+				mode: mode,
+			},
+			{}
+		);
 	}
 
 	// it should be called once because is is not idempotent
