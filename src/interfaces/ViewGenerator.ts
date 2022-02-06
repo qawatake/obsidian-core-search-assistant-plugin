@@ -57,7 +57,6 @@ export class ViewGenerator {
 	}
 
 	private onunload() {
-		this.leaf.containerEl.remove();
 		this.leaf.detach();
 	}
 
