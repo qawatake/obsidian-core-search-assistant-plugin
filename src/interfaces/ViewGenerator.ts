@@ -83,7 +83,7 @@ export class ViewGenerator {
 		if (!(view instanceof MarkdownView)) {
 			throw '[ERROR in Core Search Assistant] failed to highlight matches: view is not an instance of MarkdownView';
 		}
-		const editor = view.modes.source.editor;
+		const editor = view.editor;
 		const ranges: EditorRange[] = [];
 		matches.forEach((match) => {
 			const range = {
@@ -103,7 +103,7 @@ export class ViewGenerator {
 		if (view.getMode() !== 'source') {
 			return;
 		}
-		const editor = view.modes.source.editor;
+		const editor = view.editor;
 		const range = {
 			from: editor.offsetToPos(match[0]),
 			to: editor.offsetToPos(match[1]),
@@ -131,7 +131,7 @@ export class ViewGenerator {
 
 		await this.scrollIntoView(match, center);
 
-		const { editor } = view.modes.source;
+		const { editor } = view;
 
 		editor.removeHighlights('focus-search-match');
 		const range = {
