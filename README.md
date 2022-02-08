@@ -59,6 +59,7 @@ If rendered results are wrong, press `Enter` to reload.
 **Currently manual preview is not supported in the legacy editor.**
 
 In the preview modal, the following hotkeys are available.
+
 | Key | Action |
 | -- | -- |
 | `Ctrl + N`, `↓` | Scroll down a bit. |
