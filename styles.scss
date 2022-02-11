@@ -361,11 +361,13 @@ div.core-search-assistant_search-mode-outline {
 	.preview-container-wrapper {
 		padding: 5px;
 		flex: 1;
+		min-height: 0;
 	}
 
 	.preview-container {
 		overflow: hidden;
 		height: 100%;
+		border-radius: 10px;
 
 		font-size: 0.8rem;
 		line-height: 1.2;
