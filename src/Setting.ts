@@ -22,6 +22,7 @@ export interface CoreSearchAssistantPluginSettings {
 	cardViewLayout: AvailableCardLayout;
 	splitDirection: SplitDirection;
 	autoToggleSidebar: boolean;
+	renderCardsManually: boolean;
 	hideIframe: boolean;
 }
 
@@ -32,6 +33,7 @@ export const DEFAULT_SETTINGS: CoreSearchAssistantPluginSettings = {
 	cardViewLayout: '2x3',
 	splitDirection: 'horizontal',
 	autoToggleSidebar: false,
+	renderCardsManually: false,
 	hideIframe: false,
 };
 
@@ -191,6 +193,20 @@ export class CoreSearchAssistantSettingTab extends PluginSettingTab {
 							return;
 						}
 						this.plugin.settings.autoToggleSidebar = value;
+						this.plugin.saveSettings();
+					});
+			});
+
+		new Setting(containerEl)
+			.setName('Render cards manually')
+			.setDesc('If enabled, you must hit the enter key to render cards.')
+			.addToggle((component) => {
+				if (!this.plugin.settings) return;
+				component
+					.setValue(this.plugin.settings.renderCardsManually)
+					.onChange((value) => {
+						if (!this.plugin.settings) return;
+						this.plugin.settings.renderCardsManually = value;
 						this.plugin.saveSettings();
 					});
 			});
