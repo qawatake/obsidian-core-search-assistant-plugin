@@ -599,6 +599,10 @@ export class Controller extends Component {
 			if (this.plugin.settings?.autoPreviewMode !== 'cardView') {
 				return;
 			}
+			// ↓ is necessary because items are detected at an unexpected timing.
+			if (this.currentFocusId !== undefined) {
+				return;
+			}
 
 			const cardsPerPage = this.cardsPerPage();
 			if (cardsPerPage === undefined) {
