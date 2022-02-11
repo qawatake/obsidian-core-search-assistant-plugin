@@ -76,7 +76,10 @@ export class Controller extends Component {
 			this.collapseOppositeSidedock();
 		}
 
-		if (this.plugin.settings?.autoPreviewMode === 'cardView') {
+		const shouldDetectSearchItems =
+			this.plugin.settings?.autoPreviewMode === 'cardView' &&
+			this.plugin.settings.renderCardsManually === false;
+		if (shouldDetectSearchItems) {
 			this.searchInterface.startWatching(this.events);
 			this.renewCardViewPage();
 		}
@@ -512,6 +515,16 @@ export class Controller extends Component {
 		});
 		scope.register([], 'Escape', () => {
 			this.exit();
+		});
+		scope.register([], 'Enter', (evt) => {
+			const shouldRenderCardsManually =
+				this.plugin.settings?.autoPreviewMode === 'cardView' &&
+				this.plugin.settings.renderCardsManually;
+			if (shouldRenderCardsManually) {
+				evt.preventDefault(); // prevent submit to stop renewing search results
+				this.reset();
+				this.renewCardViewPage();
+			}
 		});
 
 		this._detachHotkeys = () => {
