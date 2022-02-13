@@ -304,7 +304,14 @@ export class Controller extends Component {
 		if (!item) {
 			return;
 		}
-		new PreviewModal(this.app, this.plugin, this.modeScope, item).open();
+		if (item.file.extension === 'md') {
+			new PreviewModal(
+				this.app,
+				this.plugin,
+				this.modeScope,
+				item
+			).open();
+		}
 	}
 
 	private shouldTransitNextPageInCardView(): boolean {
