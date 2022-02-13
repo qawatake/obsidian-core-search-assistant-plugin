@@ -13,11 +13,12 @@ import { WorkspacePreview } from 'components/WorkspacePreview';
 import { CardView } from 'components/CardView';
 import { ModeScope } from 'ModeScope';
 import { SearchComponentInterface } from 'interfaces/SearchComponentInterface';
-import { retry } from 'utils/Util';
+import { delay, retry } from 'utils/Util';
 
 const DELAY_TO_RELOAD_IN_MILLISECOND = 1000;
 const RETRY_INTERVAL = 1;
 const RETRY_TRIALS = 1000;
+const DELAY_TO_RENDER_CARD_VIEW_ON_ENTRY_IN_MILLISECOND = 100;
 
 export class Controller extends Component {
 	private readonly app: App;
@@ -66,7 +67,7 @@ export class Controller extends Component {
 		this.setSearchModeTriggers();
 	}
 
-	enter() {
+	async enter() {
 		if (this.modeScope.inSearchMode) {
 			return;
 		}
@@ -75,12 +76,13 @@ export class Controller extends Component {
 		if (this.plugin.settings?.autoToggleSidebar) {
 			this.collapseOppositeSidedock();
 		}
-
 		const shouldDetectSearchItems =
 			this.plugin.settings?.autoPreviewMode === 'cardView' &&
 			this.plugin.settings.renderCardsManually === false;
 		if (shouldDetectSearchItems) {
 			this.searchInterface.startWatching(this.events);
+			// delay to render cards after expanding sidebar
+			await delay(DELAY_TO_RENDER_CARD_VIEW_ON_ENTRY_IN_MILLISECOND);
 			this.renewCardViewPage();
 		}
 
@@ -101,6 +103,7 @@ export class Controller extends Component {
 		if (!this.modeScope.inSearchMode) {
 			return;
 		}
+		this.reset();
 		this.detachHotkeys();
 		this.removeChildren();
 
@@ -464,11 +467,25 @@ export class Controller extends Component {
 						targetEl
 					)
 				) {
-					return;
+					if (
+						!this.plugin.searchInterface.isBuiltInElementToOpenFile(
+							targetEl
+						)
+					)
+						return;
 				}
 				// search tab header
 				if (
 					this.plugin.searchInterface?.tabHeaderEl?.contains(targetEl)
+				) {
+					return;
+				}
+				// buttons to show more context
+				// this button element has no parent, so we must check it directly
+				if (
+					this.plugin.searchInterface?.isShowMoreContextButton(
+						targetEl
+					)
 				) {
 					return;
 				}

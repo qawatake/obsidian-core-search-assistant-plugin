@@ -271,6 +271,36 @@ export class SearchComponentInterface extends Component {
 		return this.searchLeaf?.tabHeaderEl;
 	}
 
+	isBuiltInElementToOpenFile(el: HTMLElement): boolean {
+		const isFileNameContainerEl =
+			el.tagName === 'DIV' && el.hasClass('tree-item-inner');
+		const isMatchCountContainerEl =
+			el.tagName === 'DIV' && el.hasClass('tree-item-flair-outer');
+		const isMatchContainerEl =
+			el.tagName === 'DIV' && el.hasClass('search-result-file-match');
+		if (
+			isFileNameContainerEl ||
+			isMatchContainerEl ||
+			isMatchCountContainerEl
+		) {
+			return true;
+		}
+
+		const parentEl = el.parentElement;
+		if (parentEl === null) {
+			return false;
+		} else {
+			// recursive
+			return this.isBuiltInElementToOpenFile(parentEl);
+		}
+	}
+
+	isShowMoreContextButton(el: HTMLElement): boolean {
+		return (
+			el.tagName === 'DIV' && el.hasClass('search-result-hover-button')
+		);
+	}
+
 	// get changeSortOrderButtonEl(): HTMLElement | undefined {
 	// 	const changeSortOrderButtonEl =
 	// 		this.searchView?.headerDom.navButtonsEl.querySelector(
