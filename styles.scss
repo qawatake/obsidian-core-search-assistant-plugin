@@ -372,6 +372,13 @@ div.core-search-assistant_search-mode-outline {
 		font-size: 0.8rem;
 		line-height: 1.2;
 
+		.unsupported-file-content {
+			margin: 5px;
+			font-size: 1rem;
+			line-height: 1.2;
+			font-weight: bold;
+		}
+
 		div,
 		p,
 		li,

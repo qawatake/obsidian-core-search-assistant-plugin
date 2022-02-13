@@ -185,13 +185,20 @@ export class CardView extends Component {
 	) {
 		const previewContainerEl = this.createPreviewContainerEl(item, id);
 		previewContainerEl.empty();
-		const renderer = await new ViewGenerator(
-			this.app,
-			previewContainerEl,
-			item.file
-		).load('preview');
-		renderer.togglePreview();
-		this.renderers.push(renderer);
+		if (supportedFileTypes.includes(item.file.extension)) {
+			const renderer = await new ViewGenerator(
+				this.app,
+				previewContainerEl,
+				item.file
+			).load('preview');
+			renderer.togglePreview();
+			this.renderers.push(renderer);
+		} else {
+			previewContainerEl.createDiv({
+				text: `${item.file.extension} file`,
+				cls: 'unsupported-file-content',
+			});
+		}
 	}
 
 	private requestUnloadRenderers() {
@@ -218,7 +225,10 @@ export class CardView extends Component {
 		});
 		itemContainerEl.createEl('div', {
 			cls: 'file-name-container',
-			text: item.file.basename, // extension is unnecessary because built-in search does not catch other formats
+			text:
+				item.file.extension === 'md'
+					? item.file.basename
+					: item.file.name, // extension is unnecessary because built-in search does not catch other formats
 		});
 		const previewMarginEl = itemContainerEl.createEl('div', {
 			cls: 'preview-container-wrapper',
@@ -321,3 +331,23 @@ export class CardView extends Component {
 	// 	this.reveal();
 	// }
 }
+
+const supportedFileTypes = [
+	'md',
+	'png',
+	'jpg',
+	'jpeg',
+	'gif',
+	'bmp',
+	'svg',
+	'mp3',
+	'webm',
+	'wav',
+	'm4a',
+	'ogg',
+	'3gp',
+	'flac',
+	'mp4',
+	'ogv',
+	'pdf',
+];
