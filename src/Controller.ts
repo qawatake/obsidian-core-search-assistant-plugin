@@ -464,11 +464,25 @@ export class Controller extends Component {
 						targetEl
 					)
 				) {
-					return;
+					if (
+						!this.plugin.searchInterface.isBuiltInElementToOpenFile(
+							targetEl
+						)
+					)
+						return;
 				}
 				// search tab header
 				if (
 					this.plugin.searchInterface?.tabHeaderEl?.contains(targetEl)
+				) {
+					return;
+				}
+				// buttons to show more context
+				// this button element has no parent, so we must check it directly
+				if (
+					this.plugin.searchInterface?.isShowMoreContextButton(
+						targetEl
+					)
 				) {
 					return;
 				}
