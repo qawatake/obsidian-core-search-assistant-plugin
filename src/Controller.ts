@@ -103,6 +103,7 @@ export class Controller extends Component {
 		if (!this.modeScope.inSearchMode) {
 			return;
 		}
+		this.reset();
 		this.detachHotkeys();
 		this.removeChildren();
 
