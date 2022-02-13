@@ -76,7 +76,10 @@ export class Controller extends Component {
 			this.collapseOppositeSidedock();
 		}
 
-		if (this.plugin.settings?.autoPreviewMode === 'cardView') {
+		const shouldDetectSearchItems =
+			this.plugin.settings?.autoPreviewMode === 'cardView' &&
+			this.plugin.settings.renderCardsManually === false;
+		if (shouldDetectSearchItems) {
 			this.searchInterface.startWatching(this.events);
 			this.renewCardViewPage();
 		}
@@ -256,6 +259,34 @@ export class Controller extends Component {
 		this.focus();
 	}
 
+	private moveToNextPage() {
+		const pageId = this.pageId;
+		if (pageId === undefined) return;
+		const pageCount = this.pageCount;
+		if (pageCount === undefined) return;
+		if (pageId >= pageCount - 1) return;
+		const cardsPerPage = this.cardsPerPage();
+		if (cardsPerPage === undefined) return;
+		this.currentFocusId = cardsPerPage * (pageId + 1);
+
+		this.renewCardViewPage();
+		this.focus();
+	}
+
+	private moveToPreviousPage() {
+		const pageId = this.pageId;
+		if (pageId === undefined) return;
+		const pageCount = this.pageCount;
+		if (pageCount === undefined) return;
+		if (pageId <= 0) return;
+		const cardsPerPage = this.cardsPerPage();
+		if (cardsPerPage === undefined) return;
+		this.currentFocusId = cardsPerPage * (pageId - 1);
+
+		this.renewCardViewPage();
+		this.focus();
+	}
+
 	private unfocus() {
 		this.searchInterface.unfocus();
 		this.cardView?.unfocus();
@@ -311,6 +342,22 @@ export class Controller extends Component {
 			return undefined;
 		}
 		return id % cardsPerPage;
+	}
+
+	private get pageId(): number | undefined {
+		if (this.currentFocusId === undefined) return undefined;
+		const cardsPerPage = this.cardsPerPage();
+		if (cardsPerPage === undefined) return undefined;
+		const pageId = Math.floor(this.currentFocusId / cardsPerPage);
+		return pageId;
+	}
+
+	private get pageCount(): number | undefined {
+		const numResults = this.plugin.searchInterface?.count();
+		const cardsPerPage = this.cardsPerPage();
+		if (cardsPerPage === undefined) return undefined;
+		const pageCount = Math.ceil((numResults ?? 0) / cardsPerPage);
+		return pageCount;
 	}
 
 	private cardsPerPage(): number | undefined {
@@ -510,8 +557,28 @@ export class Controller extends Component {
 		scope.register(['Shift'], ' ', () => {
 			new OptionModal(this.app, this.plugin, this.modeScope).open();
 		});
+		scope.register(['Ctrl'], ']', () => {
+			if (this.plugin.settings?.autoPreviewMode === 'cardView') {
+				this.moveToNextPage();
+			}
+		});
+		scope.register(['Ctrl'], '[', () => {
+			if (this.plugin.settings?.autoPreviewMode === 'cardView') {
+				this.moveToPreviousPage();
+			}
+		});
 		scope.register([], 'Escape', () => {
 			this.exit();
+		});
+		scope.register([], 'Enter', (evt) => {
+			const shouldRenderCardsManually =
+				this.plugin.settings?.autoPreviewMode === 'cardView' &&
+				this.plugin.settings.renderCardsManually;
+			if (shouldRenderCardsManually) {
+				evt.preventDefault(); // prevent submit to stop renewing search results
+				this.reset();
+				this.renewCardViewPage();
+			}
 		});
 
 		this._detachHotkeys = () => {
@@ -530,6 +597,10 @@ export class Controller extends Component {
 	private get onSearchResultItemDetected(): () => void {
 		return () => {
 			if (this.plugin.settings?.autoPreviewMode !== 'cardView') {
+				return;
+			}
+			// ↓ is necessary because items are detected at an unexpected timing.
+			if (this.currentFocusId !== undefined) {
 				return;
 			}
 

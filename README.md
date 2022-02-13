@@ -21,6 +21,8 @@ In the search mode, you can use the following hotkeys.
 | `Ctrl + Enter` | Open the selected item. |
 | `Ctrl + Shift + Enter` | Open the selected item in a new pane. |
 | `Shift + Space` | Set search options. |
+| `Ctrl + ]` | Move to the next set of cards. (available only in [card view](#3-card-view).) |
+| `Ctrl + [` | Move to the previous set of cards. (available only in [card view](#3-card-view).) |
 
 - The hotkeys above are available only in the search mode, so don't worry about overwriting your hotkey settings.
 - To **exit** the search mode, press `Esc` or click any part of the screen other than the search panel.
