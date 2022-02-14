@@ -78,6 +78,9 @@ export class HotkeySetter {
 			}
 		});
 		hotkeyEntry.$on('start-listening-keys', () => {
+			hotkeyEntry.$set({
+				listening: true,
+			});
 			this.scope = new Scope();
 			this.app.keymap.pushScope(this.scope);
 			console.log('start');
@@ -86,15 +89,19 @@ export class HotkeySetter {
 				const shouldSkip =
 					evt.key === 'Escape' ||
 					this.currentHotkeys.includes(hotkey);
-				if (shouldSkip) return;
-				const renewed = [...this.currentHotkeys];
-				renewed.push(hotkey);
-				if (this.shouldReflect(renewed)) {
-					this.currentHotkeys = renewed;
-					hotkeyEntry.$set({
-						hotkeys: renewed,
-					});
+				if (!shouldSkip) {
+					const renewed = [...this.currentHotkeys];
+					renewed.push(hotkey);
+					if (this.shouldReflect(renewed)) {
+						this.currentHotkeys = renewed;
+						hotkeyEntry.$set({
+							hotkeys: renewed,
+						});
+					}
 				}
+				hotkeyEntry.$set({
+					listening: false,
+				});
 				if (this.scope) this.app.keymap.popScope(this.scope);
 			});
 		});

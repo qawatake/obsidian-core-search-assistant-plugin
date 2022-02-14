@@ -6,8 +6,7 @@
 	// props
 	export let actionName: string | undefined;
 	export let hotkeys: Hotkey[] | undefined;
-
-	$: _hotkeys = [...(hotkeys ?? [])];
+	export let listening = false;
 
 	// binds
 	let restoreButtonEl: HTMLElement | undefined;
@@ -15,6 +14,8 @@
 
 	// internal variables
 	const dispatcher = createEventDispatcher();
+	$: _hotkeys = [...(hotkeys ?? [])];
+	$: _listening = listening;
 
 	onMount(() => {
 		if (restoreButtonEl) {
@@ -49,6 +50,9 @@
 					{hotkey}
 				/>
 			{/each}
+			{#if _listening}
+				<div class="setting-hotkey">Press hotkey...</div>
+			{/if}
 		</div>
 		<span
 			class="icon-container"
@@ -93,6 +97,17 @@
 		display: flex;
 		flex-direction: column;
 		margin-right: 6px;
+	}
+
+	.setting-hotkey {
+		font-size: 12px;
+		background-color: var(--interactive-accent);
+		border-radius: 4px;
+		padding: 0 10px;
+		min-height: 24px;
+		align-self: flex-end;
+		position: relative;
+		color: var(--text-on-accent);
 	}
 
 	.icon-container {
