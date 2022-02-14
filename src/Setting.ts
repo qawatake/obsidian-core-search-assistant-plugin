@@ -1,5 +1,11 @@
 import CoreSearchAssistantPlugin from 'main';
-import { App, PluginSettingTab, Setting, SplitDirection } from 'obsidian';
+import {
+	App,
+	Hotkey,
+	PluginSettingTab,
+	Setting,
+	SplitDirection,
+} from 'obsidian';
 
 const AVAILABLE_OUTLINE_WIDTHS = [0, 3, 5, 7, 10] as const;
 export type AvailableOutlineWidth = typeof AVAILABLE_OUTLINE_WIDTHS[number];
@@ -24,6 +30,8 @@ export interface CoreSearchAssistantPluginSettings {
 	autoToggleSidebar: boolean;
 	renderCardsManually: boolean;
 	hideIframe: boolean;
+	searchModeHotkeys: SearchModeHotkeys;
+	previewModalHotkeys: PreviewModalHotkeys;
 }
 
 export const DEFAULT_SETTINGS: CoreSearchAssistantPluginSettings = {
@@ -35,6 +43,38 @@ export const DEFAULT_SETTINGS: CoreSearchAssistantPluginSettings = {
 	autoToggleSidebar: false,
 	renderCardsManually: false,
 	hideIframe: false,
+	searchModeHotkeys: {
+		selectNext: [
+			{ modifiers: ['Ctrl'], key: 'n' },
+			{ modifiers: [], key: 'ArrowDown' },
+		],
+		selectPrevious: [
+			{ modifiers: ['Ctrl'], key: 'p' },
+			{ modifiers: [], key: 'ArrowUp' },
+		],
+		previewModal: [{ modifiers: ['Ctrl'], key: ' ' }],
+		open: [{ modifiers: ['Ctrl'], key: 'Enter' }],
+		openInNewPane: [{ modifiers: ['Ctrl', 'Shift'], key: 'Enter' }],
+		showOptions: [{ modifiers: ['Shift'], key: ' ' }],
+		nextPage: [{ modifiers: ['Ctrl'], key: ']' }],
+		previousPage: [{ modifiers: ['Ctrl'], key: '[' }],
+	},
+	previewModalHotkeys: {
+		scrollDown: [
+			{ modifiers: ['Ctrl'], key: 'n' },
+			{ modifiers: [], key: 'ArrowDown' },
+		],
+		scrollUp: [
+			{ modifiers: ['Ctrl'], key: 'p' },
+			{ modifiers: [], key: 'ArrowUp' },
+		],
+		bigScrollDown: [{ modifiers: [], key: ' ' }],
+		bigScrollUp: [{ modifiers: ['Shift'], key: ' ' }],
+		open: [{ modifiers: ['Ctrl'], key: 'Enter' }],
+		openInNewPage: [{ modifiers: ['Ctrl', 'Shift'], key: 'Enter' }],
+		focusNext: [{ modifiers: [], key: 'Tab' }],
+		focusPrevious: [{ modifiers: ['Shift'], key: 'Tab' }],
+	},
 };
 
 export class CoreSearchAssistantSettingTab extends PluginSettingTab {
@@ -247,4 +287,26 @@ export function validOutlineWidth(width: unknown): AvailableOutlineWidth {
 export function parseCardLayout(layout: AvailableCardLayout): [number, number] {
 	const [row, column] = layout.split('x');
 	return [Number.parseInt(row ?? '0'), Number.parseInt(column ?? '0')];
+}
+
+interface SearchModeHotkeys {
+	selectNext: Hotkey[];
+	selectPrevious: Hotkey[];
+	previewModal: Hotkey[];
+	open: Hotkey[];
+	openInNewPane: Hotkey[];
+	showOptions: Hotkey[];
+	nextPage: Hotkey[];
+	previousPage: Hotkey[];
+}
+
+interface PreviewModalHotkeys {
+	scrollDown: Hotkey[];
+	scrollUp: Hotkey[];
+	bigScrollDown: Hotkey[];
+	bigScrollUp: Hotkey[];
+	open: Hotkey[];
+	openInNewPage: Hotkey[];
+	focusNext: Hotkey[];
+	focusPrevious: Hotkey[];
 }
