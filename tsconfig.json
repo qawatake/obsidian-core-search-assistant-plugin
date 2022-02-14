@@ -1,7 +1,8 @@
 {
+	"extends": "@tsconfig/svelte/tsconfig.json",
 	"compilerOptions": {
 		"baseUrl": "src",
-		"inlineSourceMap": true,
+		// "inlineSourceMap": true,
 		"inlineSources": true,
 		"module": "ESNext",
 		"target": "ES6",
@@ -34,7 +35,9 @@
 		"noPropertyAccessFromIndexSignature": true /* Enforces using indexed accessors for keys declared using an indexed type */,
 
 		/* Completeness */
-		"skipLibCheck": true /* Skip type checking all .d.ts files. */
+		"skipLibCheck": true /* Skip type checking all .d.ts files. */,
+
+		"types": ["svelte", "node"]
 	},
 	"include": ["src/**/*.ts"],
 	"exclude": ["node_modules"]

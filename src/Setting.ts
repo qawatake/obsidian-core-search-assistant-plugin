@@ -1,11 +1,12 @@
-import CoreSearchAssistantPlugin from 'main';
+import type CoreSearchAssistantPlugin from 'main';
 import {
 	App,
-	Hotkey,
+	type Hotkey,
 	PluginSettingTab,
 	Setting,
-	SplitDirection,
+	type SplitDirection,
 } from 'obsidian';
+import HotkeySetting from 'ui/HotkeySetting.svelte';
 
 const AVAILABLE_OUTLINE_WIDTHS = [0, 3, 5, 7, 10] as const;
 export type AvailableOutlineWidth = typeof AVAILABLE_OUTLINE_WIDTHS[number];
@@ -268,6 +269,67 @@ export class CoreSearchAssistantSettingTab extends PluginSettingTab {
 						this.plugin.saveSettings();
 					});
 			});
+
+		containerEl.createEl('h2', { text: 'Hotkeys' });
+		const { settings } = this.plugin;
+		containerEl.createEl('h3', { text: 'Search mode' });
+		if (!settings) return;
+		Object.keys(settings.searchModeHotkeys).forEach((key) => {
+			const hotkeys = settings.searchModeHotkeys[key] as Hotkey[];
+			new Setting(containerEl).setName(key).then((setting) => {
+				const hotkeyContainerEl = setting.controlEl.createDiv({
+					cls: 'setting-command-hotkeys',
+				});
+				hotkeys.forEach((hotkey) => {
+					new HotkeySetting({
+						target: hotkeyContainerEl,
+						props: {
+							hotkey,
+						},
+					});
+				});
+
+				setting
+					.addExtraButton((component) => {
+						component
+							.setIcon('reset')
+							.setTooltip('Restore default');
+					})
+					.addExtraButton((component) => {
+						component
+							.setIcon('any-key')
+							.setTooltip('Customize this command');
+					});
+			});
+		});
+
+		containerEl.createEl('h3', { text: 'Preview Modal' });
+		Object.keys(settings.previewModalHotkeys).forEach((key) => {
+			const hotkeys = settings.previewModalHotkeys[key] as Hotkey[];
+			new Setting(containerEl).setName(key).then((setting) => {
+				const hotkeyContainerEl = setting.controlEl.createDiv({
+					cls: 'setting-command-hotkeys',
+				});
+				new HotkeySetting({
+					target: hotkeyContainerEl,
+					props: {
+						hotkey: hotkeys[0],
+					},
+				});
+
+				setting
+					.addExtraButton((component) => {
+						component
+							.setIcon('reset')
+							.setTooltip('Restore default');
+					})
+					.addExtraButton((component) => {
+						component
+							.setIcon('any-key')
+							.setTooltip('Customize this command');
+					});
+			});
+		});
 	}
 }
 
