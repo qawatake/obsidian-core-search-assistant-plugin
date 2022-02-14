@@ -5,6 +5,10 @@ import {
 	PluginSettingTab,
 	Setting,
 	type SplitDirection,
+	Scope,
+	type Modifier,
+	Platform,
+	Keymap,
 } from 'obsidian';
 import type { SvelteComponent } from 'svelte';
 import HotkeySetting from 'ui/HotkeySetting.svelte';
@@ -86,6 +90,7 @@ export const DEFAULT_SETTINGS: CoreSearchAssistantPluginSettings = {
 export class CoreSearchAssistantSettingTab extends PluginSettingTab {
 	plugin: CoreSearchAssistantPlugin;
 	svelteComponents: SvelteComponent[];
+	scope: Scope | undefined;
 
 	constructor(app: App, plugin: CoreSearchAssistantPlugin) {
 		super(app, plugin);
@@ -94,11 +99,9 @@ export class CoreSearchAssistantSettingTab extends PluginSettingTab {
 	}
 
 	display(): void {
+		this.hide();
 		const { containerEl } = this;
 		containerEl.empty();
-		this.svelteComponents.forEach((component) => {
-			component.$destroy();
-		});
 
 		new Setting(containerEl)
 			.setName('Keep selected item centered')
@@ -377,10 +380,68 @@ export class CoreSearchAssistantSettingTab extends PluginSettingTab {
 					.addExtraButton((component) => {
 						component
 							.setIcon('any-key')
-							.setTooltip('Customize this command');
+							.setTooltip('Customize this command')
+							.onClick(() => {
+								this.scope = new Scope();
+								this.app.keymap.pushScope(this.scope);
+								// this.scope.register([], 'Escape', () => {
+								// 	console.log('escape');
+								// 	if (this.scope)
+								// 		this.app.keymap.popScope(this.scope);
+								// });
+								this.scope.register([], null, (evt) => {
+									const hotkey = extractHotkey(evt);
+									const shouldAddHotkey =
+										evt.key !== 'Escape' &&
+										!settings.previewModalHotkeys[
+											key
+										]?.includes(hotkey);
+									if (shouldAddHotkey) {
+										settings.previewModalHotkeys[key]?.push(
+											hotkey
+										);
+										const hotkeySetting = new HotkeySetting(
+											{
+												target: hotkeyContainerEl,
+												props: {
+													hotkey,
+												},
+											}
+										);
+										hotkeySetting.$on('removed', () => {
+											hotkeySetting.$destroy();
+											(
+												settings.previewModalHotkeys[
+													key
+												] as Hotkey[]
+											).remove(hotkey);
+											this.plugin.saveSettings();
+											this.display();
+										});
+										this.svelteComponents.push(
+											hotkeySetting
+										);
+										this.plugin.saveSettings();
+									}
+									if (this.scope)
+										this.app.keymap.popScope(this.scope);
+								});
+							});
 					});
 			});
 		});
+	}
+
+	override hide() {
+		super.hide();
+		this.svelteComponents.forEach((component) => {
+			component.$destroy();
+		});
+		if (this.scope) {
+			this.app.keymap.popScope(this.scope);
+			this.scope = undefined;
+		}
+		console.log('hide');
 	}
 }
 
@@ -400,6 +461,29 @@ export function validOutlineWidth(width: unknown): AvailableOutlineWidth {
 export function parseCardLayout(layout: AvailableCardLayout): [number, number] {
 	const [row, column] = layout.split('x');
 	return [Number.parseInt(row ?? '0'), Number.parseInt(column ?? '0')];
+}
+
+function extractHotkey(evt: KeyboardEvent): Hotkey {
+	const modifiers: Modifier[] = [];
+	if (Keymap.isModifier(evt, 'Alt')) {
+		modifiers.push('Alt');
+	}
+	if (Keymap.isModifier(evt, 'Shift')) {
+		modifiers.push('Shift');
+	}
+	if (Keymap.isModifier(evt, 'Meta')) {
+		modifiers.push('Meta');
+	}
+	if (Keymap.isModifier(evt, 'Mod')) {
+		modifiers.push('Mod');
+	}
+	if (Keymap.isModifier(evt, 'Ctrl')) {
+		modifiers.push('Ctrl');
+	}
+	return {
+		modifiers,
+		key: evt.key,
+	};
 }
 
 interface SearchModeHotkeys {
