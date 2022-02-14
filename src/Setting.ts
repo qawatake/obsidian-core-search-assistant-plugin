@@ -7,11 +7,11 @@ import {
 	type SplitDirection,
 	Scope,
 	type Modifier,
-	Platform,
 	Keymap,
 } from 'obsidian';
 import type { SvelteComponent } from 'svelte';
 import HotkeySetting from 'ui/HotkeySetting.svelte';
+import HotkeyEntry from 'ui/HotkeyEntry.svelte';
 
 const AVAILABLE_OUTLINE_WIDTHS = [0, 3, 5, 7, 10] as const;
 export type AvailableOutlineWidth = typeof AVAILABLE_OUTLINE_WIDTHS[number];
@@ -286,53 +286,14 @@ export class CoreSearchAssistantSettingTab extends PluginSettingTab {
 		const { settings } = this.plugin;
 		containerEl.createEl('h3', { text: 'Search mode' });
 		if (!settings) return;
-		Object.keys(settings.searchModeHotkeys).forEach((key) => {
-			const hotkeys = settings.searchModeHotkeys[key] as Hotkey[];
-			new Setting(containerEl).setName(key).then((setting) => {
-				const hotkeyContainerEl = setting.controlEl.createDiv({
-					cls: 'setting-command-hotkeys',
-				});
-				hotkeys.forEach((hotkey) => {
-					const hotkeySetting = new HotkeySetting({
-						target: hotkeyContainerEl,
-						props: {
-							hotkey,
-						},
-					});
-					hotkeySetting.$on('removed', () => {
-						hotkeySetting.$destroy();
-						(settings.searchModeHotkeys[key] as Hotkey[]).remove(
-							hotkey
-						);
-						this.plugin.saveSettings();
-					});
-					this.svelteComponents.push(hotkeySetting);
-				});
-
-				setting
-					.addExtraButton((component) => {
-						component
-							.setIcon('reset')
-							.setTooltip('Restore default')
-							.onClick(async () => {
-								const defaultHotkeys = [
-									...(DEFAULT_SETTINGS.searchModeHotkeys[
-										key
-									] ?? []),
-								];
-								if (!defaultHotkeys) return;
-								settings.searchModeHotkeys[key] =
-									defaultHotkeys;
-								await this.plugin.saveSettings();
-								this.display();
-							});
-					})
-					.addExtraButton((component) => {
-						component
-							.setIcon('any-key')
-							.setTooltip('Customize this command');
-					});
-			});
+		Object.keys(settings.searchModeHotkeys).forEach((actionId) => {
+			const hotkeyEntry = this.addHotkey(
+				actionId,
+				settings.searchModeHotkeys
+			);
+			if (hotkeyEntry) {
+				this.svelteComponents.push(hotkeyEntry);
+			}
 		});
 
 		containerEl.createEl('h3', { text: 'Preview Modal' });
@@ -442,6 +403,59 @@ export class CoreSearchAssistantSettingTab extends PluginSettingTab {
 			this.scope = undefined;
 		}
 		console.log('hide');
+	}
+
+	addHotkey(
+		actionId: string,
+		hotkeyMap: HotkeyMap
+	): SvelteComponent | undefined {
+		const { containerEl } = this;
+		const { settings } = this.plugin;
+		if (!settings) return undefined;
+		const hotkeys = hotkeyMap[actionId] as Hotkey[];
+		const hotkeyEntry = new HotkeyEntry({
+			target: containerEl,
+			props: {
+				actionName: actionId,
+				hotkeys: hotkeys,
+			},
+		});
+		hotkeyEntry.$on('removed', () => {
+			console.log('removed');
+			this.plugin.saveSettings();
+		});
+		hotkeyEntry.$on('restore', () => {
+			console.log('restore');
+			const defaultHotkeys = [
+				...(DEFAULT_SETTINGS.searchModeHotkeys[actionId] ?? []),
+			];
+			hotkeyEntry.$set({
+				hotkeys: defaultHotkeys,
+			});
+			settings.searchModeHotkeys[actionId] = defaultHotkeys;
+			this.plugin.saveSettings();
+		});
+		hotkeyEntry.$on('start-listening-keys', () => {
+			this.scope = new Scope();
+			this.app.keymap.pushScope(this.scope);
+			console.log('start');
+			this.scope.register([], null, (evt) => {
+				const hotkey = extractHotkey(evt);
+				const shouldAddHotkey =
+					evt.key !== 'Escape' &&
+					!settings.searchModeHotkeys[actionId]?.includes(hotkey);
+				console.log(hotkey);
+				if (shouldAddHotkey) {
+					settings.searchModeHotkeys[actionId]?.push(hotkey);
+					hotkeyEntry.$set({
+						hotkeys: settings.searchModeHotkeys[actionId],
+					});
+					this.plugin.saveSettings();
+				}
+				if (this.scope) this.app.keymap.popScope(this.scope);
+			});
+		});
+		return hotkeyEntry;
 	}
 }
 
