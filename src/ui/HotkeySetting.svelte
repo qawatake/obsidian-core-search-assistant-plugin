@@ -1,18 +1,30 @@
 <script lang="ts">
 	import { Platform, setIcon, type Hotkey } from 'obsidian';
-	import { onMount } from 'svelte';
+	import { createEventDispatcher, onDestroy, onMount } from 'svelte';
 
 	// props
 	export let hotkey: Hotkey;
 
 	// binds
+	// let containerEl: HTMLElement | undefined;
 	let iconContainerEl: HTMLSpanElement | undefined;
+
+	// internal variables
+	const dispatcher = createEventDispatcher();
 
 	onMount(() => {
 		if (iconContainerEl instanceof HTMLSpanElement) {
 			setIcon(iconContainerEl, 'cross', 8);
 		}
 	});
+
+	onDestroy(() => {
+		console.log('removed');
+	});
+
+	function onIconClicked() {
+		dispatcher('removed');
+	}
 
 	export function displayedText(hotkey: Hotkey): string {
 		console.log(hotkey);
@@ -61,7 +73,11 @@
 
 <span class="setting-hotkey">
 	{displayedText(hotkey)}
-	<span class="icon-container" bind:this={iconContainerEl} />
+	<span
+		class="icon-container"
+		bind:this={iconContainerEl}
+		on:click={onIconClicked}
+	/>
 </span>
 
 <style>

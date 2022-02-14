@@ -6,6 +6,7 @@ import {
 	Setting,
 	type SplitDirection,
 } from 'obsidian';
+import type { SvelteComponent } from 'svelte';
 import HotkeySetting from 'ui/HotkeySetting.svelte';
 
 const AVAILABLE_OUTLINE_WIDTHS = [0, 3, 5, 7, 10] as const;
@@ -22,6 +23,10 @@ const autoPreviewModeInfos: Record<AutoPreviewMode, string> = {
 const AVAILABLE_CARD_LAYOUT = ['2x2', '2x3', '3x2', '3x3'] as const;
 type AvailableCardLayout = typeof AVAILABLE_CARD_LAYOUT[number];
 
+type HotkeyMap = {
+	[actionId: string]: Hotkey[];
+};
+
 export interface CoreSearchAssistantPluginSettings {
 	keepSelectedItemsCentered: boolean;
 	outlineWidth: AvailableOutlineWidth;
@@ -31,8 +36,8 @@ export interface CoreSearchAssistantPluginSettings {
 	autoToggleSidebar: boolean;
 	renderCardsManually: boolean;
 	hideIframe: boolean;
-	searchModeHotkeys: SearchModeHotkeys;
-	previewModalHotkeys: PreviewModalHotkeys;
+	searchModeHotkeys: HotkeyMap;
+	previewModalHotkeys: HotkeyMap;
 }
 
 export const DEFAULT_SETTINGS: CoreSearchAssistantPluginSettings = {
@@ -80,16 +85,20 @@ export const DEFAULT_SETTINGS: CoreSearchAssistantPluginSettings = {
 
 export class CoreSearchAssistantSettingTab extends PluginSettingTab {
 	plugin: CoreSearchAssistantPlugin;
+	svelteComponents: SvelteComponent[];
 
 	constructor(app: App, plugin: CoreSearchAssistantPlugin) {
 		super(app, plugin);
 		this.plugin = plugin;
+		this.svelteComponents = [];
 	}
 
 	display(): void {
 		const { containerEl } = this;
-
 		containerEl.empty();
+		this.svelteComponents.forEach((component) => {
+			component.$destroy();
+		});
 
 		new Setting(containerEl)
 			.setName('Keep selected item centered')
@@ -281,19 +290,39 @@ export class CoreSearchAssistantSettingTab extends PluginSettingTab {
 					cls: 'setting-command-hotkeys',
 				});
 				hotkeys.forEach((hotkey) => {
-					new HotkeySetting({
+					const hotkeySetting = new HotkeySetting({
 						target: hotkeyContainerEl,
 						props: {
 							hotkey,
 						},
 					});
+					hotkeySetting.$on('removed', () => {
+						hotkeySetting.$destroy();
+						(settings.searchModeHotkeys[key] as Hotkey[]).remove(
+							hotkey
+						);
+						this.plugin.saveSettings();
+					});
+					this.svelteComponents.push(hotkeySetting);
 				});
 
 				setting
 					.addExtraButton((component) => {
 						component
 							.setIcon('reset')
-							.setTooltip('Restore default');
+							.setTooltip('Restore default')
+							.onClick(async () => {
+								const defaultHotkeys = [
+									...(DEFAULT_SETTINGS.searchModeHotkeys[
+										key
+									] ?? []),
+								];
+								if (!defaultHotkeys) return;
+								settings.searchModeHotkeys[key] =
+									defaultHotkeys;
+								await this.plugin.saveSettings();
+								this.display();
+							});
 					})
 					.addExtraButton((component) => {
 						component
@@ -310,18 +339,40 @@ export class CoreSearchAssistantSettingTab extends PluginSettingTab {
 				const hotkeyContainerEl = setting.controlEl.createDiv({
 					cls: 'setting-command-hotkeys',
 				});
-				new HotkeySetting({
-					target: hotkeyContainerEl,
-					props: {
-						hotkey: hotkeys[0],
-					},
+				hotkeys.forEach((hotkey) => {
+					const hotkeySetting = new HotkeySetting({
+						target: hotkeyContainerEl,
+						props: {
+							hotkey,
+						},
+					});
+					hotkeySetting.$on('removed', () => {
+						hotkeySetting.$destroy();
+						(settings.previewModalHotkeys[key] as Hotkey[]).remove(
+							hotkey
+						);
+						this.plugin.saveSettings();
+						this.display();
+					});
+					this.svelteComponents.push(hotkeySetting);
 				});
 
 				setting
 					.addExtraButton((component) => {
 						component
 							.setIcon('reset')
-							.setTooltip('Restore default');
+							.setTooltip('Restore default')
+							.onClick(async () => {
+								const defaultHotkeys = [
+									...(DEFAULT_SETTINGS.previewModalHotkeys[
+										key
+									] ?? []),
+								];
+								settings.previewModalHotkeys[key] =
+									defaultHotkeys;
+								await this.plugin.saveSettings();
+								this.display();
+							});
 					})
 					.addExtraButton((component) => {
 						component
