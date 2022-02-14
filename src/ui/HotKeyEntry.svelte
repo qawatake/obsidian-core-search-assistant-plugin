@@ -7,6 +7,8 @@
 	export let actionName: string | undefined;
 	export let hotkeys: Hotkey[] | undefined;
 
+	$: _hotkeys = [...(hotkeys ?? [])];
+
 	// binds
 	let restoreButtonEl: HTMLElement | undefined;
 	let addHotkeyButtonEl: HTMLElement | undefined;
@@ -37,15 +39,12 @@
 	<div class="info-container">{actionName}</div>
 	<div class="control-container">
 		<div class="hotkeys-container">
-			{#each hotkeys ?? [] as hotkey}
+			{#each _hotkeys ?? [] as hotkey}
 				<HotkeySetting
 					on:removed={() => {
-						hotkeys?.remove(hotkey);
-						hotkeys = hotkeys;
-						dispatcher('removed');
-						// dispatcher('removed', {
-						// 	hotkey: hotkey,
-						// });
+						dispatcher('removed', {
+							removed: hotkey,
+						});
 					}}
 					{hotkey}
 				/>
@@ -55,7 +54,7 @@
 			class="icon-container"
 			bind:this={restoreButtonEl}
 			on:click={() => {
-				dispatcher('restore');
+				dispatcher('restored');
 			}}
 		/>
 		<span

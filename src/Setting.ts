@@ -12,6 +12,7 @@ import {
 import type { SvelteComponent } from 'svelte';
 import HotkeySetting from 'ui/HotkeySetting.svelte';
 import HotkeyEntry from 'ui/HotkeyEntry.svelte';
+import { HotkeySetter } from 'ui/HotkeySetter';
 
 const AVAILABLE_OUTLINE_WIDTHS = [0, 3, 5, 7, 10] as const;
 export type AvailableOutlineWidth = typeof AVAILABLE_OUTLINE_WIDTHS[number];
@@ -89,13 +90,12 @@ export const DEFAULT_SETTINGS: CoreSearchAssistantPluginSettings = {
 
 export class CoreSearchAssistantSettingTab extends PluginSettingTab {
 	plugin: CoreSearchAssistantPlugin;
-	svelteComponents: SvelteComponent[];
-	scope: Scope | undefined;
+	hotkeySetters: HotkeySetter[];
 
 	constructor(app: App, plugin: CoreSearchAssistantPlugin) {
 		super(app, plugin);
 		this.plugin = plugin;
-		this.svelteComponents = [];
+		this.hotkeySetters = [];
 	}
 
 	display(): void {
@@ -287,175 +287,51 @@ export class CoreSearchAssistantSettingTab extends PluginSettingTab {
 		containerEl.createEl('h3', { text: 'Search mode' });
 		if (!settings) return;
 		Object.keys(settings.searchModeHotkeys).forEach((actionId) => {
-			const hotkeyEntry = this.addHotkey(
+			const hotkeys = settings.searchModeHotkeys[actionId];
+			const defaultHotkeys = DEFAULT_SETTINGS.searchModeHotkeys[actionId];
+			if (!hotkeys) return;
+			if (!defaultHotkeys) return;
+			const hotkeySetter = new HotkeySetter(
+				this.app,
+				containerEl,
 				actionId,
-				settings.searchModeHotkeys
-			);
-			if (hotkeyEntry) {
-				this.svelteComponents.push(hotkeyEntry);
-			}
+				hotkeys,
+				defaultHotkeys
+			).onChanged((renewed) => {
+				settings.searchModeHotkeys[actionId] = renewed;
+				this.plugin.saveSettings();
+				return true;
+			});
+			this.hotkeySetters.push(hotkeySetter);
 		});
 
 		containerEl.createEl('h3', { text: 'Preview Modal' });
-		Object.keys(settings.previewModalHotkeys).forEach((key) => {
-			const hotkeys = settings.previewModalHotkeys[key] as Hotkey[];
-			new Setting(containerEl).setName(key).then((setting) => {
-				const hotkeyContainerEl = setting.controlEl.createDiv({
-					cls: 'setting-command-hotkeys',
-				});
-				hotkeys.forEach((hotkey) => {
-					const hotkeySetting = new HotkeySetting({
-						target: hotkeyContainerEl,
-						props: {
-							hotkey,
-						},
-					});
-					hotkeySetting.$on('removed', () => {
-						hotkeySetting.$destroy();
-						(settings.previewModalHotkeys[key] as Hotkey[]).remove(
-							hotkey
-						);
-						this.plugin.saveSettings();
-						this.display();
-					});
-					this.svelteComponents.push(hotkeySetting);
-				});
-
-				setting
-					.addExtraButton((component) => {
-						component
-							.setIcon('reset')
-							.setTooltip('Restore default')
-							.onClick(async () => {
-								const defaultHotkeys = [
-									...(DEFAULT_SETTINGS.previewModalHotkeys[
-										key
-									] ?? []),
-								];
-								settings.previewModalHotkeys[key] =
-									defaultHotkeys;
-								await this.plugin.saveSettings();
-								this.display();
-							});
-					})
-					.addExtraButton((component) => {
-						component
-							.setIcon('any-key')
-							.setTooltip('Customize this command')
-							.onClick(() => {
-								this.scope = new Scope();
-								this.app.keymap.pushScope(this.scope);
-								// this.scope.register([], 'Escape', () => {
-								// 	console.log('escape');
-								// 	if (this.scope)
-								// 		this.app.keymap.popScope(this.scope);
-								// });
-								this.scope.register([], null, (evt) => {
-									const hotkey = extractHotkey(evt);
-									const shouldAddHotkey =
-										evt.key !== 'Escape' &&
-										!settings.previewModalHotkeys[
-											key
-										]?.includes(hotkey);
-									if (shouldAddHotkey) {
-										settings.previewModalHotkeys[key]?.push(
-											hotkey
-										);
-										const hotkeySetting = new HotkeySetting(
-											{
-												target: hotkeyContainerEl,
-												props: {
-													hotkey,
-												},
-											}
-										);
-										hotkeySetting.$on('removed', () => {
-											hotkeySetting.$destroy();
-											(
-												settings.previewModalHotkeys[
-													key
-												] as Hotkey[]
-											).remove(hotkey);
-											this.plugin.saveSettings();
-											this.display();
-										});
-										this.svelteComponents.push(
-											hotkeySetting
-										);
-										this.plugin.saveSettings();
-									}
-									if (this.scope)
-										this.app.keymap.popScope(this.scope);
-								});
-							});
-					});
+		Object.keys(settings.previewModalHotkeys).forEach((actionId) => {
+			const hotkeys = settings.previewModalHotkeys[actionId];
+			const defaultHotkeys =
+				DEFAULT_SETTINGS.previewModalHotkeys[actionId];
+			if (!hotkeys) return;
+			if (!defaultHotkeys) return;
+			const hotkeySetter = new HotkeySetter(
+				this.app,
+				containerEl,
+				actionId,
+				hotkeys,
+				defaultHotkeys
+			).onChanged((renewed) => {
+				settings.previewModalHotkeys[actionId] = renewed;
+				this.plugin.saveSettings();
+				return true;
 			});
+			this.hotkeySetters.push(hotkeySetter);
 		});
 	}
 
 	override hide() {
 		super.hide();
-		this.svelteComponents.forEach((component) => {
-			component.$destroy();
-		});
-		if (this.scope) {
-			this.app.keymap.popScope(this.scope);
-			this.scope = undefined;
-		}
+		this.hotkeySetters.forEach((s) => s.unload());
+		this.hotkeySetters = [];
 		console.log('hide');
-	}
-
-	addHotkey(
-		actionId: string,
-		hotkeyMap: HotkeyMap
-	): SvelteComponent | undefined {
-		const { containerEl } = this;
-		const { settings } = this.plugin;
-		if (!settings) return undefined;
-		const hotkeys = hotkeyMap[actionId] as Hotkey[];
-		const hotkeyEntry = new HotkeyEntry({
-			target: containerEl,
-			props: {
-				actionName: actionId,
-				hotkeys: hotkeys,
-			},
-		});
-		hotkeyEntry.$on('removed', () => {
-			console.log('removed');
-			this.plugin.saveSettings();
-		});
-		hotkeyEntry.$on('restore', () => {
-			console.log('restore');
-			const defaultHotkeys = [
-				...(DEFAULT_SETTINGS.searchModeHotkeys[actionId] ?? []),
-			];
-			hotkeyEntry.$set({
-				hotkeys: defaultHotkeys,
-			});
-			settings.searchModeHotkeys[actionId] = defaultHotkeys;
-			this.plugin.saveSettings();
-		});
-		hotkeyEntry.$on('start-listening-keys', () => {
-			this.scope = new Scope();
-			this.app.keymap.pushScope(this.scope);
-			console.log('start');
-			this.scope.register([], null, (evt) => {
-				const hotkey = extractHotkey(evt);
-				const shouldAddHotkey =
-					evt.key !== 'Escape' &&
-					!settings.searchModeHotkeys[actionId]?.includes(hotkey);
-				console.log(hotkey);
-				if (shouldAddHotkey) {
-					settings.searchModeHotkeys[actionId]?.push(hotkey);
-					hotkeyEntry.$set({
-						hotkeys: settings.searchModeHotkeys[actionId],
-					});
-					this.plugin.saveSettings();
-				}
-				if (this.scope) this.app.keymap.popScope(this.scope);
-			});
-		});
-		return hotkeyEntry;
 	}
 }
 
@@ -475,29 +351,6 @@ export function validOutlineWidth(width: unknown): AvailableOutlineWidth {
 export function parseCardLayout(layout: AvailableCardLayout): [number, number] {
 	const [row, column] = layout.split('x');
 	return [Number.parseInt(row ?? '0'), Number.parseInt(column ?? '0')];
-}
-
-function extractHotkey(evt: KeyboardEvent): Hotkey {
-	const modifiers: Modifier[] = [];
-	if (Keymap.isModifier(evt, 'Alt')) {
-		modifiers.push('Alt');
-	}
-	if (Keymap.isModifier(evt, 'Shift')) {
-		modifiers.push('Shift');
-	}
-	if (Keymap.isModifier(evt, 'Meta')) {
-		modifiers.push('Meta');
-	}
-	if (Keymap.isModifier(evt, 'Mod')) {
-		modifiers.push('Mod');
-	}
-	if (Keymap.isModifier(evt, 'Ctrl')) {
-		modifiers.push('Ctrl');
-	}
-	return {
-		modifiers,
-		key: evt.key,
-	};
 }
 
 interface SearchModeHotkeys {
