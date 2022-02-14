@@ -84,7 +84,7 @@ export class HotkeySetter {
 			this.scope = new Scope();
 			this.app.keymap.pushScope(this.scope);
 			console.log('start');
-			this.scope.register([], null, (evt) => {
+			this.scope.register(null as any, null, (evt) => {
 				const hotkey = extractHotkey(evt);
 				const shouldSkip =
 					evt.key === 'Escape' ||
