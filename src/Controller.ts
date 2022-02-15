@@ -539,57 +539,82 @@ export class Controller extends Component {
 	}
 
 	private setHotkeys() {
+		const hotkeyMap = this.plugin.settings?.searchModeHotkeys;
+		if (!hotkeyMap) return;
+
 		const scope = new Scope();
 		this.app.keymap.pushScope(scope);
 
-		scope.register(['Ctrl'], 'N', (evt: KeyboardEvent) => {
-			evt.preventDefault(); // ← necessary to stop cursor in search input
-			this.navigateForward();
-			this.showWorkspacePreview();
+		hotkeyMap.selectNext.forEach((hotkey) => {
+			scope.register(
+				hotkey.modifiers,
+				hotkey.key,
+				(evt: KeyboardEvent) => {
+					evt.preventDefault(); // ← necessary to stop cursor in search input
+					this.navigateForward();
+					this.showWorkspacePreview();
+				}
+			);
 		});
-		scope.register([], 'ArrowDown', (evt: KeyboardEvent) => {
-			evt.preventDefault();
-			this.navigateForward();
-			this.showWorkspacePreview();
+		hotkeyMap.selectPrevious.forEach((hotkey) => {
+			scope.register(
+				hotkey.modifiers,
+				hotkey.key,
+				(evt: KeyboardEvent) => {
+					evt.preventDefault();
+					this.navigateBack();
+					this.showWorkspacePreview();
+				}
+			);
 		});
-		scope.register(['Ctrl'], 'P', (evt: KeyboardEvent) => {
-			evt.preventDefault();
-			this.navigateBack();
-			this.showWorkspacePreview();
+		hotkeyMap.open.forEach((hotkey) => {
+			scope.register(
+				hotkey.modifiers,
+				hotkey.key,
+				(evt: KeyboardEvent) => {
+					evt.preventDefault(); // ← necessary to prevent renew query, which triggers item detection events
+					this.open();
+					this.exit();
+				}
+			);
 		});
-		scope.register([], 'ArrowUp', (evt: KeyboardEvent) => {
-			evt.preventDefault();
-			this.navigateBack();
-			this.showWorkspacePreview();
+		hotkeyMap.openInNewPane.forEach((hotkey) => {
+			scope.register(
+				hotkey.modifiers,
+				hotkey.key,
+				(evt: KeyboardEvent) => {
+					evt.preventDefault();
+					this.open(this.plugin.settings?.splitDirection);
+					this.exit();
+				}
+			);
 		});
-		scope.register(['Ctrl'], 'Enter', (evt: KeyboardEvent) => {
-			evt.preventDefault(); // ← necessary to prevent renew query, which triggers item detection events
-			this.open();
-			this.exit();
+		hotkeyMap.previewModal.forEach((hotkey) => {
+			scope.register(hotkey.modifiers, hotkey.key, () => {
+				if (this.app.vault.config.legacyEditor) {
+					return;
+				}
+				this.openPreviewModal();
+			});
 		});
-		scope.register(['Ctrl', 'Shift'], 'Enter', (evt: KeyboardEvent) => {
-			evt.preventDefault();
-			this.open(this.plugin.settings?.splitDirection);
-			this.exit();
+		hotkeyMap.showOptions.forEach((hotkey) => {
+			scope.register(hotkey.modifiers, hotkey.key, () => {
+				new OptionModal(this.app, this.plugin, this.modeScope).open();
+			});
 		});
-		scope.register(['Ctrl'], ' ', () => {
-			if (this.app.vault.config.legacyEditor) {
-				return;
-			}
-			this.openPreviewModal();
+		hotkeyMap.nextPage.forEach((hotkey) => {
+			scope.register(hotkey.modifiers, hotkey.key, () => {
+				if (this.plugin.settings?.autoPreviewMode === 'cardView') {
+					this.moveToNextPage();
+				}
+			});
 		});
-		scope.register(['Shift'], ' ', () => {
-			new OptionModal(this.app, this.plugin, this.modeScope).open();
-		});
-		scope.register(['Ctrl'], ']', () => {
-			if (this.plugin.settings?.autoPreviewMode === 'cardView') {
-				this.moveToNextPage();
-			}
-		});
-		scope.register(['Ctrl'], '[', () => {
-			if (this.plugin.settings?.autoPreviewMode === 'cardView') {
-				this.moveToPreviousPage();
-			}
+		hotkeyMap.previousPage.forEach((hotkey) => {
+			scope.register(hotkey.modifiers, hotkey.key, () => {
+				if (this.plugin.settings?.autoPreviewMode === 'cardView') {
+					this.moveToPreviousPage();
+				}
+			});
 		});
 		scope.register([], 'Escape', () => {
 			this.exit();
