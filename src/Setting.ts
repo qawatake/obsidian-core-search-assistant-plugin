@@ -75,6 +75,7 @@ export const DEFAULT_SETTINGS: CoreSearchAssistantPluginSettings = {
 		bigScrollUp: [{ modifiers: ['Shift'], key: ' ' }],
 		open: [{ modifiers: ['Ctrl'], key: 'Enter' }],
 		openInNewPage: [{ modifiers: ['Ctrl', 'Shift'], key: 'Enter' }],
+		closeModal: [{ modifiers: ['Ctrl'], key: ' ' }],
 		focusNext: [{ modifiers: [], key: 'Tab' }],
 		focusPrevious: [{ modifiers: ['Shift'], key: 'Tab' }],
 	},
@@ -278,13 +279,10 @@ export class CoreSearchAssistantSettingTab extends PluginSettingTab {
 		const { settings } = this.plugin;
 		containerEl.createEl('h3', { text: 'Search mode' });
 		if (!settings) return;
-		Object.keys(settings.searchModeHotkeys).forEach((id) => {
-			const actionId = id as SearchModeHotkeyActionId;
+		SEARCH_MODE_HOTKEY_ACTION_IDS.forEach((actionId) => {
 			const hotkeys = settings.searchModeHotkeys[actionId];
 			const defaultHotkeys = DEFAULT_SETTINGS.searchModeHotkeys[actionId];
 			const description = SEARCH_MODE_HOTKEY_ACTION_INFO[actionId];
-			if (!hotkeys) return;
-			if (!defaultHotkeys) return;
 			const hotkeySetter = new HotkeySetter(
 				this.app,
 				containerEl,
@@ -315,16 +313,12 @@ export class CoreSearchAssistantSettingTab extends PluginSettingTab {
 		});
 
 		containerEl.createEl('h3', { text: 'Preview Modal' });
-		Object.keys(settings.previewModalHotkeys).forEach((id) => {
-			const actionId = id as PreviewModalHotkeyActionId;
+		PREVIEW_MODAL_HOTKEY_ACTION_IDS.forEach((actionId) => {
 			const hotkeys = settings.previewModalHotkeys[actionId];
 			const defaultHotkeys =
 				DEFAULT_SETTINGS.previewModalHotkeys[actionId];
 			const description = PREVIEW_MODAL_HOTKEY_ACTION_INFO[actionId];
 			DEFAULT_SETTINGS.previewModalHotkeys[actionId];
-			if (!hotkeys) return;
-			if (!defaultHotkeys) return;
-			if (!description) return;
 			const hotkeySetter = new HotkeySetter(
 				this.app,
 				containerEl,
@@ -422,6 +416,7 @@ const PREVIEW_MODAL_HOTKEY_ACTION_IDS = [
 	'bigScrollUp',
 	'open',
 	'openInNewPage',
+	'closeModal',
 	'focusNext',
 	'focusPrevious',
 ] as const;
@@ -446,6 +441,7 @@ const PREVIEW_MODAL_HOTKEY_ACTION_INFO: {
 	bigScrollUp: 'Scroll up a lot',
 	open: 'Open the selected item',
 	openInNewPage: 'Open the selected item in a new pane',
+	closeModal: 'Close the modal',
 	focusNext: 'Focus on the next match',
 	focusPrevious: 'Focus on the previous match',
 };

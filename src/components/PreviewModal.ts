@@ -44,64 +44,84 @@ export class PreviewModal extends Modal {
 		this.renderer?.highlightMatches(this.item.result.content ?? []);
 
 		this.modeScope.push();
+		const hotkeyMap = this.plugin.settings?.previewModalHotkeys;
+		if (!hotkeyMap) return;
+		console.log(hotkeyMap);
 
-		this.scope.register(['Ctrl'], ' ', () => {
-			this.shouldRestoreSelection = true;
-			this.close();
-		});
-
-		this.scope.register(['Ctrl'], 'Enter', () => {
-			this.openAndFocus(this.currentFocus);
-			this.plugin.controller?.exit();
-			this.shouldRestoreSelection = false;
-			this.close();
+		hotkeyMap.closeModal.forEach((hotkey) => {
+			this.scope.register(hotkey.modifiers, hotkey.key, () => {
+				this.shouldRestoreSelection = true;
+				this.close();
+			});
 		});
 
-		this.scope.register(['Ctrl', 'Shift'], 'Enter', () => {
-			this.openAndFocus(
-				this.currentFocus,
-				this.plugin.settings?.splitDirection
-			);
-			this.plugin.controller?.exit();
-			this.shouldRestoreSelection = false;
-			this.close();
+		hotkeyMap.open.forEach((hotkey) => {
+			this.scope.register(hotkey.modifiers, hotkey.key, () => {
+				this.openAndFocus(this.currentFocus);
+				this.plugin.controller?.exit();
+				this.shouldRestoreSelection = false;
+				this.close();
+			});
 		});
 
-		this.scope.register([], ' ', () => {
-			this.scroll('down');
+		hotkeyMap.openInNewPage.forEach((hotkey) => {
+			this.scope.register(hotkey.modifiers, hotkey.key, () => {
+				this.openAndFocus(
+					this.currentFocus,
+					this.plugin.settings?.splitDirection
+				);
+				this.plugin.controller?.exit();
+				this.shouldRestoreSelection = false;
+				this.close();
+			});
 		});
-		this.scope.register(['Shift'], ' ', () => {
-			this.scroll('up');
+
+		hotkeyMap.bigScrollDown.forEach((hotkey) => {
+			this.scope.register(hotkey.modifiers, hotkey.key, () => {
+				this.scroll('down');
+			});
 		});
-		this.scope.register([], 'ArrowDown', () => {
-			this.scroll('down', SCROLL_AMOUNT);
+
+		hotkeyMap.bigScrollUp.forEach((hotkey) => {
+			this.scope.register(hotkey.modifiers, hotkey.key, () => {
+				this.scroll('up');
+			});
 		});
-		this.scope.register(['Ctrl'], 'n', () => {
-			this.scroll('down', SCROLL_AMOUNT);
+
+		hotkeyMap.scrollDown.forEach((hotkey) => {
+			this.scope.register(hotkey.modifiers, hotkey.key, () => {
+				this.scroll('down', SCROLL_AMOUNT);
+			});
 		});
-		this.scope.register([], 'ArrowUp', () => {
-			this.scroll('up', SCROLL_AMOUNT);
+
+		hotkeyMap.scrollUp.forEach((hotkey) => {
+			this.scope.register(hotkey.modifiers, hotkey.key, () => {
+				this.scroll('up', SCROLL_AMOUNT);
+			});
 		});
-		this.scope.register(['Ctrl'], 'p', () => {
-			this.scroll('up', SCROLL_AMOUNT);
+
+		hotkeyMap.focusNext.forEach((hotkey) => {
+			this.scope.register(hotkey.modifiers, hotkey.key, (evt) => {
+				evt.preventDefault(); // to prevent inserting indent in editing mode in the active leaf
+				const numMatches = this.countMatches();
+				if (numMatches === undefined || numMatches === 0) {
+					return;
+				}
+				this.currentFocus = cyclicId(++this.currentFocus, numMatches);
+				this.focusOn(this.currentFocus, true);
+			});
 		});
-		this.scope.register([], 'Tab', (evt) => {
-			evt.preventDefault(); // to prevent inserting indent in editing mode in the active leaf
-			const numMatches = this.countMatches();
-			if (numMatches === undefined || numMatches === 0) {
-				return;
-			}
-			this.currentFocus = cyclicId(++this.currentFocus, numMatches);
-			this.focusOn(this.currentFocus, true);
-		});
-		this.scope.register(['Shift'], 'Tab', (evt) => {
-			evt.preventDefault();
-			const numMatches = this.countMatches();
-			if (numMatches === undefined || numMatches === 0) {
-				return;
-			}
-			this.currentFocus = cyclicId(--this.currentFocus, numMatches);
-			this.focusOn(this.currentFocus, true);
+
+		hotkeyMap.focusPrevious.forEach((hotkey) => {
+			this.scope.register(hotkey.modifiers, hotkey.key, (evt) => {
+				evt.preventDefault();
+				const numMatches = this.countMatches();
+				if (numMatches === undefined || numMatches === 0) {
+					return;
+				}
+				this.currentFocus = cyclicId(--this.currentFocus, numMatches);
+				this.focusOn(this.currentFocus, true);
+			});
 		});
 
 		const togglePreviewHotkeys = this.getHotkeys(TOGGLE_PREVIEW_COMMAND_ID);
