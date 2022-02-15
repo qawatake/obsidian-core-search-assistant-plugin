@@ -5,14 +5,8 @@ import {
 	PluginSettingTab,
 	Setting,
 	type SplitDirection,
-	Scope,
-	type Modifier,
-	Keymap,
 	Notice,
 } from 'obsidian';
-import type { SvelteComponent } from 'svelte';
-import HotkeySetting from 'ui/HotkeySetting.svelte';
-import HotkeyEntry from 'ui/HotkeyEntry.svelte';
 import { HotkeySetter } from 'ui/HotkeySetter';
 import { contain } from 'utils/Keymap';
 
@@ -30,10 +24,6 @@ const autoPreviewModeInfos: Record<AutoPreviewMode, string> = {
 const AVAILABLE_CARD_LAYOUT = ['2x2', '2x3', '3x2', '3x3'] as const;
 type AvailableCardLayout = typeof AVAILABLE_CARD_LAYOUT[number];
 
-type HotkeyMap = {
-	[actionId: string]: Hotkey[];
-};
-
 export interface CoreSearchAssistantPluginSettings {
 	keepSelectedItemsCentered: boolean;
 	outlineWidth: AvailableOutlineWidth;
@@ -43,8 +33,8 @@ export interface CoreSearchAssistantPluginSettings {
 	autoToggleSidebar: boolean;
 	renderCardsManually: boolean;
 	hideIframe: boolean;
-	searchModeHotkeys: HotkeyMap;
-	previewModalHotkeys: HotkeyMap;
+	searchModeHotkeys: SearchModeHotkeyMap;
+	previewModalHotkeys: PreviewModalHotkeyMap;
 }
 
 export const DEFAULT_SETTINGS: CoreSearchAssistantPluginSettings = {
@@ -288,15 +278,17 @@ export class CoreSearchAssistantSettingTab extends PluginSettingTab {
 		const { settings } = this.plugin;
 		containerEl.createEl('h3', { text: 'Search mode' });
 		if (!settings) return;
-		Object.keys(settings.searchModeHotkeys).forEach((actionId) => {
+		Object.keys(settings.searchModeHotkeys).forEach((id) => {
+			const actionId = id as SearchModeHotkeyActionId;
 			const hotkeys = settings.searchModeHotkeys[actionId];
 			const defaultHotkeys = DEFAULT_SETTINGS.searchModeHotkeys[actionId];
+			const description = SEARCH_MODE_HOTKEY_ACTION_INFO[actionId];
 			if (!hotkeys) return;
 			if (!defaultHotkeys) return;
 			const hotkeySetter = new HotkeySetter(
 				this.app,
 				containerEl,
-				actionId,
+				description,
 				hotkeys,
 				defaultHotkeys
 			).onChanged((renewed, added) => {
@@ -323,16 +315,20 @@ export class CoreSearchAssistantSettingTab extends PluginSettingTab {
 		});
 
 		containerEl.createEl('h3', { text: 'Preview Modal' });
-		Object.keys(settings.previewModalHotkeys).forEach((actionId) => {
+		Object.keys(settings.previewModalHotkeys).forEach((id) => {
+			const actionId = id as PreviewModalHotkeyActionId;
 			const hotkeys = settings.previewModalHotkeys[actionId];
 			const defaultHotkeys =
 				DEFAULT_SETTINGS.previewModalHotkeys[actionId];
+			const description = PREVIEW_MODAL_HOTKEY_ACTION_INFO[actionId];
+			DEFAULT_SETTINGS.previewModalHotkeys[actionId];
 			if (!hotkeys) return;
 			if (!defaultHotkeys) return;
+			if (!description) return;
 			const hotkeySetter = new HotkeySetter(
 				this.app,
 				containerEl,
-				actionId,
+				description,
 				hotkeys,
 				defaultHotkeys
 			).onChanged((renewed, added) => {
@@ -385,24 +381,71 @@ export function parseCardLayout(layout: AvailableCardLayout): [number, number] {
 	return [Number.parseInt(row ?? '0'), Number.parseInt(column ?? '0')];
 }
 
-interface SearchModeHotkeys {
-	selectNext: Hotkey[];
-	selectPrevious: Hotkey[];
-	previewModal: Hotkey[];
-	open: Hotkey[];
-	openInNewPane: Hotkey[];
-	showOptions: Hotkey[];
-	nextPage: Hotkey[];
-	previousPage: Hotkey[];
-}
+const SEARCH_MODE_HOTKEY_ACTION_IDS = [
+	'selectNext',
+	'selectPrevious',
+	'previewModal',
+	'open',
+	'openInNewPane',
+	'showOptions',
+	'nextPage',
+	'previousPage',
+] as const;
 
-interface PreviewModalHotkeys {
-	scrollDown: Hotkey[];
-	scrollUp: Hotkey[];
-	bigScrollDown: Hotkey[];
-	bigScrollUp: Hotkey[];
-	open: Hotkey[];
-	openInNewPage: Hotkey[];
-	focusNext: Hotkey[];
-	focusPrevious: Hotkey[];
-}
+type SearchModeHotkeyActionId = typeof SEARCH_MODE_HOTKEY_ACTION_IDS[number];
+
+type SearchModeHotkeyMap = {
+	[actionId in SearchModeHotkeyActionId]: Hotkey[];
+};
+
+/**
+ * key: actionId
+ * value: human friendly name
+ */
+const SEARCH_MODE_HOTKEY_ACTION_INFO: {
+	[actionId in SearchModeHotkeyActionId]: string;
+} = {
+	selectNext: 'Select the next item',
+	selectPrevious: 'Select the previous item',
+	previewModal: 'Preview the selected item',
+	open: 'Open the selected item',
+	openInNewPane: 'Open the selected item in a new pane',
+	showOptions: 'Set search options',
+	nextPage: 'Move to the next set of cards',
+	previousPage: 'Move to the previous set of cards',
+};
+
+const PREVIEW_MODAL_HOTKEY_ACTION_IDS = [
+	'scrollDown',
+	'scrollUp',
+	'bigScrollDown',
+	'bigScrollUp',
+	'open',
+	'openInNewPage',
+	'focusNext',
+	'focusPrevious',
+] as const;
+
+type PreviewModalHotkeyActionId =
+	typeof PREVIEW_MODAL_HOTKEY_ACTION_IDS[number];
+
+type PreviewModalHotkeyMap = {
+	[actionId in PreviewModalHotkeyActionId]: Hotkey[];
+};
+
+/**
+ * key: actionId
+ * value: human friendly name
+ */
+const PREVIEW_MODAL_HOTKEY_ACTION_INFO: {
+	[actionId in PreviewModalHotkeyActionId]: string;
+} = {
+	scrollDown: 'Scroll down a bit',
+	scrollUp: 'Scroll up a bit',
+	bigScrollDown: 'Scroll down a lot',
+	bigScrollUp: 'Scroll up a lot',
+	open: 'Open the selected item',
+	openInNewPage: 'Open the selected item in a new pane',
+	focusNext: 'Focus on the next match',
+	focusPrevious: 'Focus on the previous match',
+};
