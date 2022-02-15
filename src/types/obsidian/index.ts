@@ -129,4 +129,6 @@ declare module 'obsidian' {
 		customKeys: { [commandId: string]: Hotkey[] };
 		defaultKeys: { [commandId: string]: Hotkey[] };
 	}
+
+	key
 }

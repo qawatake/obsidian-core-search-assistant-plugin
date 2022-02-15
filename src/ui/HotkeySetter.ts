@@ -1,6 +1,7 @@
-import { App, Keymap, Scope, type Hotkey, type Modifier } from 'obsidian';
+import { App, Scope, type Hotkey } from 'obsidian';
 import type { SvelteComponent } from 'svelte';
 import HotkeyEntry from 'ui/HotkeyEntry.svelte';
+import { getHotkey } from 'utils/Keymap';
 
 // must call `unload` when it is not necessary
 export class HotkeySetter {
@@ -85,7 +86,8 @@ export class HotkeySetter {
 			this.app.keymap.pushScope(this.scope);
 			console.log('start');
 			this.scope.register(null as any, null, (evt) => {
-				const hotkey = extractHotkey(evt);
+				evt.preventDefault(); // to prevent scroll
+				const hotkey = getHotkey(evt);
 				const shouldSkip =
 					evt.key === 'Escape' ||
 					this.currentHotkeys.includes(hotkey);
@@ -115,27 +117,4 @@ export class HotkeySetter {
 		}
 		console.log('unloaded');
 	}
-}
-
-function extractHotkey(evt: KeyboardEvent): Hotkey {
-	const modifiers: Modifier[] = [];
-	if (Keymap.isModifier(evt, 'Alt')) {
-		modifiers.push('Alt');
-	}
-	if (Keymap.isModifier(evt, 'Shift')) {
-		modifiers.push('Shift');
-	}
-	if (Keymap.isModifier(evt, 'Meta')) {
-		modifiers.push('Meta');
-	}
-	if (Keymap.isModifier(evt, 'Mod')) {
-		modifiers.push('Mod');
-	}
-	if (Keymap.isModifier(evt, 'Ctrl')) {
-		modifiers.push('Ctrl');
-	}
-	return {
-		modifiers,
-		key: evt.key,
-	};
 }

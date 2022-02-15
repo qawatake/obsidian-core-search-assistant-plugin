@@ -1,12 +1,12 @@
 <script lang="ts">
-	import { Platform, setIcon, type Hotkey } from 'obsidian';
+	import { setIcon, type Hotkey } from 'obsidian';
 	import { createEventDispatcher, onDestroy, onMount } from 'svelte';
+	import { convertHotkeyToText } from 'utils/Keymap';
 
 	// props
 	export let hotkey: Hotkey;
 
 	// binds
-	// let containerEl: HTMLElement | undefined;
 	let iconContainerEl: HTMLSpanElement | undefined;
 
 	// internal variables
@@ -25,54 +25,10 @@
 	function onIconClicked() {
 		dispatcher('removed');
 	}
-
-	export function displayedText(hotkey: Hotkey): string {
-		console.log(hotkey);
-		const parts: string[] = [];
-		const cmdExists =
-			Platform.isMacOS &&
-			(hotkey.modifiers.includes('Meta') ||
-				hotkey.modifiers.includes('Mod'));
-		const winExists =
-			!Platform.isMacOS && hotkey.modifiers.includes('Meta');
-		const ctrlExists =
-			(!Platform.isMacOS && hotkey.modifiers.includes('Mod')) ||
-			hotkey.modifiers.includes('Ctrl');
-		if (cmdExists || winExists) {
-			parts.push('⌘');
-		}
-		if (ctrlExists) {
-			parts.push('⌃');
-		}
-		if (hotkey.modifiers.includes('Alt')) {
-			parts.push('⌥');
-		}
-		if (hotkey.modifiers.includes('Shift')) {
-			parts.push('⇧');
-		}
-		parts.push(convertKeyToText(hotkey.key).toUpperCase());
-		return ' ' + parts.join(' ') + ' ';
-	}
-
-	const KEY_TO_TEXT: { [key: string]: string } = {
-		ArrowDown: '↓',
-		ArrowUp: '↑',
-		ArrowRight: '→',
-		ArrowLef: '←',
-		' ': 'Space',
-		// Enter: '↵',
-	};
-
-	export function convertKeyToText(key: string): string {
-		if (Object.prototype.hasOwnProperty.call(KEY_TO_TEXT, key)) {
-			return KEY_TO_TEXT[key] ?? key;
-		}
-		return key;
-	}
 </script>
 
 <span class="setting-hotkey">
-	{displayedText(hotkey)}
+	{convertHotkeyToText(hotkey)}
 	<span
 		class="icon-container"
 		bind:this={iconContainerEl}
