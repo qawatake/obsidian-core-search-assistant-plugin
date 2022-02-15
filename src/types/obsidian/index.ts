@@ -1,4 +1,4 @@
-import { SORT_ORDER_IN_SEARCH } from 'types/Guards';
+import type { SORT_ORDER_IN_SEARCH } from 'types/Guards';
 
 export * from 'obsidian';
 
@@ -129,6 +129,4 @@ declare module 'obsidian' {
 		customKeys: { [commandId: string]: Hotkey[] };
 		defaultKeys: { [commandId: string]: Hotkey[] };
 	}
-
-	key
 }
