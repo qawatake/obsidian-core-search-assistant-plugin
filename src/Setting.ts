@@ -8,11 +8,13 @@ import {
 	Scope,
 	type Modifier,
 	Keymap,
+	Notice,
 } from 'obsidian';
 import type { SvelteComponent } from 'svelte';
 import HotkeySetting from 'ui/HotkeySetting.svelte';
 import HotkeyEntry from 'ui/HotkeyEntry.svelte';
 import { HotkeySetter } from 'ui/HotkeySetter';
+import { contain } from 'utils/Keymap';
 
 const AVAILABLE_OUTLINE_WIDTHS = [0, 3, 5, 7, 10] as const;
 export type AvailableOutlineWidth = typeof AVAILABLE_OUTLINE_WIDTHS[number];
@@ -299,7 +301,19 @@ export class CoreSearchAssistantSettingTab extends PluginSettingTab {
 				defaultHotkeys
 			).onChanged((renewed, added) => {
 				if (added) {
+					// modifier key should be pressed
 					if (added.modifiers.length === 0) return false;
+
+					// avoid collision
+					const collision = Object.values(
+						settings.searchModeHotkeys
+					).some((hotkeys) => {
+						return contain(hotkeys, added);
+					});
+					if (collision) {
+						new Notice('Hotkeys are conflicting!');
+						return false;
+					}
 				}
 				settings.searchModeHotkeys[actionId] = renewed;
 				this.plugin.saveSettings();
@@ -323,7 +337,19 @@ export class CoreSearchAssistantSettingTab extends PluginSettingTab {
 				defaultHotkeys
 			).onChanged((renewed, added) => {
 				if (added) {
+					// modifier key should be pressed
 					if (added.modifiers.length === 0) return false;
+
+					// avoid collision
+					const collision = Object.values(
+						settings.previewModalHotkeys
+					).some((hotkeys) => {
+						return contain(hotkeys, added);
+					});
+					if (collision) {
+						new Notice('Hotkeys are conflicting!');
+						return false;
+					}
 				}
 				settings.previewModalHotkeys[actionId] = renewed;
 				this.plugin.saveSettings();
