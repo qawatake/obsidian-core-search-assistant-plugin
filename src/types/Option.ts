@@ -1,4 +1,4 @@
-import { SORT_ORDER_IN_SEARCH } from 'types/Guards';
+import type { SORT_ORDER_IN_SEARCH } from 'types/Guards';
 
 export const NON_SORT_OPTION_ID = [
 	'matchingCase',

@@ -1,9 +1,9 @@
 import {
 	App,
-	EditorRange,
+	type EditorRange,
 	MarkdownView,
-	MarkdownViewModeType,
-	Match,
+	type MarkdownViewModeType,
+	type Match,
 	TFile,
 	WorkspaceLeaf,
 } from 'obsidian';

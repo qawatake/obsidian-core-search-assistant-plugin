@@ -3,8 +3,8 @@ import {
 	EVENT_SEARCH_RESULT_ITEM_DETECTED,
 	EVENT_SORT_ORDER_CHANGED,
 } from 'Events';
-import CoreSearchAssistantPlugin from 'main';
-import { App, Component, Scope, SplitDirection } from 'obsidian';
+import type CoreSearchAssistantPlugin from 'main';
+import * as obsidian from 'obsidian';
 import { OptionModal } from 'components/OptionModal';
 import { parseCardLayout } from 'Setting';
 import { PreviewModal } from 'components/PreviewModal';
@@ -12,7 +12,7 @@ import { Outline } from 'components/Outline';
 import { WorkspacePreview } from 'components/WorkspacePreview';
 import { CardView } from 'components/CardView';
 import { ModeScope } from 'ModeScope';
-import { SearchComponentInterface } from 'interfaces/SearchComponentInterface';
+import type { SearchComponentInterface } from 'interfaces/SearchComponentInterface';
 import { delay, retry } from 'utils/Util';
 
 const DELAY_TO_RELOAD_IN_MILLISECOND = 1000;
@@ -20,8 +20,8 @@ const RETRY_INTERVAL = 1;
 const RETRY_TRIALS = 1000;
 const DELAY_TO_RENDER_CARD_VIEW_ON_ENTRY_IN_MILLISECOND = 100;
 
-export class Controller extends Component {
-	private readonly app: App;
+export class Controller extends obsidian.Component {
+	private readonly app: obsidian.App;
 	private readonly plugin: CoreSearchAssistantPlugin;
 	private readonly searchInterface: SearchComponentInterface;
 	private readonly events: CoreSearchAssistantEvents;
@@ -42,7 +42,7 @@ export class Controller extends Component {
 	private _restoreOppositeSidedock: (() => void) | undefined;
 
 	constructor(
-		app: App,
+		app: obsidian.App,
 		plugin: CoreSearchAssistantPlugin,
 		events: CoreSearchAssistantEvents,
 		searchInterface: SearchComponentInterface
@@ -133,7 +133,7 @@ export class Controller extends Component {
 		this.cardView?.focusOn(pos);
 	}
 
-	open(direction?: SplitDirection) {
+	open(direction?: obsidian.SplitDirection) {
 		if (this.currentFocusId === undefined) {
 			return;
 		}
@@ -542,7 +542,7 @@ export class Controller extends Component {
 		const hotkeyMap = this.plugin.settings?.searchModeHotkeys;
 		if (!hotkeyMap) return;
 
-		const scope = new Scope();
+		const scope = new obsidian.Scope();
 		this.app.keymap.pushScope(scope);
 
 		hotkeyMap.selectNext.forEach((hotkey) => {

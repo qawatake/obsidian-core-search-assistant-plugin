@@ -1,16 +1,16 @@
-import CoreSearchAssistantPlugin from 'main';
+import type CoreSearchAssistantPlugin from 'main';
 import {
 	App,
 	Modal,
-	SearchResultItem,
-	SplitDirection,
+	type SearchResultItem,
+	type SplitDirection,
 	MarkdownView,
-	Hotkey,
+	type Hotkey,
 } from 'obsidian';
 import { INTERVAL_MILLISECOND_TO_BE_DETACHED } from 'components/WorkspacePreview';
 import { ViewGenerator } from 'interfaces/ViewGenerator';
 import { scrollIteration } from 'utils/Util';
-import { ModeScope } from 'ModeScope';
+import type { ModeScope } from 'ModeScope';
 
 type ScrollDirection = 'up' | 'down';
 
@@ -46,7 +46,6 @@ export class PreviewModal extends Modal {
 		this.modeScope.push();
 		const hotkeyMap = this.plugin.settings?.previewModalHotkeys;
 		if (!hotkeyMap) return;
-		console.log(hotkeyMap);
 
 		hotkeyMap.closeModal.forEach((hotkey) => {
 			this.scope.register(hotkey.modifiers, hotkey.key, () => {
@@ -227,7 +226,7 @@ export class PreviewModal extends Modal {
 		if (!(view instanceof MarkdownView)) {
 			throw '[ERROR in Core Search Assistant] failed to openAndFocus: view is not an instance of MarkdownView';
 		}
-		const editor = view.modes.source.editor;
+		const editor = view.editor;
 		const range = {
 			from: editor.offsetToPos(match[0]),
 			to: editor.offsetToPos(match[1]),

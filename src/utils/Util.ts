@@ -1,4 +1,4 @@
-import { Editor, Platform, type Hotkey } from 'obsidian';
+import type { Editor } from 'obsidian';
 
 export async function delay(millisecond: number) {
 	await new Promise((resolve) => setTimeout(resolve, millisecond));

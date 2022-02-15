@@ -3,7 +3,7 @@ import { CoreSearchAssistantEvents } from 'Events';
 import { SearchComponentInterface } from 'interfaces/SearchComponentInterface';
 import { Plugin } from 'obsidian';
 import {
-	CoreSearchAssistantPluginSettings,
+	type CoreSearchAssistantPluginSettings,
 	CoreSearchAssistantSettingTab,
 	DEFAULT_SETTINGS,
 } from 'Setting';

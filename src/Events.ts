@@ -1,4 +1,4 @@
-import { EventRef, Events } from 'obsidian';
+import { type EventRef, Events } from 'obsidian';
 
 export const EVENT_SEARCH_RESULT_ITEM_DETECTED = 'search-result-item-detected';
 export const EVENT_SORT_ORDER_CHANGED = 'sort-order-changed';
