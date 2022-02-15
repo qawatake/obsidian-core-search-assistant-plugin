@@ -36,3 +36,26 @@ export async function retry<U>(
 	}
 	return undefined;
 }
+
+export function shallowClone<T>(obj: T): T {
+	return Object.assign({}, obj);
+}
+
+export function deepClone<T>(obj: T): T {
+	if (typeof obj !== 'object') return obj;
+
+	if (obj instanceof Array) {
+		const clone = new Array(obj.length);
+		obj.forEach((value, id) => {
+			clone[id] = deepClone(value);
+		});
+		return clone as any;
+	}
+
+	const clone = shallowClone(obj);
+	for (const key in clone) {
+		const value = clone[key];
+		clone[key] = deepClone(value);
+	}
+	return clone;
+}

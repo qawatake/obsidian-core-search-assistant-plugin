@@ -7,6 +7,7 @@ import {
 	CoreSearchAssistantSettingTab,
 	DEFAULT_SETTINGS,
 } from 'Setting';
+import { deepClone } from 'utils/Util';
 
 export default class CoreSearchAssistantPlugin extends Plugin {
 	settings: CoreSearchAssistantPluginSettings | undefined;
@@ -35,9 +36,8 @@ export default class CoreSearchAssistantPlugin extends Plugin {
 
 	async loadSettings() {
 		this.settings = Object.assign(
-			{},
-			DEFAULT_SETTINGS,
-			await this.loadData()
+			deepClone(DEFAULT_SETTINGS),
+			deepClone(await this.loadData())
 		);
 	}
 
