@@ -1,7 +1,7 @@
 import { App, Scope, type Hotkey } from 'obsidian';
 import type { SvelteComponent } from 'svelte';
 import HotkeyEntry from 'ui/HotkeyEntry.svelte';
-import { getHotkey } from 'utils/Keymap';
+import { contain, getHotkey } from 'utils/Keymap';
 
 // must call `unload` when it is not necessary
 export class HotkeySetter {
@@ -166,7 +166,7 @@ export class HotkeySetter {
 			}
 
 			const hotkey = getHotkey(evt);
-			const collision = this.currentHotkeys.includes(hotkey);
+			const collision = contain(this.currentHotkeys, hotkey);
 			if (collision) return;
 
 			const renewed = [...this.currentHotkeys];

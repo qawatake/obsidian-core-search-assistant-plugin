@@ -119,3 +119,10 @@ export function getHotkey(evt: KeyboardEvent): Hotkey {
 		key,
 	};
 }
+
+export function contain(hotkeys: Hotkey[], hotkey: Hotkey): boolean {
+	const hotkeyId = convertHotkeyToText(hotkey);
+	return hotkeys.some((key) => {
+		return hotkeyId === convertHotkeyToText(key);
+	});
+}
