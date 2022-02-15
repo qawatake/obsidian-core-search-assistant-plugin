@@ -61,9 +61,13 @@ function deepClone<T>(obj: T): T {
 }
 
 export function deepMerge<T>(a: T, b: T): T {
-	if (typeof a !== typeof b) {
-		if (b === undefined) return deepClone(a);
+	if (b === undefined) {
+		return deepClone(a);
+	} else if (a === undefined) {
 		return deepClone(b);
+	}
+	if (typeof a !== typeof b) {
+		throw new Error(`failed to deepMerge ${a} and ${b}`);
 	}
 
 	if (typeof b !== 'object') return deepClone(b);

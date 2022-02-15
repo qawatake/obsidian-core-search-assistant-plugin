@@ -17,6 +17,7 @@ export default class CoreSearchAssistantPlugin extends Plugin {
 
 	override async onload() {
 		await this.loadSettings();
+
 		this.events = new CoreSearchAssistantEvents();
 		// should be called before adding controller because controller depends on searchInterface
 		this.searchInterface = this.addChild(
