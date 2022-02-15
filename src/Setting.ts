@@ -327,9 +327,6 @@ export class CoreSearchAssistantSettingTab extends PluginSettingTab {
 				defaultHotkeys
 			).onChanged((renewed, added) => {
 				if (added) {
-					// modifier key should be pressed
-					if (added.modifiers.length === 0) return false;
-
 					// avoid collision
 					const collision = Object.values(
 						settings.previewModalHotkeys
