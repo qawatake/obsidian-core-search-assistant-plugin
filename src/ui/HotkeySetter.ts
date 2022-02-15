@@ -162,6 +162,9 @@ export class HotkeySetter {
 			evt.preventDefault(); // to prevent scroll
 
 			if (evt.key === 'Escape') {
+				component.$set({
+					listening: false,
+				});
 				if (this.scope) this.app.keymap.popScope(this.scope);
 			}
 
