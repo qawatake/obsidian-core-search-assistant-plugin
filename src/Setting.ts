@@ -78,6 +78,7 @@ export const DEFAULT_SETTINGS: CoreSearchAssistantPluginSettings = {
 		closeModal: [{ modifiers: ['Ctrl'], key: ' ' }],
 		focusNext: [{ modifiers: [], key: 'Tab' }],
 		focusPrevious: [{ modifiers: ['Shift'], key: 'Tab' }],
+		togglePreviewMode: [{ modifiers: ['Ctrl'], key: 'e' }],
 	},
 };
 
@@ -415,6 +416,7 @@ const PREVIEW_MODAL_HOTKEY_ACTION_IDS = [
 	'closeModal',
 	'focusNext',
 	'focusPrevious',
+	'togglePreviewMode',
 ] as const;
 
 type PreviewModalHotkeyActionId =
@@ -440,4 +442,5 @@ const PREVIEW_MODAL_HOTKEY_ACTION_INFO: {
 	closeModal: 'Close the modal',
 	focusNext: 'Focus on the next match',
 	focusPrevious: 'Focus on the previous match',
+	togglePreviewMode: 'Toggle preview mode',
 };

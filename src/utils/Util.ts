@@ -37,11 +37,11 @@ export async function retry<U>(
 	return undefined;
 }
 
-export function shallowClone<T>(obj: T): T {
+function shallowClone<T>(obj: T): T {
 	return Object.assign({}, obj);
 }
 
-export function deepClone<T>(obj: T): T {
+function deepClone<T>(obj: T): T {
 	if (typeof obj !== 'object') return obj;
 
 	if (obj instanceof Array) {
@@ -56,6 +56,34 @@ export function deepClone<T>(obj: T): T {
 	for (const key in clone) {
 		const value = clone[key];
 		clone[key] = deepClone(value);
+	}
+	return clone;
+}
+
+export function deepMerge<T>(a: T, b: T): T {
+	if (typeof a !== typeof b) {
+		if (b === undefined) return deepClone(a);
+		return deepClone(b);
+	}
+
+	if (typeof b !== 'object') return deepClone(b);
+
+	if (b instanceof Array) {
+		if (a instanceof Array) {
+			return deepClone(b);
+		} else {
+			throw new Error(`failed to deepMerge ${a} and ${b}`);
+		}
+	} else if (a instanceof Array) {
+		throw new Error(`failed to deepMerge ${a} and ${b}`);
+	}
+
+	const clone = shallowClone(a);
+	for (const key in a) {
+		clone[key] = deepMerge(a[key], b[key]);
+	}
+	for (const key in b) {
+		clone[key] = deepMerge(a[key], b[key]);
 	}
 	return clone;
 }

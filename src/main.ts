@@ -7,7 +7,7 @@ import {
 	CoreSearchAssistantSettingTab,
 	DEFAULT_SETTINGS,
 } from 'Setting';
-import { deepClone } from 'utils/Util';
+import { deepMerge } from 'utils/Util';
 
 export default class CoreSearchAssistantPlugin extends Plugin {
 	settings: CoreSearchAssistantPluginSettings | undefined;
@@ -17,7 +17,6 @@ export default class CoreSearchAssistantPlugin extends Plugin {
 
 	override async onload() {
 		await this.loadSettings();
-
 		this.events = new CoreSearchAssistantEvents();
 		// should be called before adding controller because controller depends on searchInterface
 		this.searchInterface = this.addChild(
@@ -35,10 +34,7 @@ export default class CoreSearchAssistantPlugin extends Plugin {
 	// override onunload() {}
 
 	async loadSettings() {
-		this.settings = Object.assign(
-			deepClone(DEFAULT_SETTINGS),
-			deepClone(await this.loadData())
-		);
+		this.settings = deepMerge(DEFAULT_SETTINGS, await this.loadData());
 	}
 
 	async saveSettings() {
