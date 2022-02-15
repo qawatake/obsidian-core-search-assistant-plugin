@@ -353,7 +353,6 @@ export class CoreSearchAssistantSettingTab extends PluginSettingTab {
 		super.hide();
 		this.hotkeySetters.forEach((s) => s.unload());
 		this.hotkeySetters = [];
-		console.log('hide');
 	}
 }
 

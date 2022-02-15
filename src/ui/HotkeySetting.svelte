@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { setIcon, type Hotkey } from 'obsidian';
-	import { createEventDispatcher, onDestroy, onMount } from 'svelte';
+	import { createEventDispatcher, onMount } from 'svelte';
 	import { convertHotkeyToText } from 'utils/Keymap';
 
 	// props
@@ -16,10 +16,6 @@
 		if (iconContainerEl instanceof HTMLSpanElement) {
 			setIcon(iconContainerEl, 'cross', 8);
 		}
-	});
-
-	onDestroy(() => {
-		console.log('removed');
 	});
 
 	function onIconClicked() {

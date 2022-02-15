@@ -65,13 +65,11 @@ export class HotkeySetter {
 		if (this.scope) {
 			this.app.keymap.popScope(this.scope);
 		}
-		console.log('unloaded');
 	}
 
 	private onRestored = () => {
 		const { component } = this;
 		if (!component) return;
-		console.log('restored');
 		const renewed = [...this.defaultHotkeys];
 		if (this.shouldReflect(renewed)) {
 			this.currentHotkeys = renewed;
@@ -93,7 +91,6 @@ export class HotkeySetter {
 			component.$set({
 				hotkeys: renewed,
 			});
-			console.log('removed');
 		}
 	};
 
@@ -105,7 +102,6 @@ export class HotkeySetter {
 		});
 		this.scope = new Scope();
 		this.app.keymap.pushScope(this.scope);
-		console.log('start');
 		this.scope.register(null as any, null, (evt) => {
 			evt.preventDefault(); // to prevent scroll
 
