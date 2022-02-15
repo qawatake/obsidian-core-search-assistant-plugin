@@ -55,59 +55,7 @@ export class HotkeySetter {
 			},
 		});
 		component.$on('removed', this.onRemoved);
-		// hotkeyEntry.$on('removed', (evt) => {
-		// 	if (!(evt instanceof CustomEvent)) return;
-		// 	const removed = evt.detail.removed as Hotkey;
-		// 	const renewed = [...this.currentHotkeys];
-		// 	renewed.remove(removed);
-		// 	if (this.shouldReflect(renewed)) {
-		// 		this.currentHotkeys = renewed;
-		// 		hotkeyEntry.$set({
-		// 			hotkeys: renewed,
-		// 		});
-		// 		console.log('removed');
-		// 	}
-		// });
 		component.$on('restored', this.onRestored);
-		// hotkeyEntry.$on('restored', () => {
-		// 	console.log('restored');
-		// 	const renewed = [...defaultHotkeys];
-		// 	if (this.shouldReflect(renewed)) {
-		// 		this.currentHotkeys = renewed;
-		// 		hotkeyEntry.$set({
-		// 			hotkeys: renewed,
-		// 		});
-		// 	}
-		// });
-		// hotkeyEntry.$on('start-listening-keys', () => {
-		// 	hotkeyEntry.$set({
-		// 		listening: true,
-		// 	});
-		// 	this.scope = new Scope();
-		// 	this.app.keymap.pushScope(this.scope);
-		// 	console.log('start');
-		// 	this.scope.register(null as any, null, (evt) => {
-		// 		evt.preventDefault(); // to prevent scroll
-		// 		const hotkey = getHotkey(evt);
-		// 		const shouldSkip =
-		// 			evt.key === 'Escape' ||
-		// 			this.currentHotkeys.includes(hotkey);
-		// 		if (!shouldSkip) {
-		// 			const renewed = [...this.currentHotkeys];
-		// 			renewed.push(hotkey);
-		// 			if (this.shouldReflect(renewed)) {
-		// 				this.currentHotkeys = renewed;
-		// 				hotkeyEntry.$set({
-		// 					hotkeys: renewed,
-		// 				});
-		// 			}
-		// 		}
-		// 		hotkeyEntry.$set({
-		// 			listening: false,
-		// 		});
-		// 		if (this.scope) this.app.keymap.popScope(this.scope);
-		// 	});
-		// });
 		component.$on('start-listening-keys', this.onStartListening);
 		return component;
 	}
