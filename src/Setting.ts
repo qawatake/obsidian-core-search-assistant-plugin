@@ -297,7 +297,10 @@ export class CoreSearchAssistantSettingTab extends PluginSettingTab {
 				actionId,
 				hotkeys,
 				defaultHotkeys
-			).onChanged((renewed) => {
+			).onChanged((renewed, added) => {
+				if (added) {
+					if (added.modifiers.length === 0) return false;
+				}
 				settings.searchModeHotkeys[actionId] = renewed;
 				this.plugin.saveSettings();
 				return true;
@@ -318,7 +321,10 @@ export class CoreSearchAssistantSettingTab extends PluginSettingTab {
 				actionId,
 				hotkeys,
 				defaultHotkeys
-			).onChanged((renewed) => {
+			).onChanged((renewed, added) => {
+				if (added) {
+					if (added.modifiers.length === 0) return false;
+				}
 				settings.previewModalHotkeys[actionId] = renewed;
 				this.plugin.saveSettings();
 				return true;

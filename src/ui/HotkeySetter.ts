@@ -160,19 +160,23 @@ export class HotkeySetter {
 		console.log('start');
 		this.scope.register(null as any, null, (evt) => {
 			evt.preventDefault(); // to prevent scroll
-			const hotkey = getHotkey(evt);
-			const shouldSkip =
-				evt.key === 'Escape' || this.currentHotkeys.includes(hotkey);
-			if (!shouldSkip) {
-				const renewed = [...this.currentHotkeys];
-				renewed.push(hotkey);
-				if (this.shouldReflect(renewed)) {
-					this.currentHotkeys = renewed;
-					component.$set({
-						hotkeys: renewed,
-					});
-				}
+
+			if (evt.key === 'Escape') {
+				if (this.scope) this.app.keymap.popScope(this.scope);
 			}
+
+			const hotkey = getHotkey(evt);
+			const collision = this.currentHotkeys.includes(hotkey);
+			if (collision) return;
+
+			const renewed = [...this.currentHotkeys];
+			renewed.push(hotkey);
+			if (!this.shouldReflect(renewed, hotkey)) return;
+
+			this.currentHotkeys = renewed;
+			component.$set({
+				hotkeys: renewed,
+			});
 			component.$set({
 				listening: false,
 			});
