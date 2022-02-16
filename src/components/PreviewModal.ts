@@ -14,6 +14,7 @@ import type { ModeScope } from 'ModeScope';
 import { KanbanViewGeneratorExtension } from 'interfaces/viewGeneratorExtensions/Kanban';
 import { MarkdownViewGeneratorExtension } from 'interfaces/viewGeneratorExtensions/Markdown';
 import { NonMarkdownViewGeneratorExtension } from 'interfaces/viewGeneratorExtensions/NonMarkdown';
+import { ExcalidrawViewGeneratorExtension } from 'interfaces/viewGeneratorExtensions/Excalidraw';
 
 type ScrollDirection = 'up' | 'down';
 
@@ -171,6 +172,7 @@ export class PreviewModal extends Modal {
 		}
 		this.renderer = await new ViewGenerator(this.app, contentEl, item.file)
 			.registerExtension(new KanbanViewGeneratorExtension(this.app))
+			.registerExtension(new ExcalidrawViewGeneratorExtension(this.app))
 			.registerExtension(new MarkdownViewGeneratorExtension())
 			.registerExtension(new NonMarkdownViewGeneratorExtension())
 			.load('source');

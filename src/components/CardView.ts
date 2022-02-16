@@ -6,6 +6,7 @@ import { ViewGenerator } from 'interfaces/ViewGenerator';
 import { KanbanViewGeneratorExtension } from 'interfaces/viewGeneratorExtensions/Kanban';
 import { MarkdownViewGeneratorExtension } from 'interfaces/viewGeneratorExtensions/Markdown';
 import { NonMarkdownViewGeneratorExtension } from 'interfaces/viewGeneratorExtensions/NonMarkdown';
+import { ExcalidrawViewGeneratorExtension } from 'interfaces/viewGeneratorExtensions/Excalidraw';
 
 export class CardView extends Component {
 	private readonly app: App;
@@ -195,6 +196,9 @@ export class CardView extends Component {
 				item.file
 			)
 				.registerExtension(new KanbanViewGeneratorExtension(this.app))
+				.registerExtension(
+					new ExcalidrawViewGeneratorExtension(this.app)
+				)
 				.registerExtension(new MarkdownViewGeneratorExtension())
 				.registerExtension(new NonMarkdownViewGeneratorExtension())
 				.load('preview');
