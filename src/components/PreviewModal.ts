@@ -11,6 +11,7 @@ import { INTERVAL_MILLISECOND_TO_BE_DETACHED } from 'components/WorkspacePreview
 import { ViewGenerator } from 'interfaces/ViewGenerator';
 import { scrollIteration } from 'utils/Util';
 import type { ModeScope } from 'ModeScope';
+import { KanbanViewGeneratorExtension } from 'interfaces/viewGeneratorExtensions/Kanban';
 
 type ScrollDirection = 'up' | 'down';
 
@@ -166,11 +167,9 @@ export class PreviewModal extends Modal {
 				'core-search-assistant_preview-modal-container'
 			);
 		}
-		this.renderer = await new ViewGenerator(
-			this.app,
-			contentEl,
-			item.file
-		).load('source');
+		this.renderer = await new ViewGenerator(this.app, contentEl, item.file)
+			.registerExtension(new KanbanViewGeneratorExtension(this.app))
+			.load('source');
 		contentEl.show();
 	}
 

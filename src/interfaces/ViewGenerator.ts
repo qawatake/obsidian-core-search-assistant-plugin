@@ -10,10 +10,11 @@ import {
 import { delay, scrollIteration } from 'utils/Util';
 
 export class ViewGenerator {
-	app: App;
-	file: TFile;
-	leaf: WorkspaceLeaf;
-	containerEl: HTMLElement;
+	private readonly app: App;
+	private readonly file: TFile;
+	private readonly leaf: WorkspaceLeaf;
+	private readonly containerEl: HTMLElement;
+	private readonly extensions: ViewGeneratorExtension[] = [];
 
 	constructor(app: App, containerEl: HTMLElement, file: TFile) {
 		this.app = app;
@@ -32,40 +33,14 @@ export class ViewGenerator {
 		this.onunload();
 	}
 
-	async togglePreview() {
-		await this.setViewMode('preview');
-	}
+	// async togglePreview() {
+	// 	await this.setViewMode('preview');
+	// }
 
-	async toggleSource() {
-		await this.setViewMode('source');
-	}
-
-	async toggleViewMode() {
-		const view = this.leaf.view;
-		if (!(view instanceof MarkdownView)) {
-			throw '[ERROR in Core Search Assistant] failed to toggle view mode: view is not an instance of MarkdownView';
-		}
-		if (view.getMode() === 'preview') {
-			await this.toggleSource();
-		} else {
-			await this.togglePreview();
-		}
-	}
-
-	private async onload(mode?: MarkdownViewModeType) {
-		await this.openFile(mode ?? 'preview');
-	}
-
-	private onunload() {
-		this.leaf.detach();
-	}
-
-	private async openFile(mode: MarkdownViewModeType) {
-		const { leaf, file } = this;
-		await leaf.openFile(file, { state: { mode: mode } });
-	}
-
-	private async setViewMode(mode: MarkdownViewModeType) {
+	// async toggleSource() {
+	// 	await this.setViewMode('source');
+	// }
+	async setViewMode(mode: MarkdownViewModeType) {
 		await this.leaf.view.setState(
 			{
 				...this.leaf.view.getState(),
@@ -73,6 +48,43 @@ export class ViewGenerator {
 			},
 			{}
 		);
+	}
+
+	async toggleViewMode() {
+		for (const ext of this.extensions) {
+			if (!(await ext.isMine(this.leaf))) continue;
+			await ext.toggleViewMode(this.leaf);
+			return;
+		}
+
+		const view = this.leaf.view;
+		if (!(view instanceof MarkdownView)) {
+			throw '[ERROR in Core Search Assistant] failed to toggle view mode: view is not an instance of MarkdownView';
+		}
+		await this.setViewMode(
+			view.getMode() === 'preview' ? 'source' : 'source'
+		);
+	}
+
+	private async onload(mode?: MarkdownViewModeType) {
+		await this.openFile();
+		for (const ext of this.extensions) {
+			if (!(await ext.isMine(this.leaf))) continue;
+			await ext.setViewMode(this.leaf, mode ?? 'preview');
+			return;
+		}
+		if (this.leaf.view instanceof MarkdownView) {
+			this.setViewMode(mode ?? 'preview');
+		}
+	}
+
+	private onunload() {
+		this.leaf.detach();
+	}
+
+	private async openFile() {
+		const { leaf, file } = this;
+		await leaf.openFile(file);
 	}
 
 	// it should be called once because is is not idempotent
@@ -140,19 +152,22 @@ export class ViewGenerator {
 		editor.addHighlights([range], 'focus-search-match');
 	}
 
+	registerExtension(ext: ViewGeneratorExtension): ViewGenerator {
+		this.extensions.push(ext);
+		return this;
+	}
+
 	private oppositeMode(mode: MarkdownViewModeType): MarkdownViewModeType {
 		return mode === 'preview' ? 'source' : 'preview';
 	}
 }
 
-// this.leaf = new (WorkspaceLeaf as any)(this.app) as WorkspaceLeaf;
-// await this.leaf.openFile(item.file, { state: { mode: 'preview' } });
-// this.containerEl.empty();
-// this.containerEl.appendChild(this.leaf.containerEl);
-// if (this.plugin.settings?.hideIframe) {
-// 	this.containerEl.addClass('hide-iframe');
-// }
-// this.containerEl.show();
-// console.log(this.leaf);
-// console.log(this.leaf.getViewState());
-// console.log(this.leaf.view.getState());
+export interface ViewGeneratorExtension {
+	isMine(leaf: WorkspaceLeaf): boolean | Promise<boolean>;
+
+	setViewMode(
+		leaf: WorkspaceLeaf,
+		mode: MarkdownViewModeType
+	): void | Promise<void>;
+	toggleViewMode(leaf: WorkspaceLeaf): void | Promise<void>;
+}

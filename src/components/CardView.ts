@@ -3,6 +3,7 @@ import { App, Component, type SearchResultItem } from 'obsidian';
 import { parseCardLayout } from 'Setting';
 import { INTERVAL_MILLISECOND_TO_BE_DETACHED } from 'components/WorkspacePreview';
 import { ViewGenerator } from 'interfaces/ViewGenerator';
+import { KanbanViewGeneratorExtension } from 'interfaces/viewGeneratorExtensions/Kanban';
 
 export class CardView extends Component {
 	private readonly app: App;
@@ -190,8 +191,9 @@ export class CardView extends Component {
 				this.app,
 				previewContainerEl,
 				item.file
-			).load('preview');
-			renderer.togglePreview();
+			)
+				.registerExtension(new KanbanViewGeneratorExtension(this.app))
+				.load('preview');
 			this.renderers.push(renderer);
 		} else {
 			previewContainerEl.createDiv({
