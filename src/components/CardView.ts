@@ -4,6 +4,8 @@ import { parseCardLayout } from 'Setting';
 import { INTERVAL_MILLISECOND_TO_BE_DETACHED } from 'components/WorkspacePreview';
 import { ViewGenerator } from 'interfaces/ViewGenerator';
 import { KanbanViewGeneratorExtension } from 'interfaces/viewGeneratorExtensions/Kanban';
+import { MarkdownViewGeneratorExtension } from 'interfaces/viewGeneratorExtensions/Markdown';
+import { NonMarkdownViewGeneratorExtension } from 'interfaces/viewGeneratorExtensions/NonMarkdown';
 
 export class CardView extends Component {
 	private readonly app: App;
@@ -193,6 +195,8 @@ export class CardView extends Component {
 				item.file
 			)
 				.registerExtension(new KanbanViewGeneratorExtension(this.app))
+				.registerExtension(new MarkdownViewGeneratorExtension())
+				.registerExtension(new NonMarkdownViewGeneratorExtension())
 				.load('preview');
 			this.renderers.push(renderer);
 		} else {

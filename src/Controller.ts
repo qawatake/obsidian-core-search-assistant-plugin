@@ -304,14 +304,7 @@ export class Controller extends obsidian.Component {
 		if (!item) {
 			return;
 		}
-		if (item.file.extension === 'md') {
-			new PreviewModal(
-				this.app,
-				this.plugin,
-				this.modeScope,
-				item
-			).open();
-		}
+		new PreviewModal(this.app, this.plugin, this.modeScope, item).open();
 	}
 
 	private shouldTransitNextPageInCardView(): boolean {

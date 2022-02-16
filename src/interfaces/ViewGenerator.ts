@@ -33,37 +33,12 @@ export class ViewGenerator {
 		this.onunload();
 	}
 
-	// async togglePreview() {
-	// 	await this.setViewMode('preview');
-	// }
-
-	// async toggleSource() {
-	// 	await this.setViewMode('source');
-	// }
-	async setViewMode(mode: MarkdownViewModeType) {
-		await this.leaf.view.setState(
-			{
-				...this.leaf.view.getState(),
-				mode: mode,
-			},
-			{}
-		);
-	}
-
 	async toggleViewMode() {
 		for (const ext of this.extensions) {
 			if (!(await ext.isMine(this.leaf))) continue;
 			await ext.toggleViewMode(this.leaf);
 			return;
 		}
-
-		const view = this.leaf.view;
-		if (!(view instanceof MarkdownView)) {
-			throw '[ERROR in Core Search Assistant] failed to toggle view mode: view is not an instance of MarkdownView';
-		}
-		await this.setViewMode(
-			view.getMode() === 'preview' ? 'source' : 'source'
-		);
 	}
 
 	private async onload(mode?: MarkdownViewModeType) {
@@ -72,9 +47,6 @@ export class ViewGenerator {
 			if (!(await ext.isMine(this.leaf))) continue;
 			await ext.setViewMode(this.leaf, mode ?? 'preview');
 			return;
-		}
-		if (this.leaf.view instanceof MarkdownView) {
-			this.setViewMode(mode ?? 'preview');
 		}
 	}
 
@@ -92,7 +64,7 @@ export class ViewGenerator {
 	highlightMatches(matches: Match[]) {
 		const view = this.leaf.view;
 		if (!(view instanceof MarkdownView)) {
-			throw '[ERROR in Core Search Assistant] failed to highlight matches: view is not an instance of MarkdownView';
+			return;
 		}
 		const editor = view.editor;
 		const ranges: EditorRange[] = [];
@@ -109,7 +81,7 @@ export class ViewGenerator {
 	async scrollIntoView(match: Match, center?: boolean) {
 		const view = this.leaf.view;
 		if (!(view instanceof MarkdownView)) {
-			throw '[ERROR in Core Search Assistant] failed to scroll into view: view is not an instance of MarkdownView';
+			return;
 		}
 		if (view.getMode() !== 'source') {
 			return;
@@ -134,7 +106,7 @@ export class ViewGenerator {
 	async focusOn(match: Match, center?: boolean) {
 		const view = this.leaf.view;
 		if (!(view instanceof MarkdownView)) {
-			throw '[ERROR in Core Search Assistant] failed to focusOn: view is not an instance of MarkdownView';
+			return;
 		}
 		if (view.getMode() !== 'source') {
 			return;
@@ -155,10 +127,6 @@ export class ViewGenerator {
 	registerExtension(ext: ViewGeneratorExtension): ViewGenerator {
 		this.extensions.push(ext);
 		return this;
-	}
-
-	private oppositeMode(mode: MarkdownViewModeType): MarkdownViewModeType {
-		return mode === 'preview' ? 'source' : 'preview';
 	}
 }
 
