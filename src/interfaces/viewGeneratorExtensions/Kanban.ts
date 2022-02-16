@@ -40,6 +40,7 @@ export class KanbanViewGeneratorExtension implements ViewGeneratorExtension {
 		return fileIsKanban;
 	}
 
+	// https://github.com/mgmeyers/obsidian-kanban/blob/350fc891a8489f70551d288ae914534424c8c095/src/main.ts#L317-L345
 	async setViewMode(leaf: WorkspaceLeaf, mode: MarkdownViewModeType) {
 		const { kanban } = this;
 		if (!kanban) return;
