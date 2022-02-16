@@ -1,12 +1,12 @@
-import CoreSearchAssistantPlugin from 'main';
+import type CoreSearchAssistantPlugin from 'main';
 import {
 	App,
 	Component,
 	Events,
-	SearchResultItem,
-	SearchView,
-	SortOrderInSearch,
-	SplitDirection,
+	type SearchResultItem,
+	type SearchView,
+	type SortOrderInSearch,
+	type SplitDirection,
 	WorkspaceLeaf,
 	WorkspaceSidedock,
 } from 'obsidian';

@@ -1,9 +1,9 @@
 import {
-	SearchDom,
-	SearchHeaderDom,
-	SearchResultItem,
-	SearchView,
-	SortOrderInSearch,
+	type SearchDom,
+	type SearchHeaderDom,
+	type SearchResultItem,
+	type SearchView,
+	type SortOrderInSearch,
 	TFile,
 } from 'obsidian';
 

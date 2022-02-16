@@ -1,7 +1,7 @@
-import CoreSearchAssistantPlugin from 'main';
-import { ModeScope } from 'ModeScope';
+import type CoreSearchAssistantPlugin from 'main';
+import type { ModeScope } from 'ModeScope';
 import { App, Modal, setIcon } from 'obsidian';
-import { SearchOptionId, searchOptions } from 'types/Option';
+import { type SearchOptionId, searchOptions } from 'types/Option';
 
 interface OptionItem {
 	id: SearchOptionId;

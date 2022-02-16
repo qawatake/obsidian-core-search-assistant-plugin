@@ -3,10 +3,11 @@ import { CoreSearchAssistantEvents } from 'Events';
 import { SearchComponentInterface } from 'interfaces/SearchComponentInterface';
 import { Plugin } from 'obsidian';
 import {
-	CoreSearchAssistantPluginSettings,
+	type CoreSearchAssistantPluginSettings,
 	CoreSearchAssistantSettingTab,
 	DEFAULT_SETTINGS,
 } from 'Setting';
+import { deepMerge } from 'utils/Util';
 
 export default class CoreSearchAssistantPlugin extends Plugin {
 	settings: CoreSearchAssistantPluginSettings | undefined;
@@ -34,11 +35,7 @@ export default class CoreSearchAssistantPlugin extends Plugin {
 	// override onunload() {}
 
 	async loadSettings() {
-		this.settings = Object.assign(
-			{},
-			DEFAULT_SETTINGS,
-			await this.loadData()
-		);
+		this.settings = deepMerge(DEFAULT_SETTINGS, await this.loadData());
 	}
 
 	async saveSettings() {

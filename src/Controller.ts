@@ -3,8 +3,8 @@ import {
 	EVENT_SEARCH_RESULT_ITEM_DETECTED,
 	EVENT_SORT_ORDER_CHANGED,
 } from 'Events';
-import CoreSearchAssistantPlugin from 'main';
-import { App, Component, Scope, SplitDirection } from 'obsidian';
+import type CoreSearchAssistantPlugin from 'main';
+import * as obsidian from 'obsidian';
 import { OptionModal } from 'components/OptionModal';
 import { parseCardLayout } from 'Setting';
 import { PreviewModal } from 'components/PreviewModal';
@@ -12,7 +12,7 @@ import { Outline } from 'components/Outline';
 import { WorkspacePreview } from 'components/WorkspacePreview';
 import { CardView } from 'components/CardView';
 import { ModeScope } from 'ModeScope';
-import { SearchComponentInterface } from 'interfaces/SearchComponentInterface';
+import type { SearchComponentInterface } from 'interfaces/SearchComponentInterface';
 import { delay, retry } from 'utils/Util';
 
 const DELAY_TO_RELOAD_IN_MILLISECOND = 1000;
@@ -20,8 +20,8 @@ const RETRY_INTERVAL = 1;
 const RETRY_TRIALS = 1000;
 const DELAY_TO_RENDER_CARD_VIEW_ON_ENTRY_IN_MILLISECOND = 100;
 
-export class Controller extends Component {
-	private readonly app: App;
+export class Controller extends obsidian.Component {
+	private readonly app: obsidian.App;
 	private readonly plugin: CoreSearchAssistantPlugin;
 	private readonly searchInterface: SearchComponentInterface;
 	private readonly events: CoreSearchAssistantEvents;
@@ -42,7 +42,7 @@ export class Controller extends Component {
 	private _restoreOppositeSidedock: (() => void) | undefined;
 
 	constructor(
-		app: App,
+		app: obsidian.App,
 		plugin: CoreSearchAssistantPlugin,
 		events: CoreSearchAssistantEvents,
 		searchInterface: SearchComponentInterface
@@ -133,7 +133,7 @@ export class Controller extends Component {
 		this.cardView?.focusOn(pos);
 	}
 
-	open(direction?: SplitDirection) {
+	open(direction?: obsidian.SplitDirection) {
 		if (this.currentFocusId === undefined) {
 			return;
 		}
@@ -539,57 +539,82 @@ export class Controller extends Component {
 	}
 
 	private setHotkeys() {
-		const scope = new Scope();
+		const hotkeyMap = this.plugin.settings?.searchModeHotkeys;
+		if (!hotkeyMap) return;
+
+		const scope = new obsidian.Scope();
 		this.app.keymap.pushScope(scope);
 
-		scope.register(['Ctrl'], 'N', (evt: KeyboardEvent) => {
-			evt.preventDefault(); // ← necessary to stop cursor in search input
-			this.navigateForward();
-			this.showWorkspacePreview();
+		hotkeyMap.selectNext.forEach((hotkey) => {
+			scope.register(
+				hotkey.modifiers,
+				hotkey.key,
+				(evt: KeyboardEvent) => {
+					evt.preventDefault(); // ← necessary to stop cursor in search input
+					this.navigateForward();
+					this.showWorkspacePreview();
+				}
+			);
 		});
-		scope.register([], 'ArrowDown', (evt: KeyboardEvent) => {
-			evt.preventDefault();
-			this.navigateForward();
-			this.showWorkspacePreview();
+		hotkeyMap.selectPrevious.forEach((hotkey) => {
+			scope.register(
+				hotkey.modifiers,
+				hotkey.key,
+				(evt: KeyboardEvent) => {
+					evt.preventDefault();
+					this.navigateBack();
+					this.showWorkspacePreview();
+				}
+			);
 		});
-		scope.register(['Ctrl'], 'P', (evt: KeyboardEvent) => {
-			evt.preventDefault();
-			this.navigateBack();
-			this.showWorkspacePreview();
+		hotkeyMap.open.forEach((hotkey) => {
+			scope.register(
+				hotkey.modifiers,
+				hotkey.key,
+				(evt: KeyboardEvent) => {
+					evt.preventDefault(); // ← necessary to prevent renew query, which triggers item detection events
+					this.open();
+					this.exit();
+				}
+			);
 		});
-		scope.register([], 'ArrowUp', (evt: KeyboardEvent) => {
-			evt.preventDefault();
-			this.navigateBack();
-			this.showWorkspacePreview();
+		hotkeyMap.openInNewPane.forEach((hotkey) => {
+			scope.register(
+				hotkey.modifiers,
+				hotkey.key,
+				(evt: KeyboardEvent) => {
+					evt.preventDefault();
+					this.open(this.plugin.settings?.splitDirection);
+					this.exit();
+				}
+			);
 		});
-		scope.register(['Ctrl'], 'Enter', (evt: KeyboardEvent) => {
-			evt.preventDefault(); // ← necessary to prevent renew query, which triggers item detection events
-			this.open();
-			this.exit();
+		hotkeyMap.previewModal.forEach((hotkey) => {
+			scope.register(hotkey.modifiers, hotkey.key, () => {
+				if (this.app.vault.config.legacyEditor) {
+					return;
+				}
+				this.openPreviewModal();
+			});
 		});
-		scope.register(['Ctrl', 'Shift'], 'Enter', (evt: KeyboardEvent) => {
-			evt.preventDefault();
-			this.open(this.plugin.settings?.splitDirection);
-			this.exit();
+		hotkeyMap.showOptions.forEach((hotkey) => {
+			scope.register(hotkey.modifiers, hotkey.key, () => {
+				new OptionModal(this.app, this.plugin, this.modeScope).open();
+			});
 		});
-		scope.register(['Ctrl'], ' ', () => {
-			if (this.app.vault.config.legacyEditor) {
-				return;
-			}
-			this.openPreviewModal();
+		hotkeyMap.nextPage.forEach((hotkey) => {
+			scope.register(hotkey.modifiers, hotkey.key, () => {
+				if (this.plugin.settings?.autoPreviewMode === 'cardView') {
+					this.moveToNextPage();
+				}
+			});
 		});
-		scope.register(['Shift'], ' ', () => {
-			new OptionModal(this.app, this.plugin, this.modeScope).open();
-		});
-		scope.register(['Ctrl'], ']', () => {
-			if (this.plugin.settings?.autoPreviewMode === 'cardView') {
-				this.moveToNextPage();
-			}
-		});
-		scope.register(['Ctrl'], '[', () => {
-			if (this.plugin.settings?.autoPreviewMode === 'cardView') {
-				this.moveToPreviousPage();
-			}
+		hotkeyMap.previousPage.forEach((hotkey) => {
+			scope.register(hotkey.modifiers, hotkey.key, () => {
+				if (this.plugin.settings?.autoPreviewMode === 'cardView') {
+					this.moveToPreviousPage();
+				}
+			});
 		});
 		scope.register([], 'Escape', () => {
 			this.exit();

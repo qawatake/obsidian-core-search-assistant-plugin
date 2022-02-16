@@ -1,5 +1,5 @@
 import { Component } from 'obsidian';
-import { AvailableOutlineWidth } from 'Setting';
+import type { AvailableOutlineWidth } from 'Setting';
 
 export class Outline extends Component {
 	private readonly outlineEl: HTMLElement;

@@ -1,4 +1,4 @@
-import { Events } from 'obsidian';
+import type { Events } from 'obsidian';
 
 interface LinkedNode<T> {
 	entity: T;

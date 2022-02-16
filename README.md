@@ -25,6 +25,7 @@ In the search mode, you can use the following hotkeys.
 | `Ctrl + [` | Move to the previous set of cards. (available only in [card view](#3-card-view).) |
 
 - The hotkeys above are available only in the search mode, so don't worry about overwriting your hotkey settings.
+- You **can customize hotkeys** in the setting tab.
 - To **exit** the search mode, press `Esc` or click any part of the screen other than the search panel.
 
 ### Auto Preview
@@ -73,8 +74,9 @@ In the preview modal, the following hotkeys are available.
 | `Esc`, `Ctrl + Space` | Close the modal. |
 | `Tab` | Focus on the next match. |
 | `Shift + Tab` | Focus on the previous match. |
+| `Ctrl + E` | Toggle preview mode. |
 
-You can also toggle the preview mode by your hotkey.
+- You **can customize hotkeys** in the setting tab.
 
 ![focus-min](https://user-images.githubusercontent.com/38106890/151547284-739a18a3-3467-4964-b59b-de8c2673018c.gif)
 

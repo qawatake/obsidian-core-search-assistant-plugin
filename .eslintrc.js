@@ -17,7 +17,13 @@ module.exports = {
 		ecmaVersion: 13,
 		sourceType: 'module',
 	},
-	plugins: ['react', '@typescript-eslint'],
+	plugins: ['react', '@typescript-eslint', 'svelte3'],
+	overrides: [
+		{
+			files: ['*.svelte'],
+			processor: 'svelte3/svelte3',
+		},
+	],
 	rules: {
 		'no-console': process.env.NODE_ENV === 'production' ? 2 : 0,
 		'@typescript-eslint/explicit-module-boundary-types': 0,
@@ -31,5 +37,6 @@ module.exports = {
 		react: {
 			version: 'detect',
 		},
+		'svelte3/typescript': true,
 	},
 };
