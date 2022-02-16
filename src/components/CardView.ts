@@ -1,5 +1,5 @@
-import CoreSearchAssistantPlugin from 'main';
-import { App, Component, SearchResultItem } from 'obsidian';
+import type CoreSearchAssistantPlugin from 'main';
+import { App, Component, type SearchResultItem } from 'obsidian';
 import { parseCardLayout } from 'Setting';
 import { INTERVAL_MILLISECOND_TO_BE_DETACHED } from 'components/WorkspacePreview';
 import { ViewGenerator } from 'interfaces/ViewGenerator';
