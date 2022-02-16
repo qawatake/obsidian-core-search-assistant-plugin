@@ -614,7 +614,7 @@ export class Controller extends obsidian.Component {
 		});
 
 		scope.register([], 'Enter', (evt) => {
-			setTimeout(this.focusOnInput, 100);
+			setTimeout(this.focusOnInput, 100); // neccesary because otherwise focus + enter triggers submit events
 
 			const shouldRenderCardsManually =
 				this.plugin.settings?.autoPreviewMode === 'cardView' &&
