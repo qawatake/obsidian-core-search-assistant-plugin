@@ -5,7 +5,6 @@ import {
 	type SearchResultItem,
 	type SplitDirection,
 	MarkdownView,
-	type Hotkey,
 	Notice,
 } from 'obsidian';
 import { INTERVAL_MILLISECOND_TO_BE_DETACHED } from 'components/WorkspacePreview';
@@ -21,8 +20,6 @@ import { generateInternalLinkFrom } from 'utils/Link';
 type ScrollDirection = 'up' | 'down';
 
 const SCROLL_AMOUNT = 70;
-
-const TOGGLE_PREVIEW_COMMAND_ID = 'markdown:toggle-preview';
 
 export class PreviewModal extends Modal {
 	private readonly plugin: CoreSearchAssistantPlugin;
@@ -129,6 +126,16 @@ export class PreviewModal extends Modal {
 			});
 		});
 
+		hotkeyMap.togglePreviewMode.forEach((hotkey) => {
+			this.scope.register(hotkey.modifiers, hotkey.key, (evt) => {
+				(async () => {
+					evt.preventDefault();
+					await this.toggleViewMode();
+					this.highlightMatches();
+				})();
+			});
+		});
+
 		hotkeyMap.copyLink.forEach((hotkey) => {
 			this.scope.register(hotkey.modifiers, hotkey.key, () => {
 				const { file } = this.item;
@@ -138,17 +145,6 @@ export class PreviewModal extends Modal {
 				);
 				navigator.clipboard.writeText(internalLink);
 				new Notice('Copy wiki link!');
-			});
-		});
-
-		const togglePreviewHotkeys = this.getHotkeys(TOGGLE_PREVIEW_COMMAND_ID);
-		togglePreviewHotkeys.forEach((hotkey) => {
-			this.scope.register(hotkey.modifiers, hotkey.key, (evt) => {
-				(async () => {
-					evt.preventDefault();
-					await this.toggleViewMode();
-					this.highlightMatches();
-				})();
 			});
 		});
 	}
@@ -269,22 +265,6 @@ export class PreviewModal extends Modal {
 			editor.scrollIntoView(range, true);
 		}
 		editor.setCursor(range.from);
-	}
-
-	private getHotkeys(commandId: string): Hotkey[] {
-		const { hotkeyManager } = this.app;
-
-		const customKeys = hotkeyManager.customKeys[commandId];
-		if (customKeys !== undefined && customKeys.length !== 0) {
-			return customKeys;
-		}
-
-		const defaultKeys = hotkeyManager.defaultKeys[commandId];
-		if (defaultKeys !== undefined && defaultKeys.length !== 0) {
-			return defaultKeys;
-		}
-
-		throw `getHotkey failed: command id ${commandId} is invalid`;
 	}
 
 	// [-1, 0, 1].forEach((i) => {
