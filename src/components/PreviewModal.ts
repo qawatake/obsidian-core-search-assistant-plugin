@@ -45,7 +45,7 @@ export class PreviewModal extends Modal {
 
 	override async onOpen() {
 		await this.renderView();
-		this.renderer?.highlightMatches(this.item.result.content ?? []);
+		this.highlightMatches();
 
 		this.modeScope.push();
 		const hotkeyMap = this.plugin.settings?.previewModalHotkeys;
@@ -130,8 +130,11 @@ export class PreviewModal extends Modal {
 		const togglePreviewHotkeys = this.getHotkeys(TOGGLE_PREVIEW_COMMAND_ID);
 		togglePreviewHotkeys.forEach((hotkey) => {
 			this.scope.register(hotkey.modifiers, hotkey.key, (evt) => {
-				evt.preventDefault();
-				this.toggleViewMode();
+				(async () => {
+					evt.preventDefault();
+					await this.toggleViewMode();
+					this.highlightMatches();
+				})();
 			});
 		});
 	}
@@ -183,8 +186,12 @@ export class PreviewModal extends Modal {
 		return this.item.result.content?.length;
 	}
 
-	private toggleViewMode() {
-		this.renderer?.toggleViewMode();
+	private async toggleViewMode() {
+		await this.renderer?.toggleViewMode();
+	}
+
+	private highlightMatches() {
+		this.renderer?.highlightMatches(this.item.result.content ?? []);
 	}
 
 	private scroll(direction: ScrollDirection, px?: number) {
