@@ -53,6 +53,8 @@ export function convertKeyToText(key: string): string {
 			return Platform.isMacOS ? '⇧' : 'Shift';
 		case ' ':
 			return 'Space';
+		case 'Enter':
+			return '↵';
 		default:
 			return key.charAt(0).toUpperCase() + key.slice(1);
 	}
