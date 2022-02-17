@@ -6,6 +6,7 @@ import {
 	type SplitDirection,
 	MarkdownView,
 	type Hotkey,
+	Notice,
 } from 'obsidian';
 import { INTERVAL_MILLISECOND_TO_BE_DETACHED } from 'components/WorkspacePreview';
 import { ViewGenerator } from 'interfaces/ViewGenerator';
@@ -15,6 +16,7 @@ import { KanbanViewGeneratorExtension } from 'interfaces/viewGeneratorExtensions
 import { MarkdownViewGeneratorExtension } from 'interfaces/viewGeneratorExtensions/Markdown';
 import { NonMarkdownViewGeneratorExtension } from 'interfaces/viewGeneratorExtensions/NonMarkdown';
 import { ExcalidrawViewGeneratorExtension } from 'interfaces/viewGeneratorExtensions/Excalidraw';
+import { generateInternalLinkFrom } from 'utils/Link';
 
 type ScrollDirection = 'up' | 'down';
 
@@ -124,6 +126,18 @@ export class PreviewModal extends Modal {
 				}
 				this.currentFocus = cyclicId(--this.currentFocus, numMatches);
 				this.focusOn(this.currentFocus, true);
+			});
+		});
+
+		hotkeyMap.copyLink.forEach((hotkey) => {
+			this.scope.register(hotkey.modifiers, hotkey.key, () => {
+				const { file } = this.item;
+				const internalLink = generateInternalLinkFrom(
+					this.app.metadataCache,
+					file
+				);
+				navigator.clipboard.writeText(internalLink);
+				new Notice('Copy wiki link!');
 			});
 		});
 
