@@ -61,6 +61,7 @@ export const DEFAULT_SETTINGS: CoreSearchAssistantPluginSettings = {
 		showOptions: [{ modifiers: ['Shift'], key: ' ' }],
 		nextPage: [{ modifiers: ['Ctrl'], key: ']' }],
 		previousPage: [{ modifiers: ['Ctrl'], key: '[' }],
+		copyLink: [{ modifiers: ['Ctrl'], key: 'i' }],
 	},
 	previewModalHotkeys: {
 		scrollDown: [
@@ -79,6 +80,7 @@ export const DEFAULT_SETTINGS: CoreSearchAssistantPluginSettings = {
 		focusNext: [{ modifiers: [], key: 'Tab' }],
 		focusPrevious: [{ modifiers: ['Shift'], key: 'Tab' }],
 		togglePreviewMode: [{ modifiers: ['Ctrl'], key: 'e' }],
+		copyLink: [{ modifiers: ['Ctrl'], key: 'i' }],
 	},
 };
 
@@ -381,6 +383,7 @@ const SEARCH_MODE_HOTKEY_ACTION_IDS = [
 	'showOptions',
 	'nextPage',
 	'previousPage',
+	'copyLink',
 ] as const;
 
 type SearchModeHotkeyActionId = typeof SEARCH_MODE_HOTKEY_ACTION_IDS[number];
@@ -404,6 +407,7 @@ const SEARCH_MODE_HOTKEY_ACTION_INFO: {
 	showOptions: 'Set search options',
 	nextPage: 'Move to the next set of cards',
 	previousPage: 'Move to the previous set of cards',
+	copyLink: 'Copy wiki link of the selected item',
 };
 
 const PREVIEW_MODAL_HOTKEY_ACTION_IDS = [
@@ -417,6 +421,7 @@ const PREVIEW_MODAL_HOTKEY_ACTION_IDS = [
 	'focusNext',
 	'focusPrevious',
 	'togglePreviewMode',
+	'copyLink',
 ] as const;
 
 type PreviewModalHotkeyActionId =
@@ -443,4 +448,5 @@ const PREVIEW_MODAL_HOTKEY_ACTION_INFO: {
 	focusNext: 'Focus on the next match',
 	focusPrevious: 'Focus on the previous match',
 	togglePreviewMode: 'Toggle preview mode',
+	copyLink: 'Copy wiki link of the selected item',
 };

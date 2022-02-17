@@ -23,6 +23,7 @@ In the search mode, you can use the following hotkeys.
 | `Shift + Space` | Set search options. |
 | `Ctrl + ]` | Move to the next set of cards. (available only in [card view](#3-card-view).) |
 | `Ctrl + [` | Move to the previous set of cards. (available only in [card view](#3-card-view).) |
+| `Ctrl + I` | Copy the wiki link of the selected item. |
 
 - The hotkeys above are available only in the search mode, so don't worry about overwriting your hotkey settings.
 - You **can customize hotkeys** in the setting tab.
@@ -75,6 +76,7 @@ In the preview modal, the following hotkeys are available.
 | `Tab` | Focus on the next match. |
 | `Shift + Tab` | Focus on the previous match. |
 | `Ctrl + E` | Toggle preview mode. |
+| `Ctrl + I` | Copy the wiki link of the selected item. |
 
 - You **can customize hotkeys** in the setting tab.
 

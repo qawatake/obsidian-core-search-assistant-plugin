@@ -5,7 +5,7 @@ import {
 	type SearchResultItem,
 	type SplitDirection,
 	MarkdownView,
-	type Hotkey,
+	Notice,
 } from 'obsidian';
 import { INTERVAL_MILLISECOND_TO_BE_DETACHED } from 'components/WorkspacePreview';
 import { ViewGenerator } from 'interfaces/ViewGenerator';
@@ -15,12 +15,11 @@ import { KanbanViewGeneratorExtension } from 'interfaces/viewGeneratorExtensions
 import { MarkdownViewGeneratorExtension } from 'interfaces/viewGeneratorExtensions/Markdown';
 import { NonMarkdownViewGeneratorExtension } from 'interfaces/viewGeneratorExtensions/NonMarkdown';
 import { ExcalidrawViewGeneratorExtension } from 'interfaces/viewGeneratorExtensions/Excalidraw';
+import { generateInternalLinkFrom } from 'utils/Link';
 
 type ScrollDirection = 'up' | 'down';
 
 const SCROLL_AMOUNT = 70;
-
-const TOGGLE_PREVIEW_COMMAND_ID = 'markdown:toggle-preview';
 
 export class PreviewModal extends Modal {
 	private readonly plugin: CoreSearchAssistantPlugin;
@@ -127,14 +126,25 @@ export class PreviewModal extends Modal {
 			});
 		});
 
-		const togglePreviewHotkeys = this.getHotkeys(TOGGLE_PREVIEW_COMMAND_ID);
-		togglePreviewHotkeys.forEach((hotkey) => {
+		hotkeyMap.togglePreviewMode.forEach((hotkey) => {
 			this.scope.register(hotkey.modifiers, hotkey.key, (evt) => {
 				(async () => {
 					evt.preventDefault();
 					await this.toggleViewMode();
 					this.highlightMatches();
 				})();
+			});
+		});
+
+		hotkeyMap.copyLink.forEach((hotkey) => {
+			this.scope.register(hotkey.modifiers, hotkey.key, () => {
+				const { file } = this.item;
+				const internalLink = generateInternalLinkFrom(
+					this.app.metadataCache,
+					file
+				);
+				navigator.clipboard.writeText(internalLink);
+				new Notice('Copy wiki link!');
 			});
 		});
 	}
@@ -255,22 +265,6 @@ export class PreviewModal extends Modal {
 			editor.scrollIntoView(range, true);
 		}
 		editor.setCursor(range.from);
-	}
-
-	private getHotkeys(commandId: string): Hotkey[] {
-		const { hotkeyManager } = this.app;
-
-		const customKeys = hotkeyManager.customKeys[commandId];
-		if (customKeys !== undefined && customKeys.length !== 0) {
-			return customKeys;
-		}
-
-		const defaultKeys = hotkeyManager.defaultKeys[commandId];
-		if (defaultKeys !== undefined && defaultKeys.length !== 0) {
-			return defaultKeys;
-		}
-
-		throw `getHotkey failed: command id ${commandId} is invalid`;
 	}
 
 	// [-1, 0, 1].forEach((i) => {

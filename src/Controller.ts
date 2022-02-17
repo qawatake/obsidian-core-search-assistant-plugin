@@ -14,6 +14,8 @@ import { CardView } from 'components/CardView';
 import { ModeScope } from 'ModeScope';
 import type { SearchComponentInterface } from 'interfaces/SearchComponentInterface';
 import { delay, retry } from 'utils/Util';
+import { Notice } from 'obsidian';
+import { generateInternalLinkFrom } from 'utils/Link';
 
 const DELAY_TO_RELOAD_IN_MILLISECOND = 1000;
 const RETRY_INTERVAL = 1;
@@ -607,6 +609,21 @@ export class Controller extends obsidian.Component {
 				if (this.plugin.settings?.autoPreviewMode === 'cardView') {
 					this.moveToPreviousPage();
 				}
+			});
+		});
+		hotkeyMap.copyLink.forEach((hotkey) => {
+			scope.register(hotkey.modifiers, hotkey.key, () => {
+				const item = this.searchInterface.getResultItemAt(
+					this.currentFocusId ?? 0
+				);
+				if (!item) return;
+				const { file } = item;
+				const internalLink = generateInternalLinkFrom(
+					this.app.metadataCache,
+					file
+				);
+				navigator.clipboard.writeText(internalLink);
+				new Notice('Copy wiki link!');
 			});
 		});
 		scope.register([], 'Escape', () => {

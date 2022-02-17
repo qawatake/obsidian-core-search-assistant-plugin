@@ -5,7 +5,6 @@ export * from 'obsidian';
 
 declare module 'obsidian' {
 	interface App {
-		hotkeyManager: HotkeyManager;
 		dom: AppDom;
 		plugins: { plugins: PluginMap };
 	}
@@ -130,10 +129,5 @@ declare module 'obsidian' {
 	interface Editor {
 		addHighlights(ranges: EditorRange[], cls: string): void;
 		removeHighlights(cls: string): void;
-	}
-
-	interface HotkeyManager {
-		customKeys: { [commandId: string]: Hotkey[] };
-		defaultKeys: { [commandId: string]: Hotkey[] };
 	}
 }
