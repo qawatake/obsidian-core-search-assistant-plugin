@@ -42,6 +42,7 @@ function shallowClone<T>(obj: T): T {
 }
 
 function deepClone<T>(obj: T): T {
+	if (obj === null) return obj;
 	if (typeof obj !== 'object') return obj;
 
 	if (obj instanceof Array) {
@@ -66,11 +67,17 @@ export function deepMerge<T>(a: T, b: T): T {
 	} else if (a === undefined) {
 		return deepClone(b);
 	}
+
 	if (typeof a !== typeof b) {
 		throw new Error(`failed to deepMerge ${a} and ${b}`);
 	}
 
 	if (typeof b !== 'object') return deepClone(b);
+	if (b === null) {
+		return deepClone(a);
+	} else if (a === null) {
+		return deepClone(b);
+	}
 
 	if (b instanceof Array) {
 		if (a instanceof Array) {

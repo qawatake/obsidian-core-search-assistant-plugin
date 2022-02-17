@@ -1,8 +1,12 @@
-import CoreSearchAssistantPlugin from 'main';
-import { App, Component, SearchResultItem } from 'obsidian';
+import type CoreSearchAssistantPlugin from 'main';
+import { App, Component, type SearchResultItem } from 'obsidian';
 import { parseCardLayout } from 'Setting';
 import { INTERVAL_MILLISECOND_TO_BE_DETACHED } from 'components/WorkspacePreview';
 import { ViewGenerator } from 'interfaces/ViewGenerator';
+import { KanbanViewGeneratorExtension } from 'interfaces/viewGeneratorExtensions/Kanban';
+import { MarkdownViewGeneratorExtension } from 'interfaces/viewGeneratorExtensions/Markdown';
+import { NonMarkdownViewGeneratorExtension } from 'interfaces/viewGeneratorExtensions/NonMarkdown';
+import { ExcalidrawViewGeneratorExtension } from 'interfaces/viewGeneratorExtensions/Excalidraw';
 
 export class CardView extends Component {
 	private readonly app: App;
@@ -190,8 +194,14 @@ export class CardView extends Component {
 				this.app,
 				previewContainerEl,
 				item.file
-			).load('preview');
-			renderer.togglePreview();
+			)
+				.registerExtension(new KanbanViewGeneratorExtension(this.app))
+				.registerExtension(
+					new ExcalidrawViewGeneratorExtension(this.app)
+				)
+				.registerExtension(new MarkdownViewGeneratorExtension())
+				.registerExtension(new NonMarkdownViewGeneratorExtension())
+				.load('preview');
 			this.renderers.push(renderer);
 		} else {
 			previewContainerEl.createDiv({

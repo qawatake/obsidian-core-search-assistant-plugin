@@ -1,3 +1,4 @@
+import type { Plugin } from 'obsidian';
 import type { SORT_ORDER_IN_SEARCH } from 'types/Guards';
 
 export * from 'obsidian';
@@ -6,7 +7,12 @@ declare module 'obsidian' {
 	interface App {
 		hotkeyManager: HotkeyManager;
 		dom: AppDom;
+		plugins: { plugins: PluginMap };
 	}
+
+	type PluginMap = {
+		[pluginId: string]: Plugin;
+	};
 
 	interface AppDom {
 		appContainerEl: HTMLElement;
@@ -21,6 +27,7 @@ declare module 'obsidian' {
 	}
 
 	interface WorkspaceLeaf {
+		id: string;
 		containerEl: HTMLElement;
 		tabHeaderEl: HTMLElement;
 	}

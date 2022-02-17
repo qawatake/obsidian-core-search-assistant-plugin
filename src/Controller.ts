@@ -304,14 +304,7 @@ export class Controller extends obsidian.Component {
 		if (!item) {
 			return;
 		}
-		if (item.file.extension === 'md') {
-			new PreviewModal(
-				this.app,
-				this.plugin,
-				this.modeScope,
-				item
-			).open();
-		}
+		new PreviewModal(this.app, this.plugin, this.modeScope, item).open();
 	}
 
 	private shouldTransitNextPageInCardView(): boolean {
@@ -619,7 +612,10 @@ export class Controller extends obsidian.Component {
 		scope.register([], 'Escape', () => {
 			this.exit();
 		});
+
 		scope.register([], 'Enter', (evt) => {
+			setTimeout(this.focusOnInput, 100); // neccesary because otherwise focus + enter triggers submit events
+
 			const shouldRenderCardsManually =
 				this.plugin.settings?.autoPreviewMode === 'cardView' &&
 				this.plugin.settings.renderCardsManually;
@@ -670,6 +666,20 @@ export class Controller extends obsidian.Component {
 				this.retryCardView(DELAY_TO_RELOAD_IN_MILLISECOND);
 			}
 			this.countSearchItemDetected++;
+		};
+	}
+
+	private get focusOnInput(): () => Promise<void> {
+		return async () => {
+			const inputEl = await retry(
+				() => this.plugin.searchInterface?.searchInputEl,
+				RETRY_INTERVAL,
+				RETRY_TRIALS
+			);
+			if (inputEl === undefined) {
+				throw '[ERROR in Core Search Assistant] failed to find the search input form.';
+			}
+			inputEl.focus();
 		};
 	}
 

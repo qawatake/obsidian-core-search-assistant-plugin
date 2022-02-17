@@ -11,6 +11,10 @@ import { INTERVAL_MILLISECOND_TO_BE_DETACHED } from 'components/WorkspacePreview
 import { ViewGenerator } from 'interfaces/ViewGenerator';
 import { scrollIteration } from 'utils/Util';
 import type { ModeScope } from 'ModeScope';
+import { KanbanViewGeneratorExtension } from 'interfaces/viewGeneratorExtensions/Kanban';
+import { MarkdownViewGeneratorExtension } from 'interfaces/viewGeneratorExtensions/Markdown';
+import { NonMarkdownViewGeneratorExtension } from 'interfaces/viewGeneratorExtensions/NonMarkdown';
+import { ExcalidrawViewGeneratorExtension } from 'interfaces/viewGeneratorExtensions/Excalidraw';
 
 type ScrollDirection = 'up' | 'down';
 
@@ -41,7 +45,7 @@ export class PreviewModal extends Modal {
 
 	override async onOpen() {
 		await this.renderView();
-		this.renderer?.highlightMatches(this.item.result.content ?? []);
+		this.highlightMatches();
 
 		this.modeScope.push();
 		const hotkeyMap = this.plugin.settings?.previewModalHotkeys;
@@ -126,8 +130,11 @@ export class PreviewModal extends Modal {
 		const togglePreviewHotkeys = this.getHotkeys(TOGGLE_PREVIEW_COMMAND_ID);
 		togglePreviewHotkeys.forEach((hotkey) => {
 			this.scope.register(hotkey.modifiers, hotkey.key, (evt) => {
-				evt.preventDefault();
-				this.toggleViewMode();
+				(async () => {
+					evt.preventDefault();
+					await this.toggleViewMode();
+					this.highlightMatches();
+				})();
 			});
 		});
 	}
@@ -166,11 +173,12 @@ export class PreviewModal extends Modal {
 				'core-search-assistant_preview-modal-container'
 			);
 		}
-		this.renderer = await new ViewGenerator(
-			this.app,
-			contentEl,
-			item.file
-		).load('source');
+		this.renderer = await new ViewGenerator(this.app, contentEl, item.file)
+			.registerExtension(new KanbanViewGeneratorExtension(this.app))
+			.registerExtension(new ExcalidrawViewGeneratorExtension(this.app))
+			.registerExtension(new MarkdownViewGeneratorExtension())
+			.registerExtension(new NonMarkdownViewGeneratorExtension())
+			.load('source');
 		contentEl.show();
 	}
 
@@ -178,8 +186,12 @@ export class PreviewModal extends Modal {
 		return this.item.result.content?.length;
 	}
 
-	private toggleViewMode() {
-		this.renderer?.toggleViewMode();
+	private async toggleViewMode() {
+		await this.renderer?.toggleViewMode();
+	}
+
+	private highlightMatches() {
+		this.renderer?.highlightMatches(this.item.result.content ?? []);
 	}
 
 	private scroll(direction: ScrollDirection, px?: number) {
