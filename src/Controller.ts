@@ -527,37 +527,6 @@ export class Controller extends obsidian.Component {
 		const scope = new obsidian.Scope();
 		this.app.keymap.pushScope(scope);
 
-		scope.register(['Mod'], 't', () => {
-			const { settings } = this.plugin;
-			if (!settings) return;
-			const focusEl = this.searchInterface.searchInputEl;
-			if (!focusEl) return;
-			this.app.workspace.onLayoutReady(() => {
-				const containerEl = this.app.workspace.rootSplit.containerEl;
-				const component = new CardViewComponent({
-					target: containerEl,
-					props: {
-						layout: settings.cardViewLayout,
-						focusEl: focusEl,
-					},
-				});
-				this.component = component;
-			});
-		});
-		scope.register(['Mod'], 'a', () => {
-			const { component } = this;
-			if (!component) return;
-			const item = this.searchInterface.getResultItemAt(this.addedCard);
-			if (!item) return;
-			component.addCard(item.file);
-			this.addedCard++;
-		});
-		scope.register(['Mod'], 'd', () => {
-			const { component } = this;
-			if (!component) return;
-			component.$destroy();
-		});
-
 		hotkeyMap.selectNext.forEach((hotkey) => {
 			scope.register(
 				hotkey.modifiers,

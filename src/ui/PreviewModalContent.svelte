@@ -48,7 +48,7 @@
 	}
 
 	export function highlightMatches() {
-		renderer?.highlightMatches(matches ?? []);
+		renderer?.highlightMatches(matches ?? [], 'highlight-search-match');
 	}
 
 	export function focusOn(matchId: number, center?: boolean) {
@@ -57,7 +57,7 @@
 		if (match === undefined) {
 			return;
 		}
-		renderer?.focusOn(match, center);
+		renderer?.focusOn(match, 'focus-search-match', center);
 	}
 
 	const FILE_TYPES = ['md', 'image', 'audio', 'movie', 'pdf'] as const;
