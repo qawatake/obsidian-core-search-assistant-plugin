@@ -110,6 +110,7 @@ export class HotkeySetter {
 					listening: false,
 				});
 				if (this.scope) this.app.keymap.popScope(this.scope);
+				return;
 			}
 
 			const hotkey = getHotkey(evt);
