@@ -7,15 +7,10 @@ import {
 	MarkdownView,
 	Notice,
 } from 'obsidian';
-import { INTERVAL_MILLISECOND_TO_BE_DETACHED } from 'components/WorkspacePreview';
-import { ViewGenerator } from 'interfaces/ViewGenerator';
 import { scrollIteration } from 'utils/Util';
 import type { ModeScope } from 'ModeScope';
-import { KanbanViewGeneratorExtension } from 'interfaces/viewGeneratorExtensions/Kanban';
-import { MarkdownViewGeneratorExtension } from 'interfaces/viewGeneratorExtensions/Markdown';
-import { NonMarkdownViewGeneratorExtension } from 'interfaces/viewGeneratorExtensions/NonMarkdown';
-import { ExcalidrawViewGeneratorExtension } from 'interfaces/viewGeneratorExtensions/Excalidraw';
 import { generateInternalLinkFrom } from 'utils/Link';
+import PreviewModalContent from 'ui/PreviewModalContent.svelte';
 
 type ScrollDirection = 'up' | 'down';
 
@@ -27,7 +22,7 @@ export class PreviewModal extends Modal {
 	private readonly item: SearchResultItem;
 
 	currentFocus: number;
-	renderer: ViewGenerator | undefined;
+	private previewContent: PreviewModalContent | undefined;
 
 	constructor(
 		app: App,
@@ -44,7 +39,6 @@ export class PreviewModal extends Modal {
 
 	override async onOpen() {
 		await this.renderView();
-		this.highlightMatches();
 
 		this.modeScope.push();
 		const hotkeyMap = this.plugin.settings?.previewModalHotkeys;
@@ -110,7 +104,7 @@ export class PreviewModal extends Modal {
 					return;
 				}
 				this.currentFocus = cyclicId(++this.currentFocus, numMatches);
-				this.focusOn(this.currentFocus, true);
+				this.previewContent?.focusOn(this.currentFocus, true);
 			});
 		});
 
@@ -122,7 +116,7 @@ export class PreviewModal extends Modal {
 					return;
 				}
 				this.currentFocus = cyclicId(--this.currentFocus, numMatches);
-				this.focusOn(this.currentFocus, true);
+				this.previewContent?.focusOn(this.currentFocus, true);
 			});
 		});
 
@@ -130,8 +124,7 @@ export class PreviewModal extends Modal {
 			this.scope.register(hotkey.modifiers, hotkey.key, (evt) => {
 				(async () => {
 					evt.preventDefault();
-					await this.toggleViewMode();
-					this.highlightMatches();
+					await this.previewContent?.toggleViewMode();
 				})();
 			});
 		});
@@ -150,9 +143,7 @@ export class PreviewModal extends Modal {
 	}
 
 	override onClose() {
-		const { contentEl } = this;
-		contentEl.empty();
-		this.requestUnloadRenderer(INTERVAL_MILLISECOND_TO_BE_DETACHED);
+		this.previewContent?.$destroy();
 
 		// too fast to remain search mode
 		setTimeout(() => {
@@ -162,46 +153,22 @@ export class PreviewModal extends Modal {
 		}, 100);
 	}
 
-	private requestUnloadRenderer(millisecond: number) {
-		const renderer = this.renderer;
-		this.renderer = undefined;
-		setTimeout(() => {
-			renderer?.unload();
-		}, millisecond);
-	}
-
 	private async renderView() {
-		const { contentEl, containerEl, item } = this;
+		const { contentEl } = this;
 		contentEl.empty();
 		contentEl.hide();
-		if (this.app.vault.config.legacyEditor) {
-			containerEl.addClass(
-				'core-search-assistant_preview-modal-container_legacy'
-			);
-		} else {
-			containerEl.addClass(
-				'core-search-assistant_preview-modal-container'
-			);
-		}
-		this.renderer = await new ViewGenerator(this.app, contentEl, item.file)
-			.registerExtension(new KanbanViewGeneratorExtension(this.app))
-			.registerExtension(new ExcalidrawViewGeneratorExtension(this.app))
-			.registerExtension(new MarkdownViewGeneratorExtension())
-			.registerExtension(new NonMarkdownViewGeneratorExtension())
-			.load('source');
+		this.previewContent = new PreviewModalContent({
+			target: contentEl,
+			props: {
+				file: this.item.file,
+				matches: this.item.result.content,
+			},
+		});
 		contentEl.show();
 	}
 
 	private countMatches(): number | undefined {
 		return this.item.result.content?.length;
-	}
-
-	private async toggleViewMode() {
-		await this.renderer?.toggleViewMode();
-	}
-
-	private highlightMatches() {
-		this.renderer?.highlightMatches(this.item.result.content ?? []);
 	}
 
 	private scroll(direction: ScrollDirection, px?: number) {
@@ -213,15 +180,6 @@ export class PreviewModal extends Modal {
 			top: move,
 			behavior: 'smooth',
 		});
-	}
-
-	private focusOn(matchId: number, center?: boolean) {
-		const { renderer, item } = this;
-		const match = item.result.content?.[matchId];
-		if (match === undefined) {
-			return;
-		}
-		renderer?.focusOn(match, center);
 	}
 
 	async openAndFocus(matchId: number, direction?: SplitDirection) {
@@ -266,180 +224,6 @@ export class PreviewModal extends Modal {
 		}
 		editor.setCursor(range.from);
 	}
-
-	// [-1, 0, 1].forEach((i) => {
-	// 	const id = cyclicId(matchId + i, this.matchEls.length);
-	// 	const el = this.matchEls[id];
-	// 	if (el instanceof HTMLSpanElement) {
-	// 		if (i === 0) {
-	// 			el.addClass('focus-search-match');
-	// 			el.scrollIntoView({
-	// 				behavior: 'smooth',
-	// 				block: 'center',
-	// 			});
-	// 		} else {
-	// 			el.removeClass('focus-search-match');
-	// 		}
-	// 	}
-	// });
-
-	// it should be called once because is is not idempotent
-	// it can be called even when view mode = 'preview'
-	// private highlightMatches() {
-	// 	const { leaf, item } = this;
-	// 	const view = leaf.view as MarkdownView;
-	// 	const ranges: EditorRange[] = [];
-	// 	item.result.content?.forEach((match) => {
-	// 		const range = {
-	// 			from: view.editMode.editor.offsetToPos(match[0]),
-	// 			to: view.editMode.editor.offsetToPos(match[1]),
-	// 		};
-	// 		ranges.push(range);
-	// 	});
-	// 	((leaf.view as MarkdownView).editMode.editor as any).addHighlights(
-	// 		ranges,
-	// 		'highlight-search-match'
-	// 	);
-
-	// 	// this.matchesHighlighted = true;
-	// }
-
-	// it should be called once because is is not idempotent
-	// it can be called even when view mode = 'preview'
-	// private highlightMatches() {
-	// 	const { markdownView, item } = this;
-	// 	const editor = markdownView.modes.source.editor;
-	// 	const ranges: EditorRange[] = [];
-	// 	item.result.content?.forEach((match) => {
-	// 		const range = {
-	// 			from: editor.offsetToPos(match[0]),
-	// 			to: editor.offsetToPos(match[1]),
-	// 		};
-	// 		ranges.push(range);
-	// 	});
-	// 	editor.addHighlights(ranges, 'highlight-search-match');
-	// }
-
-	// it should be called after highlightMatches
-	// it can be called even when view mode = 'preview'
-	// private findMatches() {
-	// 	const { contentEl } = this;
-	// 	const matchEls: HTMLSpanElement[] = [];
-	// 	contentEl
-	// 		.querySelectorAll('span.highlight-search-match')
-	// 		.forEach((node) => {
-	// 			if (node instanceof HTMLSpanElement) {
-	// 				matchEls.push(node);
-	// 			}
-	// 		});
-	// 	this.matchEls = matchEls;
-	// }
-
-	// private async createView() {
-	// 	const { markdownView, contentEl, containerEl, item } = this;
-	// 	contentEl.empty();
-	// 	if (this.app.vault.config.legacyEditor) {
-	// 		containerEl.addClass(
-	// 			'core-search-assistant_preview-modal-container_legacy'
-	// 		);
-	// 	} else {
-	// 		containerEl.addClass(
-	// 			'core-search-assistant_preview-modal-container'
-	// 		);
-	// 	}
-	// 	markdownView.file = item.file;
-	// 	markdownView.setViewData(item.content, true);
-	// 	contentEl.appendChild(markdownView.containerEl);
-	// }
-
-	// private setViewMode(mode: MarkdownViewModeType) {
-	// 	const { leaf } = this;
-
-	// 	(leaf.view as MarkdownView).setMode(
-	// 		mode === 'preview'
-	// 			? (leaf.view as MarkdownView).previewMode
-	// 			: (leaf.view as MarkdownView).editMode
-	// 	);
-	// }
-
-	// private setViewMode(mode: MarkdownViewModeType) {
-	// 	const { markdownView } = this;
-	// 	markdownView.setMode(
-	// 		mode === 'preview'
-	// 			? markdownView.previewMode
-	// 			: markdownView.modes.source
-	// 	);
-
-	// 	if (mode === 'source') {
-	// 		this.findMatches();
-	// 	}
-	// }
-
-	// private async createView() {
-	// 	const { leaf, item, contentEl, containerEl } = this;
-	// 	contentEl.empty();
-	// 	containerEl.addClass('core-search-assistant_preview-modal-container');
-	// 	await leaf.openFile(item.file);
-	// 	contentEl.appendChild(this.leaf.containerEl);
-	// }
-
-	// private detachLater(millisecond: number) {
-	// 	if (!this.leaf) {
-	// 		return;
-	// 	}
-	// 	const leafToBeDetached = this.leaf;
-	// 	setTimeout(() => {
-	// 		leafToBeDetached.detach();
-	// 	}, millisecond);
-	// }
-
-	// private renderPreview() {
-	// 	const { contentEl, containerEl } = this;
-	// 	contentEl.empty();
-	// 	containerEl.addClass('core-search-assistant_preview-modal-container');
-
-	// 	this.leaf.openFile(this.item.file, { state: { mode: 'preview' } });
-	// 	contentEl.appendChild(this.leaf.containerEl);
-	// }
-
-	// private async renderEdit() {
-	// 	const { contentEl, containerEl, leaf, item } = this;
-	// 	contentEl.empty();
-	// 	containerEl.addClass('core-search-assistant_preview-modal-container');
-
-	// 	await leaf.openFile(this.item.file, { state: { mode: 'source' } });
-	// 	contentEl.appendChild(this.leaf.view.editMode.editorEl);
-	// 	this.leaf.view.editMode.editorEl.addClass('markdown-editor-view');
-
-	// 	item.result.content?.forEach((match) => {
-	// 		const range = translateMatch(item.content, match);
-
-	// 		(leaf.view.editMode.editor as any).addHighlights(
-	// 			[range],
-	// 			'highlight-search-match'
-	// 		);
-	// 	});
-	// 	console.log(leaf);
-	// }
-
-	// private async renderPreviewWithHighLight() {
-	// 	const { contentEl, containerEl, item } = this;
-	// 	contentEl.empty();
-	// 	containerEl.addClass('core-search-assistant_preview-modal-container');
-
-	// 	const previewView = new MarkdownView(this.leaf).previewMode;
-	// 	previewView.view.file = item.file; // necessary to remove error message
-
-	// 	const content = highlightMatches(
-	// 		item.content,
-	// 		item.result.content ?? [],
-	// 		{ cls: 'highlight-match' }
-	// 	);
-	// 	previewView.set(content, false); // load content
-
-	// 	contentEl.appendChild(previewView.containerEl);
-	// 	previewView.renderer.previewEl.addClass('preview-container');
-	// }
 }
 
 function cyclicId(id: number, total: number): number {

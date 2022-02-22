@@ -409,3 +409,21 @@ div.core-search-assistant_search-mode-outline {
 		display: none;
 	}
 }
+
+// preview modal
+
+/*
+	text color
+*/
+span {
+	--highlight-search-match: var(--text-normal);
+}
+
+/*
+	background color
+*/
+
+span {
+	--highlight-search-match-bg: var(--text-highlight-bg);
+	--focus-search-match-bg: #ff9633;
+}
