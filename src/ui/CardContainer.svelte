@@ -92,8 +92,15 @@
 		setTimeout(() => renderer?.unload(), 1000);
 	});
 
-	function onClicked() {
+	async function onClicked() {
+		await openFile();
 		dispatch('click');
+	}
+
+	async function openFile() {
+		const leaf = $app.workspace.getMostRecentLeaf();
+		await leaf.openFile(file);
+		$app.workspace.setActiveLeaf(leaf, true, true);
 	}
 
 	// function setFileIcon(file: TFile) {
