@@ -13,11 +13,11 @@ import { WorkspacePreview } from 'components/WorkspacePreview';
 import { ModeScope } from 'ModeScope';
 import type { SearchComponentInterface } from 'interfaces/SearchComponentInterface';
 import { delay, retry } from 'utils/Util';
-import { Notice } from 'obsidian';
+import { debounce, Notice, TFile } from 'obsidian';
 import { generateInternalLinkFrom } from 'utils/Link';
 import CardViewComponent from 'ui/CardViewComponent.svelte';
 
-// const DELAY_TO_RELOAD_IN_MILLISECOND = 1000;
+const DELAY_TO_RELOAD_IN_MILLISECOND = 1000;
 const RETRY_INTERVAL = 1;
 const RETRY_TRIALS = 1000;
 const DELAY_TO_RENDER_CARD_VIEW_ON_ENTRY_IN_MILLISECOND = 100;
@@ -34,6 +34,7 @@ export class Controller extends obsidian.Component {
 	private outline: Outline | undefined;
 	private component: CardViewComponent | undefined;
 	private addedCard: number;
+	private cardViewCheckDebouncer: any;
 
 	// state variables
 	private currentFocusId: number | undefined;
@@ -56,6 +57,11 @@ export class Controller extends obsidian.Component {
 		this.events = events;
 		this.searchInterface = searchInterface;
 		this.modeScope = new ModeScope();
+		this.cardViewCheckDebouncer = debounce(
+			this.onCheckCardView,
+			DELAY_TO_RELOAD_IN_MILLISECOND,
+			true
+		);
 
 		// state variables
 		this.countSearchItemDetected = 0;
@@ -150,16 +156,23 @@ export class Controller extends obsidian.Component {
 	async renewCardViewPage() {
 		if (this.plugin.settings?.autoPreviewMode !== 'cardView') return;
 
-		if (this.currentFocusId === undefined) return;
-		// this.cardView?.clear();
-		// this.cardView?.renderPage(this.currentFocusId ?? 0);
-		// this.cardView?.reveal();
 		this.component?.detachCards();
-		const items = this.searchInterface.resultItems;
-		this.component?.renderPage(
-			items.slice(this.currentFocusId).map((item) => item.file)
-		);
-		this.component?.focusOn(this.currentFocusId);
+		this.component?.renderPage(this.filesToBeRendered());
+		if (this.currentFocusId !== undefined) {
+			this.component?.focusOn(this.currentFocusId ?? 0);
+		}
+	}
+
+	private filesToBeRendered(): TFile[] {
+		const cardsPerPage = this.cardsPerPage();
+		if (cardsPerPage === undefined) {
+			return [];
+		}
+		const pageId = Math.floor((this.currentFocusId ?? 0) / cardsPerPage);
+
+		const items = this.plugin.searchInterface?.resultItems;
+		if (!items) return [];
+		return items.slice(pageId * cardsPerPage).map((item) => item.file);
 	}
 
 	private collapseSidedock() {
@@ -195,7 +208,9 @@ export class Controller extends obsidian.Component {
 			new Outline(this.plugin.settings.outlineWidth)
 		);
 		// this.cardView = this.addChild(new CardView(this.app, this.plugin));
-		this.renewCardView();
+		if (this.plugin.settings.autoPreviewMode === 'cardView') {
+			this.renewCardViewComponent();
+		}
 		this.workspacePreview = this.addChild(
 			new WorkspacePreview(this.app, this.plugin)
 		);
@@ -208,6 +223,7 @@ export class Controller extends obsidian.Component {
 		// if (this.cardView) {
 		// 	this.removeChild(this.cardView);
 		// }
+		this.component?.$destroy();
 		if (this.workspacePreview) {
 			this.removeChild(this.workspacePreview);
 		}
@@ -388,15 +404,15 @@ export class Controller extends obsidian.Component {
 		return row * column;
 	}
 
-	private retryCardView(delayMillisecond: number) {
-		// i don't retry many times because it looks bad.
-		setTimeout(() => {
-			if (!this.cardView?.itemsRenderedCorrectly) {
-				this.reset();
-				this.renewCardViewPage();
-			}
-		}, delayMillisecond);
-	}
+	// private retryCardView(delayMillisecond: number) {
+	// 	// i don't retry many times because it looks bad.
+	// 	setTimeout(() => {
+	// 		if (!this.cardView?.itemsRenderedCorrectly) {
+	// 			this.reset();
+	// 			this.renewCardViewPage();
+	// 		}
+	// 	}, delayMillisecond);
+	// }
 
 	/**
 	 * check layout change
@@ -719,7 +735,8 @@ export class Controller extends obsidian.Component {
 
 			if (this.countSearchItemDetected === 0) {
 				// this.cardView?.clear();
-				this.renewCardView();
+				// this.renewCardViewComponent();
+				this.component?.detachCards();
 			}
 			// this.showCardViewItem(this.countSearchItemDetected);
 			const item = this.searchInterface.getResultItemAt(
@@ -727,7 +744,7 @@ export class Controller extends obsidian.Component {
 			);
 			if (!item) return;
 			this.component?.addCard(item.file);
-
+			this.cardViewCheckDebouncer();
 			// if (this.countSearchItemDetected === 0) {
 			// 	this.retryCardView(DELAY_TO_RELOAD_IN_MILLISECOND);
 			// }
@@ -735,7 +752,7 @@ export class Controller extends obsidian.Component {
 		};
 	}
 
-	private renewCardView() {
+	private renewCardViewComponent() {
 		this.component?.$destroy();
 		const { settings } = this.plugin;
 		if (!settings) return;
@@ -792,6 +809,20 @@ export class Controller extends obsidian.Component {
 			return true;
 		}
 		return !this.searchInterface.sideDock?.containerEl.contains(targetEl);
+	}
+
+	private get onCheckCardView(): () => any {
+		return () => {
+			const { component } = this;
+			if (!component) return;
+			const ok = component.checkCardsRenderedCorrectly(
+				this.filesToBeRendered()
+			);
+			if (!ok) {
+				this.reset();
+				this.renewCardViewPage();
+			}
+		};
 	}
 }
 

@@ -11,7 +11,6 @@
 	export let focusEl: HTMLInputElement | undefined;
 
 	// binds
-	let containerEl: HTMLElement | undefined;
 	let contentEl: HTMLElement | undefined;
 
 	// internal variables
@@ -65,6 +64,18 @@
 		cards = [];
 	}
 
+	export function checkCardsRenderedCorrectly(files: TFile[]): boolean {
+		for (let i = 0; i < cardsPerPage(layout); i++) {
+			const file = files[i];
+			const card = cards[i];
+			if (file?.path !== card?.path()) {
+				console.log(file?.path, card?.path());
+				return false;
+			}
+		}
+		return true;
+	}
+
 	onDestroy(() => {
 		detachCards();
 	});
@@ -75,7 +86,7 @@
 	}
 </script>
 
-<div class="card-view-container" bind:this={containerEl}>
+<div class="card-view-container">
 	<div
 		class="card-view-background"
 		on:click={() => {

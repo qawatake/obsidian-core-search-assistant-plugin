@@ -57,6 +57,10 @@
 	let renderer: ViewGenerator | undefined;
 	const dispatch = createEventDispatcher();
 
+	export function path(): string {
+		return file.path;
+	}
+
 	onMount(async () => {
 		// path
 		if (!fileNameContainerEl) {
