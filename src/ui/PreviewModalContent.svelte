@@ -40,7 +40,6 @@
 	});
 
 	onDestroy(() => {
-		console.log('unmount');
 		setTimeout(() => renderer?.unload(), 1000);
 	});
 

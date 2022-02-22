@@ -190,11 +190,7 @@ export class PreviewModal extends Modal {
 			direction === undefined
 				? this.app.workspace.getMostRecentLeaf()
 				: this.app.workspace.splitActiveLeaf(direction);
-		await leaf.openFile(item.file, {
-			state: {
-				mode: 'source',
-			},
-		});
+		await leaf.openFile(item.file);
 		this.app.workspace.setActiveLeaf(leaf, true, true);
 
 		// highlight matches
@@ -204,7 +200,7 @@ export class PreviewModal extends Modal {
 		}
 		const { view } = leaf;
 		if (!(view instanceof MarkdownView)) {
-			throw '[ERROR in Core Search Assistant] failed to openAndFocus: view is not an instance of MarkdownView';
+			return;
 		}
 		const editor = view.editor;
 		const range = {
