@@ -13,7 +13,7 @@ import { WorkspacePreview } from 'components/WorkspacePreview';
 import { ModeScope } from 'ModeScope';
 import type { SearchComponentInterface } from 'interfaces/SearchComponentInterface';
 import { delay, retry } from 'utils/Util';
-import { debounce, Notice, TFile } from 'obsidian';
+import { debounce, Notice, TFile, type Debouncer } from 'obsidian';
 import { generateInternalLinkFrom } from 'utils/Link';
 import CardViewComponent from 'ui/CardViewComponent.svelte';
 
@@ -32,9 +32,10 @@ export class Controller extends obsidian.Component {
 	// children
 	private workspacePreview: WorkspacePreview | undefined;
 	private outline: Outline | undefined;
-	private component: CardViewComponent | undefined;
-	private addedCard: number;
-	private cardViewCheckDebouncer: any;
+	private cardViewComponent: CardViewComponent | undefined;
+
+	// debouncer
+	private cardViewCheckDebouncer: Debouncer<[]>;
 
 	// state variables
 	private currentFocusId: number | undefined;
@@ -65,8 +66,6 @@ export class Controller extends obsidian.Component {
 
 		// state variables
 		this.countSearchItemDetected = 0;
-
-		this.addedCard = 0;
 	}
 
 	override onunload() {
@@ -106,7 +105,7 @@ export class Controller extends obsidian.Component {
 		}
 		this.forget();
 		this.unfocus();
-		this.component?.detachCards();
+		this.cardViewComponent?.detachCards();
 		this.countSearchItemDetected = 0;
 	}
 
@@ -137,7 +136,7 @@ export class Controller extends obsidian.Component {
 			return;
 		}
 		this.searchInterface.focusOn(this.currentFocusId);
-		this.component?.focusOn(this.currentFocusId);
+		this.cardViewComponent?.focusOn(this.currentFocusId);
 	}
 
 	open(direction?: obsidian.SplitDirection) {
@@ -150,10 +149,10 @@ export class Controller extends obsidian.Component {
 	async renewCardViewPage() {
 		if (this.plugin.settings?.autoPreviewMode !== 'cardView') return;
 
-		this.component?.detachCards();
-		this.component?.renderPage(this.filesToBeRendered());
+		this.cardViewComponent?.detachCards();
+		this.cardViewComponent?.renderPage(this.filesToBeRendered());
 		if (this.currentFocusId !== undefined) {
-			this.component?.focusOn(this.currentFocusId ?? 0);
+			this.cardViewComponent?.focusOn(this.currentFocusId ?? 0);
 		}
 	}
 
@@ -213,8 +212,8 @@ export class Controller extends obsidian.Component {
 		if (this.outline) {
 			this.removeChild(this.outline);
 		}
-		this.component?.$destroy();
-		this.component = undefined;
+		this.cardViewComponent?.$destroy();
+		this.cardViewComponent = undefined;
 		if (this.workspacePreview) {
 			this.removeChild(this.workspacePreview);
 		}
@@ -654,35 +653,35 @@ export class Controller extends obsidian.Component {
 			}
 
 			if (this.countSearchItemDetected === 0) {
-				this.component?.detachCards();
+				this.cardViewComponent?.detachCards();
 			}
 
 			const item = this.searchInterface.getResultItemAt(
 				this.countSearchItemDetected
 			);
 			if (!item) return;
-			this.component?.addCard(item.file);
+			this.cardViewComponent?.addCard(item.file);
 			this.cardViewCheckDebouncer();
 			this.countSearchItemDetected++;
 		};
 	}
 
 	private renewCardViewComponent() {
-		this.component?.$destroy();
+		this.cardViewComponent?.$destroy();
 		const { settings } = this.plugin;
 		if (!settings) return;
 		const focusEl = this.searchInterface.searchInputEl;
 		if (!focusEl) return;
 		this.app.workspace.onLayoutReady(() => {
 			const containerEl = this.app.workspace.rootSplit.containerEl;
-			const component = new CardViewComponent({
+			const cardViewComponent = new CardViewComponent({
 				target: containerEl,
 				props: {
 					layout: settings.cardViewLayout,
 					focusEl: focusEl,
 				},
 			});
-			this.component = component;
+			this.cardViewComponent = cardViewComponent;
 		});
 	}
 
@@ -728,9 +727,9 @@ export class Controller extends obsidian.Component {
 
 	private get onCheckCardView(): () => any {
 		return () => {
-			const { component } = this;
-			if (!component) return;
-			const ok = component.checkCardsRenderedCorrectly(
+			const { cardViewComponent } = this;
+			if (!cardViewComponent) return;
+			const ok = cardViewComponent.checkCardsRenderedCorrectly(
 				this.filesToBeRendered()
 			);
 			if (!ok) {
