@@ -94,6 +94,7 @@ export class Controller extends obsidian.Component {
 			// delay to render cards after expanding sidebar
 			await delay(DELAY_TO_RENDER_CARD_VIEW_ON_ENTRY_IN_MILLISECOND);
 			this.renewCardViewPage();
+			this.cardViewCheckDebouncer();
 		}
 
 		this.modeScope.push();
