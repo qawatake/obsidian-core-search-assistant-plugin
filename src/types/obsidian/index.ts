@@ -81,11 +81,9 @@ declare module 'obsidian' {
 	}
 
 	interface SearchResultMatchInfo {
-		filename?: Match[];
-		content?: Match[];
+		filename?: SearchMatches;
+		content?: SearchMatches;
 	}
-
-	type Match = [number, number];
 
 	interface SearchHeaderDom {
 		navButtonsEl: HTMLDivElement;
@@ -94,37 +92,6 @@ declare module 'obsidian' {
 	interface WorkspaceSplit {
 		containerEl: HTMLElement;
 	}
-
-	// interface MarkdownPreviewView {
-	// 	view: PreviewView;
-	// 	// renderer: PreviewRenderer;
-	// }
-
-	// interface PreviewView {
-	// 	file: TFile;
-	// }
-
-	// interface PreviewRenderer {
-	// 	previewEl: HTMLElement;
-	// }
-
-	// interface MarkdownView {
-	// 	editMode: MarkdownEditorView; not found in the legacy editor
-	// 	getMode(): MarkdownViewModeType;
-	// 	setMode(mode: MarkdownPreviewView | MarkdownEditView): void;
-	// 	modes: MarkdownViewModes;
-	// 	currentMode: MarkdownSubView;
-	// }
-
-	// interface MarkdownViewModes {
-	// 	preview: MarkdownPreviewView;
-	// 	source: MarkdownEditView;
-	// }
-
-	// interface MarkdownEditView {
-	// 	editor: Editor;
-	// 	contentContainerEl: HTMLElement;
-	// }
 
 	interface Editor {
 		addHighlights(ranges: EditorRange[], cls: string): void;

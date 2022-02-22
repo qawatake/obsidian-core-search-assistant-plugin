@@ -10,14 +10,14 @@ import { parseCardLayout } from 'Setting';
 import { PreviewModal } from 'components/PreviewModal';
 import { Outline } from 'components/Outline';
 import { WorkspacePreview } from 'components/WorkspacePreview';
-import { CardView } from 'components/CardView';
 import { ModeScope } from 'ModeScope';
 import type { SearchComponentInterface } from 'interfaces/SearchComponentInterface';
 import { delay, retry } from 'utils/Util';
 import { Notice } from 'obsidian';
 import { generateInternalLinkFrom } from 'utils/Link';
+import CardViewComponent from 'ui/CardViewComponent.svelte';
 
-const DELAY_TO_RELOAD_IN_MILLISECOND = 1000;
+// const DELAY_TO_RELOAD_IN_MILLISECOND = 1000;
 const RETRY_INTERVAL = 1;
 const RETRY_TRIALS = 1000;
 const DELAY_TO_RENDER_CARD_VIEW_ON_ENTRY_IN_MILLISECOND = 100;
@@ -31,8 +31,9 @@ export class Controller extends obsidian.Component {
 
 	// children
 	private workspacePreview: WorkspacePreview | undefined;
-	private cardView: CardView | undefined;
 	private outline: Outline | undefined;
+	private component: CardViewComponent | undefined;
+	private addedCard: number;
 
 	// state variables
 	private currentFocusId: number | undefined;
@@ -58,6 +59,8 @@ export class Controller extends obsidian.Component {
 
 		// state variables
 		this.countSearchItemDetected = 0;
+
+		this.addedCard = 0;
 	}
 
 	override onunload() {
@@ -97,7 +100,8 @@ export class Controller extends obsidian.Component {
 		}
 		this.forget();
 		this.unfocus();
-		this.cardView?.clear();
+		// this.cardView?.clear();
+		this.component?.detachCards();
 		this.countSearchItemDetected = 0;
 	}
 
@@ -128,11 +132,12 @@ export class Controller extends obsidian.Component {
 			return;
 		}
 		this.searchInterface.focusOn(this.currentFocusId);
-		const pos = this.positionInCardView(this.currentFocusId);
-		if (pos === undefined) {
-			return;
-		}
-		this.cardView?.focusOn(pos);
+		// const pos = this.positionInCardView(this.currentFocusId);
+		// if (pos === undefined) {
+		// 	return;
+		// }
+		// this.cardView?.focusOn(pos);
+		this.component?.focusOn(this.currentFocusId);
 	}
 
 	open(direction?: obsidian.SplitDirection) {
@@ -142,13 +147,19 @@ export class Controller extends obsidian.Component {
 		this.searchInterface.open(this.currentFocusId, direction);
 	}
 
-	renewCardViewPage() {
-		if (this.plugin.settings?.autoPreviewMode !== 'cardView') {
-			return;
-		}
-		this.cardView?.clear();
-		this.cardView?.renderPage(this.currentFocusId ?? 0);
-		this.cardView?.reveal();
+	async renewCardViewPage() {
+		if (this.plugin.settings?.autoPreviewMode !== 'cardView') return;
+
+		if (this.currentFocusId === undefined) return;
+		// this.cardView?.clear();
+		// this.cardView?.renderPage(this.currentFocusId ?? 0);
+		// this.cardView?.reveal();
+		this.component?.detachCards();
+		const items = this.searchInterface.resultItems;
+		this.component?.renderPage(
+			items.slice(this.currentFocusId).map((item) => item.file)
+		);
+		this.component?.focusOn(this.currentFocusId);
 	}
 
 	private collapseSidedock() {
@@ -183,7 +194,8 @@ export class Controller extends obsidian.Component {
 		this.outline = this.addChild(
 			new Outline(this.plugin.settings.outlineWidth)
 		);
-		this.cardView = this.addChild(new CardView(this.app, this.plugin));
+		// this.cardView = this.addChild(new CardView(this.app, this.plugin));
+		this.renewCardView();
 		this.workspacePreview = this.addChild(
 			new WorkspacePreview(this.app, this.plugin)
 		);
@@ -193,9 +205,9 @@ export class Controller extends obsidian.Component {
 		if (this.outline) {
 			this.removeChild(this.outline);
 		}
-		if (this.cardView) {
-			this.removeChild(this.cardView);
-		}
+		// if (this.cardView) {
+		// 	this.removeChild(this.cardView);
+		// }
 		if (this.workspacePreview) {
 			this.removeChild(this.workspacePreview);
 		}
@@ -206,15 +218,15 @@ export class Controller extends obsidian.Component {
 		this.countSearchItemDetected = 0;
 	}
 
-	private showCardViewItem(id: number) {
-		const item = this.searchInterface.getResultItemAt(id);
-		if (!item) {
-			return;
-		}
-		this.cardView?.renderItem(item, id);
-		this.cardView?.setLayout();
-		this.cardView?.reveal();
-	}
+	// private showCardViewItem(id: number) {
+	// 	const item = this.searchInterface.getResultItemAt(id);
+	// 	if (!item) {
+	// 		return;
+	// 	}
+	// 	this.cardView?.renderItem(item, id);
+	// 	this.cardView?.setLayout();
+	// 	this.cardView?.reveal();
+	// }
 
 	private showWorkspacePreview() {
 		if (this.plugin.settings?.autoPreviewMode !== 'singleView') {
@@ -294,7 +306,7 @@ export class Controller extends obsidian.Component {
 
 	private unfocus() {
 		this.searchInterface.unfocus();
-		this.cardView?.unfocus();
+		// this.cardView?.unfocus();
 	}
 
 	private openPreviewModal() {
@@ -338,16 +350,16 @@ export class Controller extends obsidian.Component {
 		return (this.currentFocusId + 1) % cardsPerPage === 0;
 	}
 
-	private positionInCardView(id: number | undefined): number | undefined {
-		if (id === undefined) {
-			return undefined;
-		}
-		const cardsPerPage = this.cardsPerPage();
-		if (!cardsPerPage) {
-			return undefined;
-		}
-		return id % cardsPerPage;
-	}
+	// private positionInCardView(id: number | undefined): number | undefined {
+	// 	if (id === undefined) {
+	// 		return undefined;
+	// 	}
+	// 	const cardsPerPage = this.cardsPerPage();
+	// 	if (!cardsPerPage) {
+	// 		return undefined;
+	// 	}
+	// 	return id % cardsPerPage;
+	// }
 
 	private get pageId(): number | undefined {
 		if (this.currentFocusId === undefined) return undefined;
@@ -540,6 +552,37 @@ export class Controller extends obsidian.Component {
 		const scope = new obsidian.Scope();
 		this.app.keymap.pushScope(scope);
 
+		scope.register(['Mod'], 't', () => {
+			const { settings } = this.plugin;
+			if (!settings) return;
+			const focusEl = this.searchInterface.searchInputEl;
+			if (!focusEl) return;
+			this.app.workspace.onLayoutReady(() => {
+				const containerEl = this.app.workspace.rootSplit.containerEl;
+				const component = new CardViewComponent({
+					target: containerEl,
+					props: {
+						layout: settings.cardViewLayout,
+						focusEl: focusEl,
+					},
+				});
+				this.component = component;
+			});
+		});
+		scope.register(['Mod'], 'a', () => {
+			const { component } = this;
+			if (!component) return;
+			const item = this.searchInterface.getResultItemAt(this.addedCard);
+			if (!item) return;
+			component.addCard(item.file);
+			this.addedCard++;
+		});
+		scope.register(['Mod'], 'd', () => {
+			const { component } = this;
+			if (!component) return;
+			component.$destroy();
+		});
+
 		hotkeyMap.selectNext.forEach((hotkey) => {
 			scope.register(
 				hotkey.modifiers,
@@ -666,24 +709,49 @@ export class Controller extends obsidian.Component {
 				return;
 			}
 
-			const cardsPerPage = this.cardsPerPage();
-			if (cardsPerPage === undefined) {
-				return;
-			}
-			if (this.countSearchItemDetected >= cardsPerPage) {
-				return;
-			}
+			// const cardsPerPage = this.cardsPerPage();
+			// if (cardsPerPage === undefined) {
+			// 	return;
+			// }
+			// if (this.countSearchItemDetected >= cardsPerPage) {
+			// 	return;
+			// }
 
 			if (this.countSearchItemDetected === 0) {
-				this.cardView?.clear();
+				// this.cardView?.clear();
+				this.renewCardView();
 			}
-			this.showCardViewItem(this.countSearchItemDetected);
+			// this.showCardViewItem(this.countSearchItemDetected);
+			const item = this.searchInterface.getResultItemAt(
+				this.countSearchItemDetected
+			);
+			if (!item) return;
+			this.component?.addCard(item.file);
 
-			if (this.countSearchItemDetected === 0) {
-				this.retryCardView(DELAY_TO_RELOAD_IN_MILLISECOND);
-			}
+			// if (this.countSearchItemDetected === 0) {
+			// 	this.retryCardView(DELAY_TO_RELOAD_IN_MILLISECOND);
+			// }
 			this.countSearchItemDetected++;
 		};
+	}
+
+	private renewCardView() {
+		this.component?.$destroy();
+		const { settings } = this.plugin;
+		if (!settings) return;
+		const focusEl = this.searchInterface.searchInputEl;
+		if (!focusEl) return;
+		this.app.workspace.onLayoutReady(() => {
+			const containerEl = this.app.workspace.rootSplit.containerEl;
+			const component = new CardViewComponent({
+				target: containerEl,
+				props: {
+					layout: settings.cardViewLayout,
+					focusEl: focusEl,
+				},
+			});
+			this.component = component;
+		});
 	}
 
 	private get focusOnInput(): () => Promise<void> {

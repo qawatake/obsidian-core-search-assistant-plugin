@@ -22,7 +22,7 @@ const autoPreviewModeInfos: Record<AutoPreviewMode, string> = {
 };
 
 const AVAILABLE_CARD_LAYOUT = ['2x2', '2x3', '3x2', '3x3'] as const;
-type AvailableCardLayout = typeof AVAILABLE_CARD_LAYOUT[number];
+export type AvailableCardLayout = typeof AVAILABLE_CARD_LAYOUT[number];
 
 export interface CoreSearchAssistantPluginSettings {
 	keepSelectedItemsCentered: boolean;
