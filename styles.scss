@@ -186,17 +186,21 @@
 // }
 
 /* outline on search mode */
-div.core-search-assistant_search-mode-outline {
-	/* outline: 5px solid var(--interactive-accent);
-	outline-offset: -5px; */
-	position: absolute;
-	top: 0;
-	left: 0;
-	width: 100%;
-	height: 100%;
-	z-index: var(--layer-modal);
-	pointer-events: none;
+// outline color
+body {
+	--search-mode-outline: var(--interactive-accent);
 }
+// div.core-search-assistant_search-mode-outline {
+// 	/* outline: 5px solid var(--interactive-accent);
+// 	outline-offset: -5px; */
+// 	position: absolute;
+// 	top: 0;
+// 	left: 0;
+// 	width: 100%;
+// 	height: 100%;
+// 	z-index: var(--layer-modal);
+// 	pointer-events: none;
+// }
 
 /* option modal */
 .core-search-assistant_option-modal {
@@ -422,7 +426,6 @@ span {
 /*
 	background color
 */
-
 span {
 	--highlight-search-match-bg: var(--text-highlight-bg);
 	--focus-search-match-bg: #ff9633;

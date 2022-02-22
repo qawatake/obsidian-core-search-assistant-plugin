@@ -8,7 +8,6 @@ import * as obsidian from 'obsidian';
 import { OptionModal } from 'components/OptionModal';
 import { parseCardLayout } from 'Setting';
 import { PreviewModal } from 'components/PreviewModal';
-import { Outline } from 'components/Outline';
 import { WorkspacePreview } from 'components/WorkspacePreview';
 import { ModeScope } from 'ModeScope';
 import type { SearchComponentInterface } from 'interfaces/SearchComponentInterface';
@@ -16,6 +15,7 @@ import { delay, retry } from 'utils/Util';
 import { debounce, Notice, TFile, type Debouncer } from 'obsidian';
 import { generateInternalLinkFrom } from 'utils/Link';
 import CardViewComponent from 'ui/CardViewComponent.svelte';
+import Outline from 'ui/Outline.svelte';
 
 const DELAY_TO_RELOAD_IN_MILLISECOND = 1000;
 const RETRY_INTERVAL = 1;
@@ -194,13 +194,17 @@ export class Controller extends obsidian.Component {
 	private addChildren() {
 		this.removeChildren();
 
-		if (this.plugin.settings === undefined) {
+		const { settings } = this.plugin;
+		if (settings === undefined) {
 			throw '[ERROR in Core Search Assistant] failed to addChildren: failed to read setting';
 		}
-		this.outline = this.addChild(
-			new Outline(this.plugin.settings.outlineWidth)
-		);
-		if (this.plugin.settings.autoPreviewMode === 'cardView') {
+		this.outline = new Outline({
+			target: document.body,
+			props: {
+				lineWidth: settings.outlineWidth,
+			},
+		});
+		if (settings.autoPreviewMode === 'cardView') {
 			this.renewCardViewComponent();
 		}
 		this.workspacePreview = this.addChild(
@@ -209,9 +213,8 @@ export class Controller extends obsidian.Component {
 	}
 
 	private removeChildren() {
-		if (this.outline) {
-			this.removeChild(this.outline);
-		}
+		this.outline?.$destroy();
+		this.outline = undefined;
 		this.cardViewComponent?.$destroy();
 		this.cardViewComponent = undefined;
 		if (this.workspacePreview) {
