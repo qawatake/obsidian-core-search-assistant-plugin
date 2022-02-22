@@ -45,6 +45,7 @@ export class ExcalidrawViewGeneratorExtension
 			},
 			{}
 		);
+		leaf.view.editor.blur();
 	}
 
 	async toggleViewMode(leaf: WorkspaceLeaf) {
@@ -61,6 +62,7 @@ export class ExcalidrawViewGeneratorExtension
 			},
 			{}
 		);
+		leaf.view.editor.blur();
 	}
 }
 

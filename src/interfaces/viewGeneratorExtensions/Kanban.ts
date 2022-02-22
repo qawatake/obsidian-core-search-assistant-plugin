@@ -1,5 +1,6 @@
 import type { ViewGeneratorExtension } from 'interfaces/ViewGenerator';
 import {
+	MarkdownView,
 	Plugin,
 	TextFileView,
 	type App,
@@ -54,6 +55,9 @@ export class KanbanViewGeneratorExtension implements ViewGeneratorExtension {
 				},
 				{}
 			);
+			if (leaf.view instanceof MarkdownView) {
+				leaf.view.editor.blur();
+			}
 		} else {
 			kanban.kanbanFileModes[leaf.id] = kanbanViewType;
 			await kanban.setKanbanView(leaf);
