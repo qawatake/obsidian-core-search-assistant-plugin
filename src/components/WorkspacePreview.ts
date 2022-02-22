@@ -1,6 +1,6 @@
-import CoreSearchAssistantPlugin from 'main';
+import type CoreSearchAssistantPlugin from 'main';
 import { ViewGenerator } from 'interfaces/ViewGenerator';
-import { App, Component, SearchResultItem } from 'obsidian';
+import { App, Component, type SearchResultItem } from 'obsidian';
 
 export const INTERVAL_MILLISECOND_TO_BE_DETACHED = 1000;
 

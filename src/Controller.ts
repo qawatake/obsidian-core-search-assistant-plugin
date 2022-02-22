@@ -106,7 +106,6 @@ export class Controller extends obsidian.Component {
 		}
 		this.forget();
 		this.unfocus();
-		// this.cardView?.clear();
 		this.component?.detachCards();
 		this.countSearchItemDetected = 0;
 	}
@@ -138,11 +137,6 @@ export class Controller extends obsidian.Component {
 			return;
 		}
 		this.searchInterface.focusOn(this.currentFocusId);
-		// const pos = this.positionInCardView(this.currentFocusId);
-		// if (pos === undefined) {
-		// 	return;
-		// }
-		// this.cardView?.focusOn(pos);
 		this.component?.focusOn(this.currentFocusId);
 	}
 
@@ -207,7 +201,6 @@ export class Controller extends obsidian.Component {
 		this.outline = this.addChild(
 			new Outline(this.plugin.settings.outlineWidth)
 		);
-		// this.cardView = this.addChild(new CardView(this.app, this.plugin));
 		if (this.plugin.settings.autoPreviewMode === 'cardView') {
 			this.renewCardViewComponent();
 		}
@@ -220,10 +213,8 @@ export class Controller extends obsidian.Component {
 		if (this.outline) {
 			this.removeChild(this.outline);
 		}
-		// if (this.cardView) {
-		// 	this.removeChild(this.cardView);
-		// }
 		this.component?.$destroy();
+		this.component = undefined;
 		if (this.workspacePreview) {
 			this.removeChild(this.workspacePreview);
 		}
@@ -233,16 +224,6 @@ export class Controller extends obsidian.Component {
 		this.currentFocusId = undefined;
 		this.countSearchItemDetected = 0;
 	}
-
-	// private showCardViewItem(id: number) {
-	// 	const item = this.searchInterface.getResultItemAt(id);
-	// 	if (!item) {
-	// 		return;
-	// 	}
-	// 	this.cardView?.renderItem(item, id);
-	// 	this.cardView?.setLayout();
-	// 	this.cardView?.reveal();
-	// }
 
 	private showWorkspacePreview() {
 		if (this.plugin.settings?.autoPreviewMode !== 'singleView') {
@@ -322,7 +303,6 @@ export class Controller extends obsidian.Component {
 
 	private unfocus() {
 		this.searchInterface.unfocus();
-		// this.cardView?.unfocus();
 	}
 
 	private openPreviewModal() {
@@ -366,17 +346,6 @@ export class Controller extends obsidian.Component {
 		return (this.currentFocusId + 1) % cardsPerPage === 0;
 	}
 
-	// private positionInCardView(id: number | undefined): number | undefined {
-	// 	if (id === undefined) {
-	// 		return undefined;
-	// 	}
-	// 	const cardsPerPage = this.cardsPerPage();
-	// 	if (!cardsPerPage) {
-	// 		return undefined;
-	// 	}
-	// 	return id % cardsPerPage;
-	// }
-
 	private get pageId(): number | undefined {
 		if (this.currentFocusId === undefined) return undefined;
 		const cardsPerPage = this.cardsPerPage();
@@ -404,16 +373,6 @@ export class Controller extends obsidian.Component {
 		return row * column;
 	}
 
-	// private retryCardView(delayMillisecond: number) {
-	// 	// i don't retry many times because it looks bad.
-	// 	setTimeout(() => {
-	// 		if (!this.cardView?.itemsRenderedCorrectly) {
-	// 			this.reset();
-	// 			this.renewCardViewPage();
-	// 		}
-	// 	}, delayMillisecond);
-	// }
-
 	/**
 	 * check layout change
 	 * use for detecting whether layout-change really occurs
@@ -437,11 +396,11 @@ export class Controller extends obsidian.Component {
 	}
 
 	async layoutChanged(): Promise<boolean> {
-		const required = await this._layoutChanged?.();
-		if (required === undefined) {
+		const shouldRenewController = await this._layoutChanged?.();
+		if (shouldRenewController === undefined) {
 			throw '[ERROR in Core Search Assistant] failed to renewRequired: saveLayout was not called.';
 		}
-		return required;
+		return shouldRenewController;
 	}
 
 	private setSearchModeTriggers() {
@@ -725,29 +684,16 @@ export class Controller extends obsidian.Component {
 				return;
 			}
 
-			// const cardsPerPage = this.cardsPerPage();
-			// if (cardsPerPage === undefined) {
-			// 	return;
-			// }
-			// if (this.countSearchItemDetected >= cardsPerPage) {
-			// 	return;
-			// }
-
 			if (this.countSearchItemDetected === 0) {
-				// this.cardView?.clear();
-				// this.renewCardViewComponent();
 				this.component?.detachCards();
 			}
-			// this.showCardViewItem(this.countSearchItemDetected);
+
 			const item = this.searchInterface.getResultItemAt(
 				this.countSearchItemDetected
 			);
 			if (!item) return;
 			this.component?.addCard(item.file);
 			this.cardViewCheckDebouncer();
-			// if (this.countSearchItemDetected === 0) {
-			// 	this.retryCardView(DELAY_TO_RELOAD_IN_MILLISECOND);
-			// }
 			this.countSearchItemDetected++;
 		};
 	}

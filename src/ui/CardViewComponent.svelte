@@ -69,7 +69,6 @@
 			const file = files[i];
 			const card = cards[i];
 			if (file?.path !== card?.path()) {
-				console.log(file?.path, card?.path());
 				return false;
 			}
 		}
