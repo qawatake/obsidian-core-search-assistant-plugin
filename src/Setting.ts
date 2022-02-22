@@ -298,11 +298,13 @@ export class CoreSearchAssistantSettingTab extends PluginSettingTab {
 					if (added.modifiers.length === 0) return false;
 
 					// avoid collision
-					const collision = Object.values(
-						settings.searchModeHotkeys
-					).some((hotkeys) => {
-						return contain(hotkeys, added);
-					});
+					const collision = SEARCH_MODE_HOTKEY_ACTION_IDS.some(
+						(actionId) => {
+							const hotkeys =
+								settings.searchModeHotkeys[actionId];
+							return contain(hotkeys, added);
+						}
+					);
 					if (collision) {
 						new Notice('Hotkeys are conflicting!');
 						return false;
@@ -331,11 +333,13 @@ export class CoreSearchAssistantSettingTab extends PluginSettingTab {
 			).onChanged((renewed, added) => {
 				if (added) {
 					// avoid collision
-					const collision = Object.values(
-						settings.previewModalHotkeys
-					).some((hotkeys) => {
-						return contain(hotkeys, added);
-					});
+					const collision = PREVIEW_MODAL_HOTKEY_ACTION_IDS.some(
+						(actionId) => {
+							const hotkeys =
+								settings.previewModalHotkeys[actionId];
+							return contain(hotkeys, added);
+						}
+					);
 					if (collision) {
 						new Notice('Hotkeys are conflicting!');
 						return false;
