@@ -32,7 +32,7 @@ export interface CoreSearchAssistantPluginSettings {
 	splitDirection: SplitDirection;
 	autoToggleSidebar: boolean;
 	renderCardsManually: boolean;
-	hideIframe: boolean;
+	// hideIframe: boolean;
 	searchModeHotkeys: SearchModeHotkeyMap;
 	previewModalHotkeys: PreviewModalHotkeyMap;
 }
@@ -45,7 +45,7 @@ export const DEFAULT_SETTINGS: CoreSearchAssistantPluginSettings = {
 	splitDirection: 'horizontal',
 	autoToggleSidebar: false,
 	renderCardsManually: false,
-	hideIframe: false,
+	// hideIframe: false,
 	searchModeHotkeys: {
 		selectNext: [
 			{ modifiers: ['Ctrl'], key: 'n' },
@@ -260,23 +260,23 @@ export class CoreSearchAssistantSettingTab extends PluginSettingTab {
 					});
 			});
 
-		new Setting(containerEl)
-			.setName('Hide iframe from auto preview')
-			.setDesc('Some iframe elements prevent the keyboard operation.')
-			.addToggle((component) => {
-				if (!this.plugin.settings) {
-					return;
-				}
-				component
-					.setValue(this.plugin.settings.hideIframe)
-					.onChange((value) => {
-						if (!this.plugin.settings) {
-							return;
-						}
-						this.plugin.settings.hideIframe = value;
-						this.plugin.saveSettings();
-					});
-			});
+		// new Setting(containerEl)
+		// 	.setName('Hide iframe from auto preview')
+		// 	.setDesc('Some iframe elements prevent the keyboard operation.')
+		// 	.addToggle((component) => {
+		// 		if (!this.plugin.settings) {
+		// 			return;
+		// 		}
+		// 		component
+		// 			.setValue(this.plugin.settings.hideIframe)
+		// 			.onChange((value) => {
+		// 				if (!this.plugin.settings) {
+		// 					return;
+		// 				}
+		// 				this.plugin.settings.hideIframe = value;
+		// 				this.plugin.saveSettings();
+		// 			});
+		// 	});
 
 		containerEl.createEl('h2', { text: 'Hotkeys' });
 		const { settings } = this.plugin;
