@@ -132,7 +132,7 @@
 </script>
 
 <div
-	class="card-container"
+	class="core-search-assistant_card-container"
 	class:is-selected={selected}
 	data-id={id}
 	data-path={file.path}
@@ -154,7 +154,7 @@
 </div>
 
 <style>
-	.card-container {
+	.core-search-assistant_card-container {
 		overflow: hidden;
 		display: flex;
 		flex-direction: column;
@@ -167,14 +167,14 @@
 		box-sizing: content-box;
 	}
 
-	.card-container:hover {
+	.core-search-assistant_card-container:hover {
 		/* top: -2px;
 		box-shadow: 0 4px 5px var(--interactive-accent); */
 		border: 5px solid var(--interactive-accent);
 		margin: -5px;
 	}
 
-	.card-container.is-selected {
+	.core-search-assistant_card-container.is-selected {
 		/* top: -2px;
 		box-shadow: 0 4px 5px var(--interactive-accent); */
 		border: 5px solid var(--interactive-accent);

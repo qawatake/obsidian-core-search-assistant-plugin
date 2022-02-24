@@ -242,60 +242,60 @@ body {
 	}
 }
 
-/* preview covering workspace */
-// ↓ class is not sufficient to override width: 0 specified by default
-#core-search-assistant_workspace-preview {
-	position: absolute;
-	top: 0;
-	left: 0;
-	width: 100%;
-	height: 100%;
-	z-index: var(--layer-modal);
-	// pointer-events: none; to scroll
-	background-color: var(--background-primary);
-	padding: 20px 30px;
-	overflow: auto; // show scroll bar
+// /* preview covering workspace */
+// // ↓ class is not sufficient to override width: 0 specified by default
+// #core-search-assistant_workspace-preview {
+// 	position: absolute;
+// 	top: 0;
+// 	left: 0;
+// 	width: 100%;
+// 	height: 100%;
+// 	z-index: var(--layer-modal);
+// 	// pointer-events: none; to scroll
+// 	background-color: var(--background-primary);
+// 	padding: 20px 30px;
+// 	overflow: auto; // show scroll bar
 
-	div.workspace-leaf {
-		contain: initial !important;
-	}
-	div.workspace-leaf-resize-handle {
-		display: none;
-	}
-	div.view-header {
-		display: none;
-	}
-	div.markdown-preview-view {
-		padding: 0;
-	}
-	div.modal-content {
-		margin: 0;
-	}
+// 	div.workspace-leaf {
+// 		contain: initial !important;
+// 	}
+// 	div.workspace-leaf-resize-handle {
+// 		display: none;
+// 	}
+// 	div.view-header {
+// 		display: none;
+// 	}
+// 	div.markdown-preview-view {
+// 		padding: 0;
+// 	}
+// 	div.modal-content {
+// 		margin: 0;
+// 	}
 
-	.markdown-source-view.mod-cm6 .cm-editor {
-		flex: initial; // overwrite "flex: 1 1 0"
-		display: initial; // overwrite "display: flex"
-	}
-	.markdown-source-view.mod-cm6 {
-		display: initial; // overwrite "display: flex"
-	}
-	.markdown-source-view {
-		pointer-events: none;
-	}
-	.markdown-source-view.mod-cm6 .cm-scroller {
-		padding: 0;
-	}
+// 	.markdown-source-view.mod-cm6 .cm-editor {
+// 		flex: initial; // overwrite "flex: 1 1 0"
+// 		display: initial; // overwrite "display: flex"
+// 	}
+// 	.markdown-source-view.mod-cm6 {
+// 		display: initial; // overwrite "display: flex"
+// 	}
+// 	.markdown-source-view {
+// 		pointer-events: none;
+// 	}
+// 	.markdown-source-view.mod-cm6 .cm-scroller {
+// 		padding: 0;
+// 	}
 
-	.highlight-search-match {
-		color: var(--text-normal);
-		background-color: var(--text-highlight-bg);
-	}
+// 	.highlight-search-match {
+// 		color: var(--text-normal);
+// 		background-color: var(--text-highlight-bg);
+// 	}
 
-	.focus-search-match {
-		// text-decoration: underline;
-		outline: 1px solid var(--interactive-accent);
-	}
-}
+// 	.focus-search-match {
+// 		// text-decoration: underline;
+// 		outline: 1px solid var(--interactive-accent);
+// 	}
+// }
 
 // /* card view */
 // #core-search-assistant_card-view {

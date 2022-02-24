@@ -45,14 +45,17 @@
 	}
 </script>
 
-<div class="content-container" bind:this={containerEl}>
+<div
+	class="core-search-assistant_workspace-preview_container"
+	bind:this={containerEl}
+>
 	<div class="content-not-supported-file-format">
 		{`${file.extension.toUpperCase()} file`}
 	</div>
 </div>
 
 <style>
-	.content-container {
+	.core-search-assistant_workspace-preview_container {
 		position: absolute;
 		top: 0;
 		left: 0;
@@ -65,52 +68,61 @@
 		overflow: auto; /* show scroll bar */
 	}
 
-	.content-container :global(.highlight-search-match) {
+	.core-search-assistant_workspace-preview_container
+		:global(.highlight-search-match) {
 		color: var(--highlight-search-match);
 		background-color: var(--highlight-search-match-bg);
 	}
 
-	.content-container :global(.focus-search-match) {
+	.core-search-assistant_workspace-preview_container
+		:global(.focus-search-match) {
 		background-color: var(--focus-search-match-bg);
 	}
 
 	/*
 		reset default styles
 	*/
-	.content-container :global(.workspace-leaf) {
+	.core-search-assistant_workspace-preview_container
+		:global(.workspace-leaf) {
 		contain: initial !important;
 	}
 
-	.content-container :global(.workspace-leaf-resize-handle) {
+	.core-search-assistant_workspace-preview_container
+		:global(.workspace-leaf-resize-handle) {
 		display: none;
 	}
 
-	.content-container :global(.view-header) {
+	.core-search-assistant_workspace-preview_container :global(.view-header) {
 		display: none;
 	}
 
-	.content-container :global(.markdown-preview-view) {
+	.core-search-assistant_workspace-preview_container
+		:global(.markdown-preview-view) {
 		padding: 0;
 	}
 
-	.content-container :global(.modal-content) {
+	.core-search-assistant_workspace-preview_container :global(.modal-content) {
 		margin: 0;
 	}
 
-	.content-container :global(.markdown-source-view.mod-cm6 .cm-editor) {
+	.core-search-assistant_workspace-preview_container
+		:global(.markdown-source-view.mod-cm6 .cm-editor) {
 		flex: initial; /* overwrite "flex: 1 1 0" */
 		display: initial; /* overwrite "display: flex" */
 	}
 
-	.content-container :global(.markdown-source-view.mod-cm6) {
+	.core-search-assistant_workspace-preview_container
+		:global(.markdown-source-view.mod-cm6) {
 		display: initial; /* overwrite "display: flex" */
 	}
 
-	.content-container :global(.markdown-source-view) {
+	.core-search-assistant_workspace-preview_container
+		:global(.markdown-source-view) {
 		pointer-events: none;
 	}
 
-	.content-container :global(.markdown-source-view.mod-cm6 .cm-scroller) {
+	.core-search-assistant_workspace-preview_container
+		:global(.markdown-source-view.mod-cm6 .cm-scroller) {
 		padding: 0;
 	}
 </style>
