@@ -24,9 +24,6 @@ export class KanbanViewGeneratorExtension implements ViewGeneratorExtension {
 			this.kanban = kanban;
 		}
 		if (kanban === undefined) {
-			console.log(
-				'[ERROR in Core Search Assistant] failed to fetch kanban plugin'
-			);
 			this.kanban = undefined;
 		}
 	}
