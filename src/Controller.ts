@@ -8,13 +8,14 @@ import * as obsidian from 'obsidian';
 import { OptionModal } from 'components/OptionModal';
 import { parseCardLayout } from 'Setting';
 import { PreviewModal } from 'components/PreviewModal';
-import { WorkspacePreview } from 'components/WorkspacePreview';
+// import { WorkspacePreview } from 'components/WorkspacePreview';
 import { ModeScope } from 'ModeScope';
 import type { SearchComponentInterface } from 'interfaces/SearchComponentInterface';
 import { delay, retry } from 'utils/Util';
 import { debounce, Notice, TFile, type Debouncer } from 'obsidian';
 import { generateInternalLinkFrom } from 'utils/Link';
 import CardViewComponent from 'ui/CardViewComponent.svelte';
+import WorkspacePreview from 'ui/WorkspacePreview.svelte';
 import Outline from 'ui/Outline.svelte';
 
 const DELAY_TO_RELOAD_IN_MILLISECOND = 1000;
@@ -30,7 +31,8 @@ export class Controller extends obsidian.Component {
 	private readonly modeScope: ModeScope;
 
 	// children
-	private workspacePreview: WorkspacePreview | undefined;
+	// private workspacePreview: WorkspacePreview | undefined;
+	private workspacePreviewComponent: WorkspacePreview | undefined;
 	private outline: Outline | undefined;
 	private cardViewComponent: CardViewComponent | undefined;
 
@@ -208,9 +210,9 @@ export class Controller extends obsidian.Component {
 		if (settings.autoPreviewMode === 'cardView') {
 			this.renewCardViewComponent();
 		}
-		this.workspacePreview = this.addChild(
-			new WorkspacePreview(this.app, this.plugin)
-		);
+		// this.workspacePreview = this.addChild(
+		// 	new WorkspacePreview(this.app, this.plugin)
+		// );
 	}
 
 	private removeChildren() {
@@ -218,9 +220,11 @@ export class Controller extends obsidian.Component {
 		this.outline = undefined;
 		this.cardViewComponent?.$destroy();
 		this.cardViewComponent = undefined;
-		if (this.workspacePreview) {
-			this.removeChild(this.workspacePreview);
-		}
+		this.workspacePreviewComponent?.$destroy();
+		this.workspacePreviewComponent = undefined;
+		// if (this.workspacePreview) {
+		// 	this.removeChild(this.workspacePreview);
+		// }
 	}
 
 	private forget() {
@@ -232,14 +236,14 @@ export class Controller extends obsidian.Component {
 		if (this.plugin.settings?.autoPreviewMode !== 'singleView') {
 			return;
 		}
-
-		const item = this.searchInterface.getResultItemAt(
-			this.currentFocusId ?? 0
-		);
-		if (!item) {
-			return;
-		}
-		this.workspacePreview?.renew(item);
+		this.renewWorkspacePreviewComponent();
+		// const item = this.searchInterface.getResultItemAt(
+		// 	this.currentFocusId ?? 0
+		// );
+		// if (!item) {
+		// 	return;
+		// }
+		// this.workspacePreview?.renew(item);
 	}
 
 	private navigateForward() {
@@ -686,6 +690,27 @@ export class Controller extends obsidian.Component {
 				},
 			});
 			this.cardViewComponent = cardViewComponent;
+		});
+	}
+
+	private renewWorkspacePreviewComponent() {
+		this.workspacePreviewComponent?.$destroy();
+		if (this.currentFocusId === undefined) return;
+		const focusEl = this.searchInterface.searchInputEl;
+		if (!focusEl) return;
+		const item = this.searchInterface.getResultItemAt(this.currentFocusId);
+		if (!item) return;
+		this.app.workspace.onLayoutReady(() => {
+			const containerEl = this.app.workspace.rootSplit.containerEl;
+			const workspacePreviewComponent = new WorkspacePreview({
+				target: containerEl,
+				props: {
+					file: item.file,
+					matches: item.result.content ?? [],
+					focusEl: focusEl,
+				},
+			});
+			this.workspacePreviewComponent = workspacePreviewComponent;
 		});
 	}
 

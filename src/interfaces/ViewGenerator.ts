@@ -22,7 +22,6 @@ export class ViewGenerator {
 		this.containerEl = containerEl;
 		this.leaf = new (WorkspaceLeaf as any)(this.app);
 		this.file = file;
-		this.containerEl.appendChild(this.leaf.containerEl);
 	}
 
 	async load(mode?: MarkdownViewModeType): Promise<ViewGenerator> {
@@ -43,6 +42,10 @@ export class ViewGenerator {
 	}
 
 	private async onload(mode?: MarkdownViewModeType) {
+		const fileType = fileTypeMap[this.file.extension];
+		if (!fileType) return;
+
+		this.containerEl.appendChild(this.leaf.containerEl);
 		await this.openFile();
 		for (const ext of this.extensions) {
 			if (!(await ext.isMine(this.leaf))) continue;
@@ -140,3 +143,25 @@ export interface ViewGeneratorExtension {
 	): void | Promise<void>;
 	toggleViewMode(leaf: WorkspaceLeaf): void | Promise<void>;
 }
+
+const FILE_TYPES = ['md', 'image', 'audio', 'movie', 'pdf'] as const;
+type FileType = typeof FILE_TYPES[number];
+export const fileTypeMap: { [extension: string]: FileType } = {
+	md: 'md',
+	png: 'image',
+	jpg: 'image',
+	jpeg: 'image',
+	gif: 'image',
+	bmp: 'image',
+	svg: 'image',
+	mp3: 'audio',
+	webm: 'audio',
+	wav: 'audio',
+	m4a: 'audio',
+	ogg: 'audio',
+	'3gp': 'audio',
+	flac: 'audio',
+	mp4: 'movie',
+	ogv: 'movie',
+	pdf: 'pdf',
+};
