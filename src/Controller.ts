@@ -225,19 +225,20 @@ export class Controller extends obsidian.Component {
 	}
 
 	private navigateForward() {
-		if (this.currentFocusId === undefined) {
-			this.currentFocusId = 0;
-			this.focus();
-			return;
-		}
-
 		let updated = true;
 		const numResults = this.searchInterface.count() ?? 0;
-		this.currentFocusId++;
-		if (this.currentFocusId >= numResults) {
-			this.currentFocusId = numResults - 1;
-			updated = false;
+
+		// update currentFucusId
+		if (this.currentFocusId === undefined) {
+			this.currentFocusId = 0;
+		} else {
+			this.currentFocusId++;
+			if (this.currentFocusId >= numResults) {
+				this.currentFocusId = numResults - 1;
+				updated = false;
+			}
 		}
+
 		if (!updated) return;
 
 		const { settings } = this.plugin;
