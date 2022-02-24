@@ -8,7 +8,6 @@ import * as obsidian from 'obsidian';
 import { OptionModal } from 'components/OptionModal';
 import { parseCardLayout } from 'Setting';
 import { PreviewModal } from 'components/PreviewModal';
-// import { WorkspacePreview } from 'components/WorkspacePreview';
 import { ModeScope } from 'ModeScope';
 import type { SearchComponentInterface } from 'interfaces/SearchComponentInterface';
 import { delay, retry } from 'utils/Util';
@@ -31,10 +30,9 @@ export class Controller extends obsidian.Component {
 	private readonly modeScope: ModeScope;
 
 	// children
-	// private workspacePreview: WorkspacePreview | undefined;
-	private workspacePreviewComponent: WorkspacePreview | undefined;
 	private outline: Outline | undefined;
 	private cardViewComponent: CardViewComponent | undefined;
+	private workspacePreviewComponent: WorkspacePreview | undefined;
 
 	// debouncer
 	private cardViewCheckDebouncer: Debouncer<[]>;
@@ -210,9 +208,6 @@ export class Controller extends obsidian.Component {
 		if (settings.autoPreviewMode === 'cardView') {
 			this.renewCardViewComponent();
 		}
-		// this.workspacePreview = this.addChild(
-		// 	new WorkspacePreview(this.app, this.plugin)
-		// );
 	}
 
 	private removeChildren() {
@@ -222,9 +217,6 @@ export class Controller extends obsidian.Component {
 		this.cardViewComponent = undefined;
 		this.workspacePreviewComponent?.$destroy();
 		this.workspacePreviewComponent = undefined;
-		// if (this.workspacePreview) {
-		// 	this.removeChild(this.workspacePreview);
-		// }
 	}
 
 	private forget() {
@@ -232,34 +224,31 @@ export class Controller extends obsidian.Component {
 		this.countSearchItemDetected = 0;
 	}
 
-	private showWorkspacePreview() {
-		if (this.plugin.settings?.autoPreviewMode !== 'singleView') {
-			return;
-		}
-		this.renewWorkspacePreviewComponent();
-		// const item = this.searchInterface.getResultItemAt(
-		// 	this.currentFocusId ?? 0
-		// );
-		// if (!item) {
-		// 	return;
-		// }
-		// this.workspacePreview?.renew(item);
-	}
-
 	private navigateForward() {
 		if (this.currentFocusId === undefined) {
 			this.currentFocusId = 0;
-		} else {
-			const numResults = this.searchInterface.count() ?? 0;
-			this.currentFocusId++;
-			this.currentFocusId =
-				this.currentFocusId < numResults
-					? this.currentFocusId
-					: numResults - 1;
+			this.focus();
+			return;
+		}
 
-			if (this.shouldTransitNextPageInCardView()) {
-				this.renewCardViewPage();
-			}
+		let updated = true;
+		const numResults = this.searchInterface.count() ?? 0;
+		this.currentFocusId++;
+		if (this.currentFocusId >= numResults) {
+			this.currentFocusId = numResults - 1;
+			updated = false;
+		}
+		if (!updated) return;
+
+		const { settings } = this.plugin;
+		if (!settings) return;
+		if (
+			settings.autoPreviewMode === 'cardView' &&
+			this.shouldTransitNextPageInCardView()
+		) {
+			this.renewCardViewPage();
+		} else if (settings.autoPreviewMode === 'singleView') {
+			this.renewWorkspacePreviewComponent();
 		}
 
 		this.focus();
@@ -269,12 +258,24 @@ export class Controller extends obsidian.Component {
 		if (this.currentFocusId === undefined) {
 			return;
 		}
-		this.currentFocusId--;
-		this.currentFocusId =
-			this.currentFocusId >= 0 ? this.currentFocusId : 0;
 
-		if (this.shouldTransitPreviousPageInCardView()) {
+		let updated = true;
+		this.currentFocusId--;
+		if (this.currentFocusId < 0) {
+			this.currentFocusId = 0;
+			updated = false;
+		}
+		if (!updated) return;
+
+		const { settings } = this.plugin;
+		if (!settings) return;
+		if (
+			settings.autoPreviewMode === 'cardView' &&
+			this.shouldTransitPreviousPageInCardView()
+		) {
 			this.renewCardViewPage();
+		} else if (settings.autoPreviewMode === 'singleView') {
+			this.renewWorkspacePreviewComponent();
 		}
 
 		this.focus();
@@ -541,7 +542,6 @@ export class Controller extends obsidian.Component {
 				(evt: KeyboardEvent) => {
 					evt.preventDefault(); // ← necessary to stop cursor in search input
 					this.navigateForward();
-					this.showWorkspacePreview();
 				}
 			);
 		});
@@ -552,7 +552,6 @@ export class Controller extends obsidian.Component {
 				(evt: KeyboardEvent) => {
 					evt.preventDefault();
 					this.navigateBack();
-					this.showWorkspacePreview();
 				}
 			);
 		});
