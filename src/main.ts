@@ -8,6 +8,7 @@ import {
 	DEFAULT_SETTINGS,
 } from 'Setting';
 import { deepMerge } from 'utils/Util';
+import * as store from 'ui/store';
 
 export default class CoreSearchAssistantPlugin extends Plugin {
 	settings: CoreSearchAssistantPluginSettings | undefined;
@@ -28,6 +29,8 @@ export default class CoreSearchAssistantPlugin extends Plugin {
 		);
 
 		this.watchLayoutChange();
+
+		this.setSvelteStoreValues();
 
 		this.addSettingTab(new CoreSearchAssistantSettingTab(this.app, this));
 	}
@@ -67,5 +70,10 @@ export default class CoreSearchAssistantPlugin extends Plugin {
 				}
 			});
 		});
+	}
+
+	private setSvelteStoreValues() {
+		store.plugin.set(this);
+		store.app.set(this.app);
 	}
 }

@@ -22,7 +22,7 @@ const autoPreviewModeInfos: Record<AutoPreviewMode, string> = {
 };
 
 const AVAILABLE_CARD_LAYOUT = ['2x2', '2x3', '3x2', '3x3'] as const;
-type AvailableCardLayout = typeof AVAILABLE_CARD_LAYOUT[number];
+export type AvailableCardLayout = typeof AVAILABLE_CARD_LAYOUT[number];
 
 export interface CoreSearchAssistantPluginSettings {
 	keepSelectedItemsCentered: boolean;
@@ -32,7 +32,7 @@ export interface CoreSearchAssistantPluginSettings {
 	splitDirection: SplitDirection;
 	autoToggleSidebar: boolean;
 	renderCardsManually: boolean;
-	hideIframe: boolean;
+	// hideIframe: boolean;
 	searchModeHotkeys: SearchModeHotkeyMap;
 	previewModalHotkeys: PreviewModalHotkeyMap;
 }
@@ -45,7 +45,7 @@ export const DEFAULT_SETTINGS: CoreSearchAssistantPluginSettings = {
 	splitDirection: 'horizontal',
 	autoToggleSidebar: false,
 	renderCardsManually: false,
-	hideIframe: false,
+	// hideIframe: false,
 	searchModeHotkeys: {
 		selectNext: [
 			{ modifiers: ['Ctrl'], key: 'n' },
@@ -260,23 +260,23 @@ export class CoreSearchAssistantSettingTab extends PluginSettingTab {
 					});
 			});
 
-		new Setting(containerEl)
-			.setName('Hide iframe from auto preview')
-			.setDesc('Some iframe elements prevent the keyboard operation.')
-			.addToggle((component) => {
-				if (!this.plugin.settings) {
-					return;
-				}
-				component
-					.setValue(this.plugin.settings.hideIframe)
-					.onChange((value) => {
-						if (!this.plugin.settings) {
-							return;
-						}
-						this.plugin.settings.hideIframe = value;
-						this.plugin.saveSettings();
-					});
-			});
+		// new Setting(containerEl)
+		// 	.setName('Hide iframe from auto preview')
+		// 	.setDesc('Some iframe elements prevent the keyboard operation.')
+		// 	.addToggle((component) => {
+		// 		if (!this.plugin.settings) {
+		// 			return;
+		// 		}
+		// 		component
+		// 			.setValue(this.plugin.settings.hideIframe)
+		// 			.onChange((value) => {
+		// 				if (!this.plugin.settings) {
+		// 					return;
+		// 				}
+		// 				this.plugin.settings.hideIframe = value;
+		// 				this.plugin.saveSettings();
+		// 			});
+		// 	});
 
 		containerEl.createEl('h2', { text: 'Hotkeys' });
 		const { settings } = this.plugin;
@@ -298,11 +298,13 @@ export class CoreSearchAssistantSettingTab extends PluginSettingTab {
 					if (added.modifiers.length === 0) return false;
 
 					// avoid collision
-					const collision = Object.values(
-						settings.searchModeHotkeys
-					).some((hotkeys) => {
-						return contain(hotkeys, added);
-					});
+					const collision = SEARCH_MODE_HOTKEY_ACTION_IDS.some(
+						(actionId) => {
+							const hotkeys =
+								settings.searchModeHotkeys[actionId];
+							return contain(hotkeys, added);
+						}
+					);
 					if (collision) {
 						new Notice('Hotkeys are conflicting!');
 						return false;
@@ -331,11 +333,13 @@ export class CoreSearchAssistantSettingTab extends PluginSettingTab {
 			).onChanged((renewed, added) => {
 				if (added) {
 					// avoid collision
-					const collision = Object.values(
-						settings.previewModalHotkeys
-					).some((hotkeys) => {
-						return contain(hotkeys, added);
-					});
+					const collision = PREVIEW_MODAL_HOTKEY_ACTION_IDS.some(
+						(actionId) => {
+							const hotkeys =
+								settings.previewModalHotkeys[actionId];
+							return contain(hotkeys, added);
+						}
+					);
 					if (collision) {
 						new Notice('Hotkeys are conflicting!');
 						return false;

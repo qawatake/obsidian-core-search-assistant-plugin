@@ -3,9 +3,10 @@ import {
 	type EditorRange,
 	MarkdownView,
 	type MarkdownViewModeType,
-	type Match,
 	TFile,
 	WorkspaceLeaf,
+	type SearchMatches,
+	type SearchMatchPart,
 } from 'obsidian';
 import { delay, scrollIteration } from 'utils/Util';
 
@@ -21,7 +22,6 @@ export class ViewGenerator {
 		this.containerEl = containerEl;
 		this.leaf = new (WorkspaceLeaf as any)(this.app);
 		this.file = file;
-		this.containerEl.appendChild(this.leaf.containerEl);
 	}
 
 	async load(mode?: MarkdownViewModeType): Promise<ViewGenerator> {
@@ -42,6 +42,10 @@ export class ViewGenerator {
 	}
 
 	private async onload(mode?: MarkdownViewModeType) {
+		const fileType = fileTypeMap[this.file.extension];
+		if (!fileType) return;
+
+		this.containerEl.appendChild(this.leaf.containerEl);
 		await this.openFile();
 		for (const ext of this.extensions) {
 			if (!(await ext.isMine(this.leaf))) continue;
@@ -61,7 +65,7 @@ export class ViewGenerator {
 
 	// it should be called once because is is not idempotent
 	// it can be called even when view mode = 'preview'
-	highlightMatches(matches: Match[]) {
+	highlightMatches(matches: SearchMatches, cls: string) {
 		const view = this.leaf.view;
 		if (!(view instanceof MarkdownView)) {
 			return;
@@ -75,10 +79,10 @@ export class ViewGenerator {
 			};
 			ranges.push(range);
 		});
-		editor.addHighlights(ranges, 'highlight-search-match');
+		editor.addHighlights(ranges, cls);
 	}
 
-	async scrollIntoView(match: Match, center?: boolean) {
+	async scrollIntoView(match: SearchMatchPart, center?: boolean) {
 		const view = this.leaf.view;
 		if (!(view instanceof MarkdownView)) {
 			return;
@@ -103,7 +107,7 @@ export class ViewGenerator {
 		}
 	}
 
-	async focusOn(match: Match, center?: boolean) {
+	async focusOn(match: SearchMatchPart, cls: string, center?: boolean) {
 		const view = this.leaf.view;
 		if (!(view instanceof MarkdownView)) {
 			return;
@@ -116,12 +120,12 @@ export class ViewGenerator {
 
 		const { editor } = view;
 
-		editor.removeHighlights('focus-search-match');
+		editor.removeHighlights(cls);
 		const range = {
 			from: editor.offsetToPos(match[0]),
 			to: editor.offsetToPos(match[1]),
 		};
-		editor.addHighlights([range], 'focus-search-match');
+		editor.addHighlights([range], cls);
 	}
 
 	registerExtension(ext: ViewGeneratorExtension): ViewGenerator {
@@ -139,3 +143,25 @@ export interface ViewGeneratorExtension {
 	): void | Promise<void>;
 	toggleViewMode(leaf: WorkspaceLeaf): void | Promise<void>;
 }
+
+const FILE_TYPES = ['md', 'image', 'audio', 'movie', 'pdf'] as const;
+type FileType = typeof FILE_TYPES[number];
+export const fileTypeMap: { [extension: string]: FileType } = {
+	md: 'md',
+	png: 'image',
+	jpg: 'image',
+	jpeg: 'image',
+	gif: 'image',
+	bmp: 'image',
+	svg: 'image',
+	mp3: 'audio',
+	webm: 'audio',
+	wav: 'audio',
+	m4a: 'audio',
+	ogg: 'audio',
+	'3gp': 'audio',
+	flac: 'audio',
+	mp4: 'movie',
+	ogv: 'movie',
+	pdf: 'pdf',
+};

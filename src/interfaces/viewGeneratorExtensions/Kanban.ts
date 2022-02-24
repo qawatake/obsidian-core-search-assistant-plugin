@@ -1,5 +1,6 @@
 import type { ViewGeneratorExtension } from 'interfaces/ViewGenerator';
 import {
+	MarkdownView,
 	Plugin,
 	TextFileView,
 	type App,
@@ -23,9 +24,6 @@ export class KanbanViewGeneratorExtension implements ViewGeneratorExtension {
 			this.kanban = kanban;
 		}
 		if (kanban === undefined) {
-			console.log(
-				'[ERROR in Core Search Assistant] failed to fetch kanban plugin'
-			);
 			this.kanban = undefined;
 		}
 	}
@@ -54,6 +52,9 @@ export class KanbanViewGeneratorExtension implements ViewGeneratorExtension {
 				},
 				{}
 			);
+			if (leaf.view instanceof MarkdownView) {
+				leaf.view.editor.blur();
+			}
 		} else {
 			kanban.kanbanFileModes[leaf.id] = kanbanViewType;
 			await kanban.setKanbanView(leaf);
