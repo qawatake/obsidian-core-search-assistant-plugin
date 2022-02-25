@@ -327,6 +327,9 @@ export class Controller extends obsidian.Component {
 	}
 
 	private shouldTransitNextPageInCardView(): boolean {
+		if (this.currentFocusId === undefined || this.currentFocusId === 0) {
+			return false;
+		}
 		if (!this.plugin.settings) {
 			return false;
 		}
@@ -334,9 +337,6 @@ export class Controller extends obsidian.Component {
 			this.plugin.settings.cardViewLayout
 		);
 		const cardsPerPage = row * column;
-		if (this.currentFocusId === undefined) {
-			return false;
-		}
 		return this.currentFocusId % cardsPerPage === 0;
 	}
 
