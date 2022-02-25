@@ -680,12 +680,13 @@ export class Controller extends obsidian.Component {
 		if (!settings) return;
 		const focusEl = this.searchInterface.searchInputEl;
 		if (!focusEl) return;
+		const layout = parseCardLayout(settings.cardViewLayout);
 		this.app.workspace.onLayoutReady(() => {
 			const containerEl = this.app.workspace.rootSplit.containerEl;
 			const cardViewComponent = new CardViewComponent({
 				target: containerEl,
 				props: {
-					layout: settings.cardViewLayout,
+					layout: layout,
 					focusEl: focusEl,
 				},
 			});

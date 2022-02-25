@@ -1,13 +1,11 @@
 <script lang="ts">
 	import type { TFile } from 'obsidian';
 
-	import { type AvailableCardLayout, parseCardLayout } from 'Setting';
-
-	import { createEventDispatcher, onDestroy } from 'svelte';
+	import { createEventDispatcher, onDestroy, onMount } from 'svelte';
 	import CardContainer from './CardContainer.svelte';
 
 	// props
-	export let layout: AvailableCardLayout;
+	export let layout: CardViewLayout;
 	export let focusEl: HTMLInputElement | undefined;
 
 	// binds
@@ -16,7 +14,6 @@
 	// internal variables
 	// let selected: number;
 	let cards: CardContainer[] = [];
-	$: cardViewLayout = parseCardLayout(layout);
 
 	// event dispatcher
 	const dispatcher = createEventDispatcher();
@@ -65,6 +62,7 @@
 	}
 
 	export function checkCardsRenderedCorrectly(files: TFile[]): boolean {
+		if (!checkLayout(layout)) return false;
 		for (let i = 0; i < cardsPerPage(layout); i++) {
 			const file = files[i];
 			const card = cards[i];
@@ -75,14 +73,35 @@
 		return true;
 	}
 
+	onMount(() => {
+		setLayout(contentEl, layout);
+	});
+
 	onDestroy(() => {
 		detachCards();
 	});
 
-	function cardsPerPage(layout: AvailableCardLayout): number {
-		const [row, column] = parseCardLayout(layout);
-		return row * column;
+	function cardsPerPage(layout: CardViewLayout): number {
+		if (!checkLayout(layout)) return 0;
+		return layout[0] * layout[1];
 	}
+
+	function setLayout(
+		contentEl: HTMLElement | undefined,
+		layout: CardViewLayout
+	) {
+		if (!contentEl) return;
+		if (!checkLayout(layout)) return;
+		contentEl.style.gridTemplateColumns = `repeat(${layout[1]}, minmax(0, 1fr))`;
+		contentEl.style.gridTemplateRows = `repeat(${layout[0]}, 1fr)`;
+	}
+
+	function checkLayout(layout: CardViewLayout): boolean {
+		const check = (x: number) => Number.isInteger(x) && x > 0;
+		return check(layout[0]) && check(layout[1]);
+	}
+
+	type CardViewLayout = [number, number];
 </script>
 
 <div class="card-view-container">
@@ -92,11 +111,7 @@
 			dispatcher('should-destroy');
 		}}
 	/>
-	<div
-		class="cards-container"
-		bind:this={contentEl}
-		style={`grid-template-columns: repeat(${cardViewLayout[1]}, minmax(0, 1fr)); grid-template-rows: repeat(${cardViewLayout[0]}, 1fr);`}
-	/>
+	<div class="cards-container" bind:this={contentEl} />
 </div>
 
 <style>
