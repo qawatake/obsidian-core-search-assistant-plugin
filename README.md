@@ -1,4 +1,4 @@
-## Core Search Assistant Plugin
+# Core Search Assistant
 
 This plugin enhances the built-in search function by providing
 - **keyboard interface**,
@@ -9,7 +9,7 @@ This plugin enhances the built-in search function by providing
 ![main-min](https://user-images.githubusercontent.com/38106890/150084212-d47733c7-3e84-437c-a257-5dd7ee6a8be5.gif)
 ![focus-min](https://user-images.githubusercontent.com/38106890/151547284-739a18a3-3467-4964-b59b-de8c2673018c.gif)
 
-### How to use
+## How to use
 When you open the built-in search panel, you enter **search mode**.
 In the search mode, you can use the following hotkeys.
 
@@ -29,25 +29,25 @@ In the search mode, you can use the following hotkeys.
 - You **can customize hotkeys** in the setting tab.
 - To **exit** the search mode, press `Esc` or click any part of the screen other than the search panel.
 
-### Auto Preview
+## Auto Preview
 There are three options for auto preview.
 1. none,
 2. single view,
 3. card view.
 
-#### 1. None
+### 1. None
 
 Manual preview by `Ctrl + Enter`  is still available.
 
 ![none-view-min](https://user-images.githubusercontent.com/38106890/150082308-493df0a0-e9d4-46ee-8957-c11a2f5ce628.gif)
 
-#### 2. Single view
+### 2. Single view
 
 Previewed item can be scrolled unlike card view.
 
 ![single-view-min](https://user-images.githubusercontent.com/38106890/150082234-54a39bce-5ba7-4b53-88c7-603310f14274.gif)
 
-#### 3. Card view
+### 3. Card view
 
 Available layouts:
 - 2 x 2,
@@ -59,7 +59,7 @@ If rendered results are wrong, press `Enter` to reload.
 
 ![card-view-min](https://user-images.githubusercontent.com/38106890/150082177-6a14a509-b6f9-449f-90d1-7e198ae2d3d3.gif)
 
-### Manual Preview
+## Manual Preview
 **Currently manual preview is not supported in the legacy editor.**
 
 In the preview modal, the following hotkeys are available.
@@ -82,7 +82,11 @@ In the preview modal, the following hotkeys are available.
 
 ![focus-min](https://user-images.githubusercontent.com/38106890/151547284-739a18a3-3467-4964-b59b-de8c2673018c.gif)
 
-### Search options
+## Search options
 
 ![search-option-min](https://user-images.githubusercontent.com/38106890/150083314-0834e593-2cd6-46c6-8706-5582e987037a.gif)
 
+## Trouble shooting
+### Hotkeys do not work after a search ([issue #44](https://github.com/qawatake/obsidian-core-search-assistant-plugin/issues/44))
+Please reload Obsidian.
+If that does not help you, enable the *Render cards manually* option in the setting tab.
