@@ -85,6 +85,7 @@
 	.core-search-assistant_workspace-preview_container
 		:global(.workspace-leaf) {
 		contain: initial !important;
+		height: 100%;
 	}
 
 	.core-search-assistant_workspace-preview_container
@@ -94,6 +95,10 @@
 
 	.core-search-assistant_workspace-preview_container :global(.view-header) {
 		display: none;
+	}
+
+	.core-search-assistant_workspace-preview_container :global(.view-content) {
+		overflow: hidden;
 	}
 
 	.core-search-assistant_workspace-preview_container

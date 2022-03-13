@@ -145,6 +145,14 @@
 	}
 
 	/*
+		render pdf correctly
+	*/
+	.core-search-assistant_preview-modal_view-container
+		:global(.workspace-leaf-content[data-type='pdf']) {
+		height: 990px;
+	}
+
+	/*
 		render source view correctly
 	*/
 	.core-search-assistant_preview-modal_view-container
