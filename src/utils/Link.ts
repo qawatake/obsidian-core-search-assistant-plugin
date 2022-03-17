@@ -1,17 +1,14 @@
 import type {
+	App,
 	FrontMatterCache,
 	HeadingCache,
 	MetadataCache,
 	TFile,
 } from 'obsidian';
 
-export function generateInternalLinkFrom(
-	metadataCache: MetadataCache,
-	file: TFile
-): string {
-	const link = metadataCache.fileToLinktext(file, '', true);
-	const text = getDisplayText(metadataCache, file);
-	return text !== undefined ? `[[${link} | ${text}]]` : `[[${link}]]`;
+export function generateInternalLinkFrom(app: App, file: TFile): string {
+	const text = getDisplayText(app.metadataCache, file);
+	return app.fileManager.generateMarkdownLink(file, '', undefined, text);
 }
 
 function getDisplayText(

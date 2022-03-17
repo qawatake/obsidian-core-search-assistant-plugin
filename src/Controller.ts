@@ -612,10 +612,7 @@ export class Controller extends obsidian.Component {
 				);
 				if (!item) return;
 				const { file } = item;
-				const internalLink = generateInternalLinkFrom(
-					this.app.metadataCache,
-					file
-				);
+				const internalLink = generateInternalLinkFrom(this.app, file);
 				navigator.clipboard.writeText(internalLink);
 				new Notice('Copy wiki link!');
 			});

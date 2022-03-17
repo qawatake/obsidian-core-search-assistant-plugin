@@ -132,10 +132,7 @@ export class PreviewModal extends Modal {
 		hotkeyMap.copyLink.forEach((hotkey) => {
 			this.scope.register(hotkey.modifiers, hotkey.key, () => {
 				const { file } = this.item;
-				const internalLink = generateInternalLinkFrom(
-					this.app.metadataCache,
-					file
-				);
+				const internalLink = generateInternalLinkFrom(this.app, file);
 				navigator.clipboard.writeText(internalLink);
 				new Notice('Copy wiki link!');
 			});
