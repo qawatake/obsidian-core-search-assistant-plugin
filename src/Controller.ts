@@ -496,11 +496,6 @@ export class Controller extends obsidian.Component {
 					this.reset();
 				}
 			});
-			this.registerDomEvent(inputEl, 'click', () => {
-				if (!this.modeScope.inSearchMode) {
-					this.enter();
-				}
-			});
 
 			// x "keydown" → capture Ctrl + Enter key
 			// x "keypress" → do not recognize Backspace key
