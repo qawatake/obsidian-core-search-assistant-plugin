@@ -2,6 +2,7 @@ import {
 	type SearchDom,
 	type SearchHeaderDom,
 	type SearchResultItem,
+	type SearchResultItemGroup,
 	type SearchView,
 	type SortOrderInSearch,
 	TFile,
@@ -94,7 +95,7 @@ function isSearchDom(obj: unknown): obj is SearchDom {
 		return false;
 	}
 
-	const { extraContext, collapseAll, sortOrder, children, childrenEl } =
+	const { extraContext, collapseAll, sortOrder, vChildren, childrenEl } =
 		obj as UnknownObject<SearchDom>;
 
 	if (typeof extraContext !== 'boolean') {
@@ -109,6 +110,25 @@ function isSearchDom(obj: unknown): obj is SearchDom {
 	if (!SORT_ORDER_IN_SEARCH.includes(sortOrder as SortOrderInSearch)) {
 		return false;
 	}
+	if (!isSearchResultItemGroup(vChildren)) {
+		return false;
+	}
+	if (typeof childrenEl !== 'object') {
+		return false;
+	}
+	if (!(childrenEl instanceof HTMLElement)) {
+		return false;
+	}
+
+	return true;
+}
+
+function isSearchResultItemGroup(obj: unknown): obj is SearchResultItemGroup {
+	if (typeof obj !== 'object' || obj === null) {
+		return false;
+	}
+
+	const { _children: children } = obj as SearchResultItemGroup;
 	if (typeof children !== 'object') {
 		return false;
 	}
@@ -120,13 +140,6 @@ function isSearchDom(obj: unknown): obj is SearchDom {
 			return false;
 		}
 	}
-	if (typeof childrenEl !== 'object') {
-		return false;
-	}
-	if (!(childrenEl instanceof HTMLElement)) {
-		return false;
-	}
-
 	return true;
 }
 
