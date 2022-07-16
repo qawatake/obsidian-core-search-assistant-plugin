@@ -157,7 +157,7 @@ export class SearchComponentInterface extends Component {
 	}
 
 	count(): number {
-		const results = this.searchView?.dom.children;
+		const results = this.searchView?.dom.vChildren._children;
 		if (!results) {
 			return 0;
 		}
@@ -165,11 +165,11 @@ export class SearchComponentInterface extends Component {
 	}
 
 	get resultItems(): SearchResultItem[] {
-		return this.searchView?.dom.children ?? [];
+		return this.searchView?.dom.vChildren._children ?? [];
 	}
 
 	getResultItemAt(pos: number): SearchResultItem | undefined {
-		return this.searchView?.dom.children[pos];
+		return this.searchView?.dom.vChildren._children[pos];
 	}
 
 	get searchInputEl(): HTMLInputElement | undefined {

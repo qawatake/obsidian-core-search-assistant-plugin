@@ -69,8 +69,12 @@ declare module 'obsidian' {
 		extraContext: boolean;
 		collapseAll: boolean;
 		sortOrder: SortOrderInSearch;
-		children: SearchResultItem[];
+		vChildren: SearchResultItemGroup;
 		childrenEl: HTMLElement;
+	}
+
+	interface SearchResultItemGroup {
+		_children: SearchResultItem[];
 	}
 
 	interface SearchResultItem {
