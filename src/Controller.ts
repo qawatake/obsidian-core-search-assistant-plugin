@@ -612,7 +612,8 @@ export class Controller extends obsidian.Component {
 				new Notice('Copy wiki link!');
 			});
 		});
-		scope.register([], 'Escape', () => {
+		scope.register([], 'Escape', (evt) => {
+			evt.preventDefault(); // to prevent esc key from triggering callback to clear the input form, which was introduced in Obsidian v0.15.6.
 			this.exit();
 		});
 
