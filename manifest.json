@@ -1,8 +1,8 @@
 {
 	"id": "obsidian-core-search-assistant-plugin",
 	"name": "Core Search Assistant",
-	"version": "0.9.1",
-	"minAppVersion": "0.15.6",
+	"version": "0.9.2",
+	"minAppVersion": "1.27.7",
 	"description": "Enhance built-in search: keyboard interface, card preview, bigger preview",
 	"author": "qawatake",
 	"authorUrl": "https://github.com/qawatake/obsidian-core-search-assistant-plugin",
