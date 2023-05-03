@@ -60,7 +60,6 @@ declare module 'obsidian' {
 		matchingCaseButtonEl: HTMLElement;
 
 		searchComponent: SearchComponent;
-		headerDom: SearchHeaderDom;
 	}
 
 	type SortOrderInSearch = typeof SORT_ORDER_IN_SEARCH[number];

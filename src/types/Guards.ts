@@ -1,6 +1,5 @@
 import {
 	type SearchDom,
-	type SearchHeaderDom,
 	type SearchResultItem,
 	type SearchResultItemGroup,
 	type SearchView,
@@ -40,7 +39,6 @@ export function isSearchView(view: unknown): view is SearchView {
 		setSortOrder,
 		searchInfoEl,
 		searchComponent,
-		headerDom,
 	} = view as UnknownObject<SearchView>;
 
 	if (typeof matchingCase !== 'boolean') {
@@ -61,13 +59,6 @@ export function isSearchView(view: unknown): view is SearchView {
 	if (!(searchInfoEl instanceof HTMLDivElement)) {
 		return false;
 	}
-	if (!isSearchHeaderDom(headerDom)) {
-		return false;
-	}
-	// SearchComponent is undefined at obsidian 0.13.19 (installer version 0.11.13)
-	// if (!(searchComponent instanceof SearchComponent)) {
-	// 	return false;
-	// }
 	if (!(setCollapseAll instanceof Function)) {
 		return false;
 	}
@@ -157,20 +148,5 @@ function isSearchResultItem(obj: unknown): obj is SearchResultItem {
 		return false;
 	}
 
-	return true;
-}
-
-function isSearchHeaderDom(obj: unknown): obj is SearchHeaderDom {
-	if (typeof obj !== 'object' || obj === null) {
-		return false;
-	}
-
-	const { navButtonsEl } = obj as UnknownObject<SearchHeaderDom>;
-	if (typeof navButtonsEl !== 'object') {
-		return false;
-	}
-	if (!(navButtonsEl instanceof HTMLDivElement)) {
-		return false;
-	}
 	return true;
 }
