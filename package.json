@@ -6,14 +6,14 @@
 	"scripts": {
 		"fix:prettier": "prettier --write src",
 		"lint:prettier": "prettier --check src",
-		"fix": "run-s fix:prettier fix:eslint",
+		"fix": "pnpm fix:prettier && pnpm fix:eslint",
 		"fix:eslint": "eslint src --ext .ts --fix",
-		"lint": "run-p lint:prettier lint:eslint",
+		"lint": "pnpm lint:prettier && pnpm lint:eslint",
 		"lint:eslint": "eslint src --ext .ts,.svelte",
 		"dev": "node esbuild.config.mjs",
 		"sass-build": "sass --no-source-map *.scss styles.css",
 		"esbuild": "node esbuild.config.mjs production",
-		"build": "run-p esbuild sass-build"
+		"build": "pnpm esbuild && pnpm sass-build"
 	},
 	"keywords": [],
 	"author": "",
