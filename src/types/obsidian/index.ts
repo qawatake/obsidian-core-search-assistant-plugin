@@ -62,7 +62,7 @@ declare module 'obsidian' {
 		searchComponent: SearchComponent;
 	}
 
-	type SortOrderInSearch = typeof SORT_ORDER_IN_SEARCH[number];
+	type SortOrderInSearch = (typeof SORT_ORDER_IN_SEARCH)[number];
 
 	interface SearchDom {
 		extraContext: boolean;

@@ -11,10 +11,10 @@ import { HotkeySetter } from 'ui/HotkeySetter';
 import { contain } from 'utils/Keymap';
 
 const AVAILABLE_OUTLINE_WIDTHS = [0, 3, 5, 7, 10] as const;
-export type AvailableOutlineWidth = typeof AVAILABLE_OUTLINE_WIDTHS[number];
+export type AvailableOutlineWidth = (typeof AVAILABLE_OUTLINE_WIDTHS)[number];
 
 const AUTO_PREVIEW_MODE_IDS = ['none', 'singleView', 'cardView'] as const;
-type AutoPreviewMode = typeof AUTO_PREVIEW_MODE_IDS[number];
+type AutoPreviewMode = (typeof AUTO_PREVIEW_MODE_IDS)[number];
 const autoPreviewModeInfos: Record<AutoPreviewMode, string> = {
 	none: 'none',
 	singleView: 'single view',
@@ -22,7 +22,7 @@ const autoPreviewModeInfos: Record<AutoPreviewMode, string> = {
 };
 
 const AVAILABLE_CARD_LAYOUT = ['2x2', '2x3', '3x2', '3x3'] as const;
-export type AvailableCardLayout = typeof AVAILABLE_CARD_LAYOUT[number];
+export type AvailableCardLayout = (typeof AVAILABLE_CARD_LAYOUT)[number];
 
 export interface CoreSearchAssistantPluginSettings {
 	keepSelectedItemsCentered: boolean;
@@ -390,7 +390,7 @@ const SEARCH_MODE_HOTKEY_ACTION_IDS = [
 	'copyLink',
 ] as const;
 
-type SearchModeHotkeyActionId = typeof SEARCH_MODE_HOTKEY_ACTION_IDS[number];
+type SearchModeHotkeyActionId = (typeof SEARCH_MODE_HOTKEY_ACTION_IDS)[number];
 
 type SearchModeHotkeyMap = {
 	[actionId in SearchModeHotkeyActionId]: Hotkey[];
@@ -429,7 +429,7 @@ const PREVIEW_MODAL_HOTKEY_ACTION_IDS = [
 ] as const;
 
 type PreviewModalHotkeyActionId =
-	typeof PREVIEW_MODAL_HOTKEY_ACTION_IDS[number];
+	(typeof PREVIEW_MODAL_HOTKEY_ACTION_IDS)[number];
 
 type PreviewModalHotkeyMap = {
 	[actionId in PreviewModalHotkeyActionId]: Hotkey[];

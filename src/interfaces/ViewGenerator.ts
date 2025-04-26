@@ -145,7 +145,7 @@ export interface ViewGeneratorExtension {
 }
 
 const FILE_TYPES = ['md', 'image', 'audio', 'movie', 'pdf'] as const;
-type FileType = typeof FILE_TYPES[number];
+type FileType = (typeof FILE_TYPES)[number];
 export const fileTypeMap: { [extension: string]: FileType } = {
 	md: 'md',
 	png: 'image',

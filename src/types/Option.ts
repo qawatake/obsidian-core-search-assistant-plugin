@@ -8,8 +8,8 @@ export const NON_SORT_OPTION_ID = [
 ] as const;
 
 export type SearchOptionId =
-	| typeof NON_SORT_OPTION_ID[number]
-	| typeof SORT_ORDER_IN_SEARCH[number];
+	| (typeof NON_SORT_OPTION_ID)[number]
+	| (typeof SORT_ORDER_IN_SEARCH)[number];
 
 interface SearchOptionInfo {
 	iconId: string;

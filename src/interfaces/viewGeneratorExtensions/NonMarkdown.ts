@@ -7,7 +7,7 @@ import {
 
 // type SupportedFileFormat = typeof SUPPORTED_FILE_FORMATS[number];
 const NON_MARKDOWN_FILE_TYPES = ['image', 'audio', 'pdf', 'video'] as const;
-type NonMarkdownFileType = typeof NON_MARKDOWN_FILE_TYPES[number];
+type NonMarkdownFileType = (typeof NON_MARKDOWN_FILE_TYPES)[number];
 
 export class NonMarkdownViewGeneratorExtension
 	implements ViewGeneratorExtension
