@@ -106,7 +106,7 @@ export class Controller extends obsidian.Component {
 		}
 		this.forget();
 		this.unfocus();
-		this.cardViewComponent?.detachCards();
+		this.cardViewComponent?.['detachCards']();
 		this.countSearchItemDetected = 0;
 	}
 
@@ -137,7 +137,7 @@ export class Controller extends obsidian.Component {
 			return;
 		}
 		this.searchInterface.focusOn(this.currentFocusId);
-		this.cardViewComponent?.focusOn(this.currentFocusId);
+		this.cardViewComponent?.['focusOn'](this.currentFocusId);
 	}
 
 	open(direction?: obsidian.SplitDirection) {
@@ -150,10 +150,10 @@ export class Controller extends obsidian.Component {
 	async renewCardViewPage() {
 		if (this.plugin.settings?.autoPreviewMode !== 'cardView') return;
 
-		this.cardViewComponent?.detachCards();
-		this.cardViewComponent?.renderPage(this.filesToBeRendered());
+		this.cardViewComponent?.['detachCards']();
+		this.cardViewComponent?.['renderPage'](this.filesToBeRendered());
 		if (this.currentFocusId !== undefined) {
-			this.cardViewComponent?.focusOn(this.currentFocusId ?? 0);
+			this.cardViewComponent?.['focusOn'](this.currentFocusId ?? 0);
 		}
 	}
 
@@ -170,16 +170,15 @@ export class Controller extends obsidian.Component {
 	}
 
 	private collapseSidedock() {
-		this.plugin.searchInterface?.collapseSidedock();
+		this.searchInterface.collapseSidedock();
 	}
 
 	private collapseOppositeSidedock() {
-		const collapsed =
-			this.plugin.searchInterface?.oppositeSidedock?.collapsed;
-		this.plugin.searchInterface?.collapseOppositeSidedock();
+		const collapsed = this.searchInterface.oppositeSidedock?.collapsed;
+		this.searchInterface.collapseOppositeSidedock();
 		this._restoreOppositeSidedock = () => {
 			if (collapsed === false) {
-				this.plugin.searchInterface?.expandOppositeSidedock();
+				this.searchInterface.expandOppositeSidedock();
 			}
 		};
 	}
@@ -661,7 +660,7 @@ export class Controller extends obsidian.Component {
 				this.countSearchItemDetected
 			);
 			if (!item) return;
-			this.cardViewComponent?.addCard(item.file);
+			this.cardViewComponent?.['addCard'](item.file);
 			this.cardViewCheckDebouncer();
 			this.countSearchItemDetected++;
 		};
@@ -752,7 +751,7 @@ export class Controller extends obsidian.Component {
 		return () => {
 			const { cardViewComponent } = this;
 			if (!cardViewComponent) return;
-			const ok = cardViewComponent.checkCardsRenderedCorrectly(
+			const ok = cardViewComponent['checkCardsRenderedCorrectly'](
 				this.filesToBeRendered()
 			);
 			if (!ok) {
