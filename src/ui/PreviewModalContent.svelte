@@ -1,86 +1,86 @@
 <script lang="ts">
-	import { fileTypeMap, ViewGenerator } from 'interfaces/ViewGenerator';
-	import { ExcalidrawViewGeneratorExtension } from 'interfaces/viewGeneratorExtensions/Excalidraw';
-	import { KanbanViewGeneratorExtension } from 'interfaces/viewGeneratorExtensions/Kanban';
-	import { MarkdownViewGeneratorExtension } from 'interfaces/viewGeneratorExtensions/Markdown';
-	import { NonMarkdownViewGeneratorExtension } from 'interfaces/viewGeneratorExtensions/NonMarkdown';
-	import type { SearchMatches, TFile } from 'obsidian';
-	import { onDestroy, onMount } from 'svelte';
-	import { app } from './store';
+import { ViewGenerator, fileTypeMap } from "interfaces/ViewGenerator";
+import { ExcalidrawViewGeneratorExtension } from "interfaces/viewGeneratorExtensions/Excalidraw";
+import { KanbanViewGeneratorExtension } from "interfaces/viewGeneratorExtensions/Kanban";
+import { MarkdownViewGeneratorExtension } from "interfaces/viewGeneratorExtensions/Markdown";
+import { NonMarkdownViewGeneratorExtension } from "interfaces/viewGeneratorExtensions/NonMarkdown";
+import type { SearchMatches, TFile } from "obsidian";
+import { onDestroy, onMount } from "svelte";
+import { app } from "./store";
 
-	// props
-	export let file: TFile | undefined;
-	export let matches: SearchMatches | undefined;
+// props
+export let file: TFile | undefined;
+export let matches: SearchMatches | undefined;
 
-	// bind
-	let contentContainerEl: HTMLElement | undefined;
+// bind
+let contentContainerEl: HTMLElement | undefined;
 
-	// internal variables
-	let renderer: ViewGenerator | undefined;
+// internal variables
+let renderer: ViewGenerator | undefined;
 
-	onMount(async () => {
-		if (!file) {
-			return;
-		}
-		if (!contentContainerEl) {
-			return;
-		}
-		const fileType = fileTypeMap[file.extension];
-		if (fileType !== undefined) {
-			// supported file format
-			contentContainerEl.empty();
-			renderer = await new ViewGenerator($app, contentContainerEl, file)
-				.registerExtension(new ExcalidrawViewGeneratorExtension($app))
-				.registerExtension(new KanbanViewGeneratorExtension($app))
-				.registerExtension(new MarkdownViewGeneratorExtension())
-				.registerExtension(new NonMarkdownViewGeneratorExtension())
-				.load('source');
-			highlightMatches(); // it should be called onMount
-		}
-	});
-
-	onDestroy(() => {
-		setTimeout(() => renderer?.unload(), 1000);
-	});
-
-	export async function toggleViewMode() {
-		await renderer?.toggleViewMode();
+onMount(async () => {
+	if (!file) {
+		return;
 	}
-
-	export function focusOn(matchId: number, center?: boolean) {
-		if (!matches) return;
-		const match = matches[matchId];
-		if (match === undefined) {
-			return;
-		}
-		renderer?.focusOn(match, 'focus-search-match', center);
+	if (!contentContainerEl) {
+		return;
 	}
-
-	function highlightMatches() {
-		renderer?.highlightMatches(matches ?? [], 'highlight-search-match');
+	const fileType = fileTypeMap[file.extension];
+	if (fileType !== undefined) {
+		// supported file format
+		contentContainerEl.empty();
+		renderer = await new ViewGenerator($app, contentContainerEl, file)
+			.registerExtension(new ExcalidrawViewGeneratorExtension($app))
+			.registerExtension(new KanbanViewGeneratorExtension($app))
+			.registerExtension(new MarkdownViewGeneratorExtension())
+			.registerExtension(new NonMarkdownViewGeneratorExtension())
+			.load("source");
+		highlightMatches(); // it should be called onMount
 	}
+});
 
-	// const FILE_TYPES = ['md', 'image', 'audio', 'movie', 'pdf'] as const;
-	// type FileType = typeof FILE_TYPES[number];
-	// const fileTypeMap: { [extension: string]: FileType } = {
-	// 	md: 'md',
-	// 	png: 'image',
-	// 	jpg: 'image',
-	// 	jpeg: 'image',
-	// 	gif: 'image',
-	// 	bmp: 'image',
-	// 	svg: 'image',
-	// 	mp3: 'audio',
-	// 	webm: 'audio',
-	// 	wav: 'audio',
-	// 	m4a: 'audio',
-	// 	ogg: 'audio',
-	// 	'3gp': 'audio',
-	// 	flac: 'audio',
-	// 	mp4: 'movie',
-	// 	ogv: 'movie',
-	// 	pdf: 'pdf',
-	// };
+onDestroy(() => {
+	setTimeout(() => renderer?.unload(), 1000);
+});
+
+export async function toggleViewMode() {
+	await renderer?.toggleViewMode();
+}
+
+export function focusOn(matchId: number, center?: boolean) {
+	if (!matches) return;
+	const match = matches[matchId];
+	if (match === undefined) {
+		return;
+	}
+	renderer?.focusOn(match, "focus-search-match", center);
+}
+
+function highlightMatches() {
+	renderer?.highlightMatches(matches ?? [], "highlight-search-match");
+}
+
+// const FILE_TYPES = ['md', 'image', 'audio', 'movie', 'pdf'] as const;
+// type FileType = typeof FILE_TYPES[number];
+// const fileTypeMap: { [extension: string]: FileType } = {
+// 	md: 'md',
+// 	png: 'image',
+// 	jpg: 'image',
+// 	jpeg: 'image',
+// 	gif: 'image',
+// 	bmp: 'image',
+// 	svg: 'image',
+// 	mp3: 'audio',
+// 	webm: 'audio',
+// 	wav: 'audio',
+// 	m4a: 'audio',
+// 	ogg: 'audio',
+// 	'3gp': 'audio',
+// 	flac: 'audio',
+// 	mp4: 'movie',
+// 	ogv: 'movie',
+// 	pdf: 'pdf',
+// };
 </script>
 
 <div

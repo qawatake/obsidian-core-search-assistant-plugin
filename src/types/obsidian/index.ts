@@ -1,9 +1,9 @@
-import type { Plugin } from 'obsidian';
-import type { SORT_ORDER_IN_SEARCH } from 'types/Guards';
+import type { Plugin } from "obsidian";
+import type { SORT_ORDER_IN_SEARCH } from "types/Guards";
 
-export * from 'obsidian';
+export * from "obsidian";
 
-declare module 'obsidian' {
+declare module "obsidian" {
 	interface App {
 		dom: AppDom;
 		plugins: { plugins: PluginMap };
@@ -37,7 +37,7 @@ declare module 'obsidian' {
 
 	interface WorkspaceSidedockTabParent {
 		children: WorkspaceLeaf[];
-		type: 'tabs';
+		type: "tabs";
 	}
 
 	interface SearchView extends View {

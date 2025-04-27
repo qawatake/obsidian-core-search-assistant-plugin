@@ -1,39 +1,39 @@
 <script lang="ts">
-	import { ExtraButtonComponent, setIcon, type Hotkey } from 'obsidian';
-	import { createEventDispatcher, onMount } from 'svelte';
-	import HotkeySetting from './HotkeySetting.svelte';
+import { ExtraButtonComponent, type Hotkey, setIcon } from "obsidian";
+import { createEventDispatcher, onMount } from "svelte";
+import HotkeySetting from "./HotkeySetting.svelte";
 
-	// props
-	export let actionName: string | undefined;
-	export let hotkeys: Hotkey[] | undefined;
-	export let listening = false;
+// props
+export let actionName: string | undefined;
+export let hotkeys: Hotkey[] | undefined;
+export const listening = false;
 
-	// binds
-	let restoreButtonEl: HTMLElement | undefined;
-	let addHotkeyButtonEl: HTMLElement | undefined;
+// binds
+let restoreButtonEl: HTMLElement | undefined;
+let addHotkeyButtonEl: HTMLElement | undefined;
 
-	// internal variables
-	const dispatcher = createEventDispatcher();
-	$: _hotkeys = [...(hotkeys ?? [])];
-	$: _listening = listening;
+// internal variables
+const dispatcher = createEventDispatcher();
+$: _hotkeys = [...(hotkeys ?? [])];
+$: _listening = listening;
 
-	onMount(() => {
-		if (restoreButtonEl) {
-			const component = new ExtraButtonComponent(
-				restoreButtonEl
-			).setTooltip('Restore default');
-			setIcon(component.extraSettingsEl, 'reset', ICON_SIZE);
-		}
-		if (addHotkeyButtonEl) {
-			// setIcon(addHotkeyButtonEl, 'any-key', ICON_SIZE);
-			const component = new ExtraButtonComponent(
-				addHotkeyButtonEl
-			).setTooltip('Customize this action');
-			setIcon(component.extraSettingsEl, 'any-key', ICON_SIZE);
-		}
-	});
+onMount(() => {
+	if (restoreButtonEl) {
+		const component = new ExtraButtonComponent(restoreButtonEl).setTooltip(
+			"Restore default",
+		);
+		setIcon(component.extraSettingsEl, "reset", ICON_SIZE);
+	}
+	if (addHotkeyButtonEl) {
+		// setIcon(addHotkeyButtonEl, 'any-key', ICON_SIZE);
+		const component = new ExtraButtonComponent(addHotkeyButtonEl).setTooltip(
+			"Customize this action",
+		);
+		setIcon(component.extraSettingsEl, "any-key", ICON_SIZE);
+	}
+});
 
-	const ICON_SIZE = 22;
+const ICON_SIZE = 22;
 </script>
 
 <div class="item-container">

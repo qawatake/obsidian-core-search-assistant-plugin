@@ -1,18 +1,18 @@
-import type CoreSearchAssistantPlugin from 'main';
+import type { ModeScope } from "ModeScope";
+import type CoreSearchAssistantPlugin from "main";
 import {
-	App,
+	type App,
+	MarkdownView,
 	Modal,
+	Notice,
 	type SearchResultItem,
 	type SplitDirection,
-	MarkdownView,
-	Notice,
-} from 'obsidian';
-import { scrollIteration } from 'utils/Util';
-import type { ModeScope } from 'ModeScope';
-import { generateInternalLinkFrom } from 'utils/Link';
-import PreviewModalContent from 'ui/PreviewModalContent.svelte';
+} from "obsidian";
+import PreviewModalContent from "ui/PreviewModalContent.svelte";
+import { generateInternalLinkFrom } from "utils/Link";
+import { scrollIteration } from "utils/Util";
 
-type ScrollDirection = 'up' | 'down';
+type ScrollDirection = "up" | "down";
 
 const SCROLL_AMOUNT = 70;
 
@@ -28,7 +28,7 @@ export class PreviewModal extends Modal {
 		app: App,
 		plugin: CoreSearchAssistantPlugin,
 		modeScope: ModeScope,
-		item: SearchResultItem
+		item: SearchResultItem,
 	) {
 		super(app);
 		this.plugin = plugin;
@@ -64,7 +64,7 @@ export class PreviewModal extends Modal {
 			this.scope.register(hotkey.modifiers, hotkey.key, () => {
 				this.openAndFocus(
 					this.currentFocus,
-					this.plugin.settings?.splitDirection
+					this.plugin.settings?.splitDirection,
 				);
 				this.plugin.controller?.exit();
 				this.shouldRestoreSelection = false;
@@ -74,25 +74,25 @@ export class PreviewModal extends Modal {
 
 		hotkeyMap.bigScrollDown.forEach((hotkey) => {
 			this.scope.register(hotkey.modifiers, hotkey.key, () => {
-				this.scroll('down');
+				this.scroll("down");
 			});
 		});
 
 		hotkeyMap.bigScrollUp.forEach((hotkey) => {
 			this.scope.register(hotkey.modifiers, hotkey.key, () => {
-				this.scroll('up');
+				this.scroll("up");
 			});
 		});
 
 		hotkeyMap.scrollDown.forEach((hotkey) => {
 			this.scope.register(hotkey.modifiers, hotkey.key, () => {
-				this.scroll('down', SCROLL_AMOUNT);
+				this.scroll("down", SCROLL_AMOUNT);
 			});
 		});
 
 		hotkeyMap.scrollUp.forEach((hotkey) => {
 			this.scope.register(hotkey.modifiers, hotkey.key, () => {
-				this.scroll('up', SCROLL_AMOUNT);
+				this.scroll("up", SCROLL_AMOUNT);
 			});
 		});
 
@@ -134,7 +134,7 @@ export class PreviewModal extends Modal {
 				const { file } = this.item;
 				const internalLink = generateInternalLinkFrom(this.app, file);
 				navigator.clipboard.writeText(internalLink);
-				new Notice('Copy wiki link!');
+				new Notice("Copy wiki link!");
 			});
 		});
 	}
@@ -171,11 +171,10 @@ export class PreviewModal extends Modal {
 	private scroll(direction: ScrollDirection, px?: number) {
 		const { containerEl, contentEl } = this;
 		const move =
-			(px ?? containerEl.clientHeight / 2) *
-			(direction === 'up' ? -1 : 1);
+			(px ?? containerEl.clientHeight / 2) * (direction === "up" ? -1 : 1);
 		contentEl.scrollBy({
 			top: move,
-			behavior: 'smooth',
+			behavior: "smooth",
 		});
 	}
 
@@ -204,7 +203,7 @@ export class PreviewModal extends Modal {
 			from: editor.offsetToPos(match[0]),
 			to: editor.offsetToPos(match[1]),
 		};
-		editor.addHighlights([range], 'obsidian-search-match-highlight');
+		editor.addHighlights([range], "obsidian-search-match-highlight");
 
 		// scroll
 		// if content of a file is too large, we need to call scrollIntoView many times

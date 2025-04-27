@@ -1,7 +1,7 @@
-import { App, Scope, type Hotkey } from 'obsidian';
-import type { SvelteComponent } from 'svelte';
-import HotkeyEntry from 'ui/HotkeyEntry.svelte';
-import { contain, getHotkey } from 'utils/Keymap';
+import { type App, type Hotkey, Scope } from "obsidian";
+import type { SvelteComponent } from "svelte";
+import HotkeyEntry from "ui/HotkeyEntry.svelte";
+import { contain, getHotkey } from "utils/Keymap";
 
 // must call `unload` when it is not necessary
 export class HotkeySetter {
@@ -10,9 +10,8 @@ export class HotkeySetter {
 	private readonly text: string;
 	private currentHotkeys: Hotkey[];
 	private readonly defaultHotkeys: Hotkey[];
-	private shouldReflect: (renewed: Hotkey[], added?: Hotkey) => boolean = (
-		_
-	) => true;
+	private shouldReflect: (renewed: Hotkey[], added?: Hotkey) => boolean = (_) =>
+		true;
 
 	private scope: Scope | undefined;
 	private component: SvelteComponent;
@@ -22,7 +21,7 @@ export class HotkeySetter {
 		containerEl: HTMLElement,
 		text: string,
 		currentHotkeys: Hotkey[],
-		defaultHotkeys: Hotkey[]
+		defaultHotkeys: Hotkey[],
 	) {
 		this.app = app;
 		this.containerEl = containerEl;
@@ -39,9 +38,7 @@ export class HotkeySetter {
 	/**
 	 * @param cb : should return true if you want to adopt the current change
 	 */
-	onChanged(
-		cb: (renewed: Hotkey[], added?: Hotkey) => boolean
-	): HotkeySetter {
+	onChanged(cb: (renewed: Hotkey[], added?: Hotkey) => boolean): HotkeySetter {
 		this.shouldReflect = cb;
 		return this;
 	}
@@ -54,9 +51,9 @@ export class HotkeySetter {
 				hotkeys: this.currentHotkeys,
 			},
 		});
-		component.$on('removed', this.onRemoved);
-		component.$on('restored', this.onRestored);
-		component.$on('start-listening-keys', this.onStartListening);
+		component.$on("removed", this.onRemoved);
+		component.$on("restored", this.onRestored);
+		component.$on("start-listening-keys", this.onStartListening);
 		return component;
 	}
 
@@ -105,7 +102,7 @@ export class HotkeySetter {
 		this.scope.register(null as any, null, (evt) => {
 			evt.preventDefault(); // to prevent scroll
 
-			if (evt.key === 'Escape') {
+			if (evt.key === "Escape") {
 				component.$set({
 					listening: false,
 				});

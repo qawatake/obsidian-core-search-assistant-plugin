@@ -1,21 +1,21 @@
 import {
-	CoreSearchAssistantEvents,
+	type CoreSearchAssistantEvents,
 	EVENT_SEARCH_RESULT_ITEM_DETECTED,
 	EVENT_SORT_ORDER_CHANGED,
-} from 'Events';
-import type CoreSearchAssistantPlugin from 'main';
-import * as obsidian from 'obsidian';
-import { OptionModal } from 'components/OptionModal';
-import { parseCardLayout } from 'Setting';
-import { PreviewModal } from 'components/PreviewModal';
-import { ModeScope } from 'ModeScope';
-import type { SearchComponentInterface } from 'interfaces/SearchComponentInterface';
-import { delay, retry } from 'utils/Util';
-import { debounce, Notice, TFile, type Debouncer } from 'obsidian';
-import { generateInternalLinkFrom } from 'utils/Link';
-import CardViewComponent from 'ui/CardViewComponent.svelte';
-import WorkspacePreview from 'ui/WorkspacePreview.svelte';
-import Outline from 'ui/Outline.svelte';
+} from "Events";
+import { ModeScope } from "ModeScope";
+import { parseCardLayout } from "Setting";
+import { OptionModal } from "components/OptionModal";
+import { PreviewModal } from "components/PreviewModal";
+import type { SearchComponentInterface } from "interfaces/SearchComponentInterface";
+import type CoreSearchAssistantPlugin from "main";
+import * as obsidian from "obsidian";
+import { type Debouncer, Notice, type TFile, debounce } from "obsidian";
+import CardViewComponent from "ui/CardViewComponent.svelte";
+import Outline from "ui/Outline.svelte";
+import WorkspacePreview from "ui/WorkspacePreview.svelte";
+import { generateInternalLinkFrom } from "utils/Link";
+import { delay, retry } from "utils/Util";
 
 const DELAY_TO_RELOAD_IN_MILLISECOND = 1000;
 const RETRY_INTERVAL = 1;
@@ -50,7 +50,7 @@ export class Controller extends obsidian.Component {
 		app: obsidian.App,
 		plugin: CoreSearchAssistantPlugin,
 		events: CoreSearchAssistantEvents,
-		searchInterface: SearchComponentInterface
+		searchInterface: SearchComponentInterface,
 	) {
 		super();
 		this.app = app;
@@ -61,7 +61,7 @@ export class Controller extends obsidian.Component {
 		this.cardViewCheckDebouncer = debounce(
 			this.onCheckCardView,
 			DELAY_TO_RELOAD_IN_MILLISECOND,
-			true
+			true,
 		);
 
 		// state variables
@@ -87,7 +87,7 @@ export class Controller extends obsidian.Component {
 			this.collapseOppositeSidedock();
 		}
 		const shouldDetectSearchItems =
-			this.plugin.settings?.autoPreviewMode === 'cardView' &&
+			this.plugin.settings?.autoPreviewMode === "cardView" &&
 			this.plugin.settings.renderCardsManually === false;
 		if (shouldDetectSearchItems) {
 			this.searchInterface.startWatching(this.events);
@@ -106,7 +106,7 @@ export class Controller extends obsidian.Component {
 		}
 		this.forget();
 		this.unfocus();
-		this.cardViewComponent?.['detachCards']();
+		this.cardViewComponent?.detachCards();
 		this.countSearchItemDetected = 0;
 	}
 
@@ -137,7 +137,7 @@ export class Controller extends obsidian.Component {
 			return;
 		}
 		this.searchInterface.focusOn(this.currentFocusId);
-		this.cardViewComponent?.['focusOn'](this.currentFocusId);
+		this.cardViewComponent?.focusOn(this.currentFocusId);
 	}
 
 	open(direction?: obsidian.SplitDirection) {
@@ -148,12 +148,12 @@ export class Controller extends obsidian.Component {
 	}
 
 	async renewCardViewPage() {
-		if (this.plugin.settings?.autoPreviewMode !== 'cardView') return;
+		if (this.plugin.settings?.autoPreviewMode !== "cardView") return;
 
-		this.cardViewComponent?.['detachCards']();
-		this.cardViewComponent?.['renderPage'](this.filesToBeRendered());
+		this.cardViewComponent?.detachCards();
+		this.cardViewComponent?.renderPage(this.filesToBeRendered());
 		if (this.currentFocusId !== undefined) {
-			this.cardViewComponent?.['focusOn'](this.currentFocusId ?? 0);
+			this.cardViewComponent?.focusOn(this.currentFocusId ?? 0);
 		}
 	}
 
@@ -196,7 +196,7 @@ export class Controller extends obsidian.Component {
 
 		const { settings } = this.plugin;
 		if (settings === undefined) {
-			throw '[ERROR in Core Search Assistant] failed to addChildren: failed to read setting';
+			throw "[ERROR in Core Search Assistant] failed to addChildren: failed to read setting";
 		}
 		this.outline = new Outline({
 			target: document.body,
@@ -204,7 +204,7 @@ export class Controller extends obsidian.Component {
 				lineWidth: settings.outlineWidth,
 			},
 		});
-		if (settings.autoPreviewMode === 'cardView') {
+		if (settings.autoPreviewMode === "cardView") {
 			this.renewCardViewComponent();
 		}
 	}
@@ -243,11 +243,11 @@ export class Controller extends obsidian.Component {
 		const { settings } = this.plugin;
 		if (!settings) return;
 		if (
-			settings.autoPreviewMode === 'cardView' &&
+			settings.autoPreviewMode === "cardView" &&
 			this.shouldTransitNextPageInCardView()
 		) {
 			this.renewCardViewPage();
-		} else if (settings.autoPreviewMode === 'singleView') {
+		} else if (settings.autoPreviewMode === "singleView") {
 			this.renewWorkspacePreviewComponent();
 		}
 
@@ -270,11 +270,11 @@ export class Controller extends obsidian.Component {
 		const { settings } = this.plugin;
 		if (!settings) return;
 		if (
-			settings.autoPreviewMode === 'cardView' &&
+			settings.autoPreviewMode === "cardView" &&
 			this.shouldTransitPreviousPageInCardView()
 		) {
 			this.renewCardViewPage();
-		} else if (settings.autoPreviewMode === 'singleView') {
+		} else if (settings.autoPreviewMode === "singleView") {
 			this.renewWorkspacePreviewComponent();
 		}
 
@@ -332,9 +332,7 @@ export class Controller extends obsidian.Component {
 		if (!this.plugin.settings) {
 			return false;
 		}
-		const [row, column] = parseCardLayout(
-			this.plugin.settings.cardViewLayout
-		);
+		const [row, column] = parseCardLayout(this.plugin.settings.cardViewLayout);
 		const cardsPerPage = row * column;
 		return this.currentFocusId % cardsPerPage === 0;
 	}
@@ -343,9 +341,7 @@ export class Controller extends obsidian.Component {
 		if (!this.plugin.settings) {
 			return false;
 		}
-		const [row, column] = parseCardLayout(
-			this.plugin.settings.cardViewLayout
-		);
+		const [row, column] = parseCardLayout(this.plugin.settings.cardViewLayout);
 		const cardsPerPage = row * column;
 
 		if (this.currentFocusId === undefined) {
@@ -375,9 +371,7 @@ export class Controller extends obsidian.Component {
 			return undefined;
 		}
 
-		const [row, column] = parseCardLayout(
-			this.plugin.settings.cardViewLayout
-		);
+		const [row, column] = parseCardLayout(this.plugin.settings.cardViewLayout);
 		return row * column;
 	}
 
@@ -391,14 +385,14 @@ export class Controller extends obsidian.Component {
 			const inputEl = await retry(
 				() => this.searchInterface.searchInputEl,
 				RETRY_INTERVAL,
-				RETRY_TRIALS
+				RETRY_TRIALS,
 			);
 			this._layoutChanged = async () =>
 				inputEl !==
 				(await retry(
 					() => this.searchInterface.searchInputEl,
 					RETRY_INTERVAL,
-					RETRY_TRIALS
+					RETRY_TRIALS,
 				));
 		});
 	}
@@ -406,7 +400,7 @@ export class Controller extends obsidian.Component {
 	async layoutChanged(): Promise<boolean> {
 		const shouldRenewController = await this._layoutChanged?.();
 		if (shouldRenewController === undefined) {
-			throw '[ERROR in Core Search Assistant] failed to renewRequired: saveLayout was not called.';
+			throw "[ERROR in Core Search Assistant] failed to renewRequired: saveLayout was not called.";
 		}
 		return shouldRenewController;
 	}
@@ -415,45 +409,45 @@ export class Controller extends obsidian.Component {
 		this.registerEvent(
 			this.events.on(
 				EVENT_SEARCH_RESULT_ITEM_DETECTED,
-				this.onSearchResultItemDetected
-			)
+				this.onSearchResultItemDetected,
+			),
 		);
 
 		this.registerEvent(
-			this.events.on(EVENT_SORT_ORDER_CHANGED, this.onSortOrderChanged)
+			this.events.on(EVENT_SORT_ORDER_CHANGED, this.onSortOrderChanged),
 		);
 
 		this.app.workspace.onLayoutReady(async () => {
 			const appContainerEl = await retry(
 				() => this.app.dom.appContainerEl,
 				RETRY_INTERVAL,
-				RETRY_TRIALS
+				RETRY_TRIALS,
 			);
 			if (appContainerEl === undefined) {
-				throw '[ERROR in Core Search Assistant] failed to find the app container element';
+				throw "[ERROR in Core Search Assistant] failed to find the app container element";
 			}
 
 			const inputEl = await retry(
 				() => this.plugin.searchInterface?.searchInputEl,
 				RETRY_INTERVAL,
-				RETRY_TRIALS
+				RETRY_TRIALS,
 			);
 			if (inputEl === undefined) {
-				throw '[ERROR in Core Search Assistant] failed to find the search input form.';
+				throw "[ERROR in Core Search Assistant] failed to find the search input form.";
 			}
 
 			// card view should refresh
 			const matchingCaseButtonEl = await retry(
 				() => this.plugin.searchInterface?.matchingCaseButtonEl,
 				RETRY_INTERVAL,
-				RETRY_TRIALS
+				RETRY_TRIALS,
 			);
 			if (matchingCaseButtonEl === undefined) {
-				throw '[ERROR in Core Search Assistant] failed to find the matching case button.';
+				throw "[ERROR in Core Search Assistant] failed to find the matching case button.";
 			}
 
 			// by using appContainerEl instead of document, can ignore menu element appearing when changeSortOrderEl clicked
-			this.registerDomEvent(appContainerEl, 'click', (evt) => {
+			this.registerDomEvent(appContainerEl, "click", (evt) => {
 				const targetEl = evt.target;
 				if (!(targetEl instanceof HTMLElement)) {
 					return;
@@ -461,36 +455,26 @@ export class Controller extends obsidian.Component {
 				// search panel
 				if (
 					this.plugin.searchInterface?.searchLeaf?.containerEl.contains(
-						targetEl
+						targetEl,
 					)
 				) {
-					if (
-						!this.plugin.searchInterface.isBuiltInElementToOpenFile(
-							targetEl
-						)
-					)
+					if (!this.plugin.searchInterface.isBuiltInElementToOpenFile(targetEl))
 						return;
 				}
 				// search tab header
-				if (
-					this.plugin.searchInterface?.tabHeaderEl?.contains(targetEl)
-				) {
+				if (this.plugin.searchInterface?.tabHeaderEl?.contains(targetEl)) {
 					return;
 				}
 				// buttons to show more context
 				// this button element has no parent, so we must check it directly
-				if (
-					this.plugin.searchInterface?.isShowMoreContextButton(
-						targetEl
-					)
-				) {
+				if (this.plugin.searchInterface?.isShowMoreContextButton(targetEl)) {
 					return;
 				}
 				if (this.modeScope.depth === 1) {
-					this.exit({ id: 'mouse', event: evt });
+					this.exit({ id: "mouse", event: evt });
 				}
 			});
-			this.registerDomEvent(matchingCaseButtonEl, 'click', () => {
+			this.registerDomEvent(matchingCaseButtonEl, "click", () => {
 				if (this.modeScope.inSearchMode) {
 					this.reset();
 				}
@@ -498,7 +482,7 @@ export class Controller extends obsidian.Component {
 
 			// x "keydown" → capture Ctrl + Enter key
 			// x "keypress" → do not recognize Backspace key
-			this.registerDomEvent(inputEl, 'input', () => {
+			this.registerDomEvent(inputEl, "input", () => {
 				if (!this.modeScope.inSearchMode) {
 					this.enter();
 				}
@@ -506,8 +490,8 @@ export class Controller extends obsidian.Component {
 			});
 			// reload card view
 			// Enter key is not recognized by input event
-			this.registerDomEvent(inputEl, 'keypress', (evt) => {
-				if (evt.key !== 'Enter') {
+			this.registerDomEvent(inputEl, "keypress", (evt) => {
+				if (evt.key !== "Enter") {
 					return;
 				}
 				if (!this.modeScope.inSearchMode) {
@@ -515,7 +499,7 @@ export class Controller extends obsidian.Component {
 				}
 				this.reset();
 			});
-			this.registerDomEvent(inputEl, 'focus', () => {
+			this.registerDomEvent(inputEl, "focus", () => {
 				if (!this.modeScope.inSearchMode) {
 					this.enter();
 				}
@@ -531,46 +515,30 @@ export class Controller extends obsidian.Component {
 		this.app.keymap.pushScope(scope);
 
 		hotkeyMap.selectNext.forEach((hotkey) => {
-			scope.register(
-				hotkey.modifiers,
-				hotkey.key,
-				(evt: KeyboardEvent) => {
-					evt.preventDefault(); // ← necessary to stop cursor in search input
-					this.navigateForward();
-				}
-			);
+			scope.register(hotkey.modifiers, hotkey.key, (evt: KeyboardEvent) => {
+				evt.preventDefault(); // ← necessary to stop cursor in search input
+				this.navigateForward();
+			});
 		});
 		hotkeyMap.selectPrevious.forEach((hotkey) => {
-			scope.register(
-				hotkey.modifiers,
-				hotkey.key,
-				(evt: KeyboardEvent) => {
-					evt.preventDefault();
-					this.navigateBack();
-				}
-			);
+			scope.register(hotkey.modifiers, hotkey.key, (evt: KeyboardEvent) => {
+				evt.preventDefault();
+				this.navigateBack();
+			});
 		});
 		hotkeyMap.open.forEach((hotkey) => {
-			scope.register(
-				hotkey.modifiers,
-				hotkey.key,
-				(evt: KeyboardEvent) => {
-					evt.preventDefault(); // ← necessary to prevent renew query, which triggers item detection events
-					this.open();
-					this.exit();
-				}
-			);
+			scope.register(hotkey.modifiers, hotkey.key, (evt: KeyboardEvent) => {
+				evt.preventDefault(); // ← necessary to prevent renew query, which triggers item detection events
+				this.open();
+				this.exit();
+			});
 		});
 		hotkeyMap.openInNewPane.forEach((hotkey) => {
-			scope.register(
-				hotkey.modifiers,
-				hotkey.key,
-				(evt: KeyboardEvent) => {
-					evt.preventDefault();
-					this.open(this.plugin.settings?.splitDirection);
-					this.exit();
-				}
-			);
+			scope.register(hotkey.modifiers, hotkey.key, (evt: KeyboardEvent) => {
+				evt.preventDefault();
+				this.open(this.plugin.settings?.splitDirection);
+				this.exit();
+			});
 		});
 		hotkeyMap.previewModal.forEach((hotkey) => {
 			scope.register(hotkey.modifiers, hotkey.key, () => {
@@ -587,14 +555,14 @@ export class Controller extends obsidian.Component {
 		});
 		hotkeyMap.nextPage.forEach((hotkey) => {
 			scope.register(hotkey.modifiers, hotkey.key, () => {
-				if (this.plugin.settings?.autoPreviewMode === 'cardView') {
+				if (this.plugin.settings?.autoPreviewMode === "cardView") {
 					this.moveToNextPage();
 				}
 			});
 		});
 		hotkeyMap.previousPage.forEach((hotkey) => {
 			scope.register(hotkey.modifiers, hotkey.key, () => {
-				if (this.plugin.settings?.autoPreviewMode === 'cardView') {
+				if (this.plugin.settings?.autoPreviewMode === "cardView") {
 					this.moveToPreviousPage();
 				}
 			});
@@ -602,25 +570,25 @@ export class Controller extends obsidian.Component {
 		hotkeyMap.copyLink.forEach((hotkey) => {
 			scope.register(hotkey.modifiers, hotkey.key, () => {
 				const item = this.searchInterface.getResultItemAt(
-					this.currentFocusId ?? 0
+					this.currentFocusId ?? 0,
 				);
 				if (!item) return;
 				const { file } = item;
 				const internalLink = generateInternalLinkFrom(this.app, file);
 				navigator.clipboard.writeText(internalLink);
-				new Notice('Copy wiki link!');
+				new Notice("Copy wiki link!");
 			});
 		});
-		scope.register([], 'Escape', (evt) => {
+		scope.register([], "Escape", (evt) => {
 			evt.preventDefault(); // to prevent esc key from triggering callback to clear the input form, which was introduced in Obsidian v0.15.6.
 			this.exit();
 		});
 
-		scope.register([], 'Enter', (evt) => {
+		scope.register([], "Enter", (evt) => {
 			setTimeout(this.focusOnInput, 100); // neccesary because otherwise focus + enter triggers submit events
 
 			const shouldRenderCardsManually =
-				this.plugin.settings?.autoPreviewMode === 'cardView' &&
+				this.plugin.settings?.autoPreviewMode === "cardView" &&
 				this.plugin.settings.renderCardsManually;
 			if (shouldRenderCardsManually) {
 				evt.preventDefault(); // prevent submit to stop renewing search results
@@ -644,7 +612,7 @@ export class Controller extends obsidian.Component {
 
 	private get onSearchResultItemDetected(): () => void {
 		return () => {
-			if (this.plugin.settings?.autoPreviewMode !== 'cardView') {
+			if (this.plugin.settings?.autoPreviewMode !== "cardView") {
 				return;
 			}
 			// ↓ is necessary because items are detected at an unexpected timing.
@@ -657,10 +625,10 @@ export class Controller extends obsidian.Component {
 			}
 
 			const item = this.searchInterface.getResultItemAt(
-				this.countSearchItemDetected
+				this.countSearchItemDetected,
 			);
 			if (!item) return;
-			this.cardViewComponent?.['addCard'](item.file);
+			this.cardViewComponent?.addCard(item.file);
 			this.cardViewCheckDebouncer();
 			this.countSearchItemDetected++;
 		};
@@ -712,10 +680,10 @@ export class Controller extends obsidian.Component {
 			const inputEl = await retry(
 				() => this.plugin.searchInterface?.searchInputEl,
 				RETRY_INTERVAL,
-				RETRY_TRIALS
+				RETRY_TRIALS,
 			);
 			if (inputEl === undefined) {
-				throw '[ERROR in Core Search Assistant] failed to find the search input form.';
+				throw "[ERROR in Core Search Assistant] failed to find the search input form.";
 			}
 			inputEl.focus();
 		};
@@ -724,7 +692,7 @@ export class Controller extends obsidian.Component {
 	private get onSortOrderChanged(): () => void {
 		return () => {
 			this.reset();
-			if (this.plugin.settings?.autoPreviewMode === 'cardView') {
+			if (this.plugin.settings?.autoPreviewMode === "cardView") {
 				this.renewCardViewPage();
 			}
 		};
@@ -737,7 +705,7 @@ export class Controller extends obsidian.Component {
 		if (reason === undefined) {
 			return true;
 		}
-		if (reason.id !== 'mouse') {
+		if (reason.id !== "mouse") {
 			return true;
 		}
 		const targetEl = reason.event.target;
@@ -751,8 +719,8 @@ export class Controller extends obsidian.Component {
 		return () => {
 			const { cardViewComponent } = this;
 			if (!cardViewComponent) return;
-			const ok = cardViewComponent['checkCardsRenderedCorrectly'](
-				this.filesToBeRendered()
+			const ok = cardViewComponent.checkCardsRenderedCorrectly(
+				this.filesToBeRendered(),
 			);
 			if (!ok) {
 				this.reset();
@@ -769,19 +737,19 @@ type SearchModeExitReason =
 	| SearchModeExitUnknownReason;
 
 interface SearchModeExitByMouse {
-	id: 'mouse';
+	id: "mouse";
 	event: MouseEvent;
 }
 
 interface SearchModeExitByKeyboard {
-	id: 'keyboard';
+	id: "keyboard";
 	event: KeyboardEvent;
 }
 
 interface SearchModeExitOnOpeningFile {
-	id: 'file';
+	id: "file";
 }
 
 interface SearchModeExitUnknownReason {
-	id: 'unknown';
+	id: "unknown";
 }

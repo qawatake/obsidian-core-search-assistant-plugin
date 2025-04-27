@@ -1,48 +1,48 @@
 <script lang="ts">
-	import { fileTypeMap, ViewGenerator } from 'interfaces/ViewGenerator';
-	import { ExcalidrawViewGeneratorExtension } from 'interfaces/viewGeneratorExtensions/Excalidraw';
-	import { KanbanViewGeneratorExtension } from 'interfaces/viewGeneratorExtensions/Kanban';
-	import { MarkdownViewGeneratorExtension } from 'interfaces/viewGeneratorExtensions/Markdown';
-	import { NonMarkdownViewGeneratorExtension } from 'interfaces/viewGeneratorExtensions/NonMarkdown';
+import { ViewGenerator, fileTypeMap } from "interfaces/ViewGenerator";
+import { ExcalidrawViewGeneratorExtension } from "interfaces/viewGeneratorExtensions/Excalidraw";
+import { KanbanViewGeneratorExtension } from "interfaces/viewGeneratorExtensions/Kanban";
+import { MarkdownViewGeneratorExtension } from "interfaces/viewGeneratorExtensions/Markdown";
+import { NonMarkdownViewGeneratorExtension } from "interfaces/viewGeneratorExtensions/NonMarkdown";
 
-	import type { SearchMatches, TFile } from 'obsidian';
-	import { onDestroy, onMount } from 'svelte';
-	import { app } from './store';
+import type { SearchMatches, TFile } from "obsidian";
+import { onDestroy, onMount } from "svelte";
+import { app } from "./store";
 
-	// props
-	export let file: TFile;
-	export let matches: SearchMatches;
-	export let focusEl: HTMLElement;
+// props
+export let file: TFile;
+export let matches: SearchMatches;
+export let focusEl: HTMLElement;
 
-	// bind
-	let containerEl: HTMLElement | undefined;
+// bind
+let containerEl: HTMLElement | undefined;
 
-	// internal variables
-	let renderer: ViewGenerator | undefined;
+// internal variables
+let renderer: ViewGenerator | undefined;
 
-	onMount(async () => {
-		if (!containerEl) return;
-		const fileType = fileTypeMap[file.extension];
-		if (fileType !== undefined) {
-			containerEl.empty();
-			renderer = await new ViewGenerator($app, containerEl, file)
-				.registerExtension(new ExcalidrawViewGeneratorExtension($app))
-				.registerExtension(new KanbanViewGeneratorExtension($app))
-				.registerExtension(new MarkdownViewGeneratorExtension())
-				.registerExtension(new NonMarkdownViewGeneratorExtension())
-				.load('source');
-			highlightMatches(); // it should be called onMount
-		}
-		focusEl?.focus();
-	});
-
-	onDestroy(() => {
-		setTimeout(() => renderer?.unload(), 1000);
-	});
-
-	function highlightMatches() {
-		renderer?.highlightMatches(matches ?? [], 'highlight-search-match');
+onMount(async () => {
+	if (!containerEl) return;
+	const fileType = fileTypeMap[file.extension];
+	if (fileType !== undefined) {
+		containerEl.empty();
+		renderer = await new ViewGenerator($app, containerEl, file)
+			.registerExtension(new ExcalidrawViewGeneratorExtension($app))
+			.registerExtension(new KanbanViewGeneratorExtension($app))
+			.registerExtension(new MarkdownViewGeneratorExtension())
+			.registerExtension(new NonMarkdownViewGeneratorExtension())
+			.load("source");
+		highlightMatches(); // it should be called onMount
 	}
+	focusEl?.focus();
+});
+
+onDestroy(() => {
+	setTimeout(() => renderer?.unload(), 1000);
+});
+
+function highlightMatches() {
+	renderer?.highlightMatches(matches ?? [], "highlight-search-match");
+}
 </script>
 
 <div

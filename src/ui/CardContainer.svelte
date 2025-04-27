@@ -1,134 +1,134 @@
 <script lang="ts">
-	import { app } from 'ui/store';
-	import type { TFile } from 'obsidian';
-	import { createEventDispatcher, onDestroy, onMount } from 'svelte';
-	import { fileTypeMap, ViewGenerator } from 'interfaces/ViewGenerator';
-	import { ExcalidrawViewGeneratorExtension } from 'interfaces/viewGeneratorExtensions/Excalidraw';
-	import { KanbanViewGeneratorExtension } from 'interfaces/viewGeneratorExtensions/Kanban';
-	import { MarkdownViewGeneratorExtension } from 'interfaces/viewGeneratorExtensions/Markdown';
-	import { NonMarkdownViewGeneratorExtension } from 'interfaces/viewGeneratorExtensions/NonMarkdown';
+import { ViewGenerator, fileTypeMap } from "interfaces/ViewGenerator";
+import { ExcalidrawViewGeneratorExtension } from "interfaces/viewGeneratorExtensions/Excalidraw";
+import { KanbanViewGeneratorExtension } from "interfaces/viewGeneratorExtensions/Kanban";
+import { MarkdownViewGeneratorExtension } from "interfaces/viewGeneratorExtensions/Markdown";
+import { NonMarkdownViewGeneratorExtension } from "interfaces/viewGeneratorExtensions/NonMarkdown";
+import type { TFile } from "obsidian";
+import { createEventDispatcher, onDestroy, onMount } from "svelte";
+import { app } from "ui/store";
 
-	// consts
-	// extension: file type
-	// const FILE_TYPES = ['md', 'image', 'audio', 'movie', 'pdf'] as const;
-	// type FileType = typeof FILE_TYPES[number];
-	// const fileTypeMap: { [extension: string]: FileType } = {
-	// 	md: 'md',
-	// 	png: 'image',
-	// 	jpg: 'image',
-	// 	jpeg: 'image',
-	// 	gif: 'image',
-	// 	bmp: 'image',
-	// 	svg: 'image',
-	// 	mp3: 'audio',
-	// 	webm: 'audio',
-	// 	wav: 'audio',
-	// 	m4a: 'audio',
-	// 	ogg: 'audio',
-	// 	'3gp': 'audio',
-	// 	flac: 'audio',
-	// 	mp4: 'movie',
-	// 	ogv: 'movie',
-	// 	pdf: 'pdf',
-	// };
-	// // FileType: icon
-	// const fileIconMap = new Map<FileType | undefined, string>([
-	// 	['md', 'document'],
-	// 	['image', 'image-file'],
-	// 	['audio', 'audio-file'],
-	// 	['movie', 'play-audio-glyph'],
-	// 	['pdf', 'pdf-file'],
-	// 	[undefined, 'question-mark-glyph'],
-	// ]);
+// consts
+// extension: file type
+// const FILE_TYPES = ['md', 'image', 'audio', 'movie', 'pdf'] as const;
+// type FileType = typeof FILE_TYPES[number];
+// const fileTypeMap: { [extension: string]: FileType } = {
+// 	md: 'md',
+// 	png: 'image',
+// 	jpg: 'image',
+// 	jpeg: 'image',
+// 	gif: 'image',
+// 	bmp: 'image',
+// 	svg: 'image',
+// 	mp3: 'audio',
+// 	webm: 'audio',
+// 	wav: 'audio',
+// 	m4a: 'audio',
+// 	ogg: 'audio',
+// 	'3gp': 'audio',
+// 	flac: 'audio',
+// 	mp4: 'movie',
+// 	ogv: 'movie',
+// 	pdf: 'pdf',
+// };
+// // FileType: icon
+// const fileIconMap = new Map<FileType | undefined, string>([
+// 	['md', 'document'],
+// 	['image', 'image-file'],
+// 	['audio', 'audio-file'],
+// 	['movie', 'play-audio-glyph'],
+// 	['pdf', 'pdf-file'],
+// 	[undefined, 'question-mark-glyph'],
+// ]);
 
-	// props
-	export let id: number;
-	export let file: TFile;
-	// export let matches: SearchMatches;
-	export let selected: boolean;
-	export let focusEl: HTMLElement | undefined | null; // refocus this element when blur by something like Excalidraw or iframes
+// props
+export let id: number;
+export let file: TFile;
+// export let matches: SearchMatches;
+export let selected: boolean;
+export let focusEl: HTMLElement | undefined | null; // refocus this element when blur by something like Excalidraw or iframes
 
-	// bind
-	let contentContainerEl: HTMLElement | undefined | null;
-	let fileNameContainerEl: HTMLElement | undefined | null;
-	// let iconContainerEl: HTMLElement | undefined | null;
+// bind
+let contentContainerEl: HTMLElement | undefined | null;
+let fileNameContainerEl: HTMLElement | undefined | null;
+// let iconContainerEl: HTMLElement | undefined | null;
 
-	// internal variables
-	let renderer: ViewGenerator | undefined;
-	const dispatch = createEventDispatcher();
+// internal variables
+let renderer: ViewGenerator | undefined;
+const dispatch = createEventDispatcher();
 
-	export function path(): string {
-		return file.path;
+export function path(): string {
+	return file.path;
+}
+
+onMount(async () => {
+	// path
+	if (!fileNameContainerEl) {
+		return;
+	}
+	renderFileName(file.name, fileNameContainerEl);
+
+	// render file content
+	if (!contentContainerEl) {
+		return;
+	}
+	const fileType = fileTypeMap[file.extension];
+	if (fileType !== undefined) {
+		// supported file format
+		contentContainerEl.empty();
+		renderer = await new ViewGenerator($app, contentContainerEl, file)
+			.registerExtension(new ExcalidrawViewGeneratorExtension($app))
+			.registerExtension(new KanbanViewGeneratorExtension($app))
+			.registerExtension(new MarkdownViewGeneratorExtension())
+			.registerExtension(new NonMarkdownViewGeneratorExtension())
+			.load("preview");
 	}
 
-	onMount(async () => {
-		// path
-		if (!fileNameContainerEl) {
-			return;
-		}
-		renderFileName(file.name, fileNameContainerEl);
+	focusEl?.focus();
+	// setFileIcon(file);
+});
 
-		// render file content
-		if (!contentContainerEl) {
-			return;
-		}
-		const fileType = fileTypeMap[file.extension];
-		if (fileType !== undefined) {
-			// supported file format
-			contentContainerEl.empty();
-			renderer = await new ViewGenerator($app, contentContainerEl, file)
-				.registerExtension(new ExcalidrawViewGeneratorExtension($app))
-				.registerExtension(new KanbanViewGeneratorExtension($app))
-				.registerExtension(new MarkdownViewGeneratorExtension())
-				.registerExtension(new NonMarkdownViewGeneratorExtension())
-				.load('preview');
-		}
+onDestroy(() => {
+	setTimeout(() => renderer?.unload(), 1000);
+});
 
-		focusEl?.focus();
-		// setFileIcon(file);
-	});
+async function onClicked() {
+	await openFile();
+	dispatch("click");
+}
 
-	onDestroy(() => {
-		setTimeout(() => renderer?.unload(), 1000);
-	});
+async function openFile() {
+	const leaf = $app.workspace.getMostRecentLeaf();
+	await leaf.openFile(file);
+	$app.workspace.setActiveLeaf(leaf, true, true);
+}
 
-	async function onClicked() {
-		await openFile();
-		dispatch('click');
-	}
+// function setFileIcon(file: TFile) {
+// 	if (!iconContainerEl) {
+// 		return;
+// 	}
+// 	iconContainerEl.empty();
 
-	async function openFile() {
-		const leaf = $app.workspace.getMostRecentLeaf();
-		await leaf.openFile(file);
-		$app.workspace.setActiveLeaf(leaf, true, true);
-	}
+// 	const iconId = fileIconMap.get(fileTypeMap[file.extension]);
+// 	if (iconId === undefined) {
+// 		return;
+// 	}
+// 	setIcon(iconContainerEl, iconId);
+// }
 
-	// function setFileIcon(file: TFile) {
-	// 	if (!iconContainerEl) {
-	// 		return;
-	// 	}
-	// 	iconContainerEl.empty();
-
-	// 	const iconId = fileIconMap.get(fileTypeMap[file.extension]);
-	// 	if (iconId === undefined) {
-	// 		return;
-	// 	}
-	// 	setIcon(iconContainerEl, iconId);
-	// }
-
-	function renderFileName(fileName: string, containerEl: HTMLElement) {
-		// let cur = 0;
-		// // matches.forEach((match) => {
-		// // 	containerEl.appendText(filePath.slice(cur, match[0]));
-		// // 	containerEl.createSpan({
-		// // 		text: filePath.slice(match[0], match[1]),
-		// // 		cls: 'matched-in-path',
-		// // 	});
-		// // 	cur = match[1];
-		// // });
-		// containerEl.appendText(filePath.slice(cur));
-		containerEl.appendText(fileName);
-	}
+function renderFileName(fileName: string, containerEl: HTMLElement) {
+	// let cur = 0;
+	// // matches.forEach((match) => {
+	// // 	containerEl.appendText(filePath.slice(cur, match[0]));
+	// // 	containerEl.createSpan({
+	// // 		text: filePath.slice(match[0], match[1]),
+	// // 		cls: 'matched-in-path',
+	// // 	});
+	// // 	cur = match[1];
+	// // });
+	// containerEl.appendText(filePath.slice(cur));
+	containerEl.appendText(fileName);
+}
 </script>
 
 <div

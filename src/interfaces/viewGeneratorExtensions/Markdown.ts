@@ -1,9 +1,9 @@
-import type { ViewGeneratorExtension } from 'interfaces/ViewGenerator';
+import type { ViewGeneratorExtension } from "interfaces/ViewGenerator";
 import {
 	MarkdownView,
 	type MarkdownViewModeType,
 	type WorkspaceLeaf,
-} from 'obsidian';
+} from "obsidian";
 
 export class MarkdownViewGeneratorExtension implements ViewGeneratorExtension {
 	isMine(leaf: WorkspaceLeaf): boolean {
@@ -16,7 +16,7 @@ export class MarkdownViewGeneratorExtension implements ViewGeneratorExtension {
 				...leaf.view.getState(),
 				mode: mode,
 			},
-			{}
+			{},
 		);
 	}
 
@@ -24,7 +24,7 @@ export class MarkdownViewGeneratorExtension implements ViewGeneratorExtension {
 		if (!(leaf.view instanceof MarkdownView)) return;
 		await this.setViewMode(
 			leaf,
-			leaf.view.getMode() === 'preview' ? 'source' : 'preview'
+			leaf.view.getMode() === "preview" ? "source" : "preview",
 		);
 	}
 }

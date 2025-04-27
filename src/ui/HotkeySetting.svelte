@@ -1,26 +1,26 @@
 <script lang="ts">
-	import { setIcon, type Hotkey } from 'obsidian';
-	import { createEventDispatcher, onMount } from 'svelte';
-	import { convertHotkeyToText } from 'utils/Keymap';
+import { type Hotkey, setIcon } from "obsidian";
+import { createEventDispatcher, onMount } from "svelte";
+import { convertHotkeyToText } from "utils/Keymap";
 
-	// props
-	export let hotkey: Hotkey;
+// props
+export let hotkey: Hotkey;
 
-	// binds
-	let iconContainerEl: HTMLSpanElement | undefined;
+// binds
+let iconContainerEl: HTMLSpanElement | undefined;
 
-	// internal variables
-	const dispatcher = createEventDispatcher();
+// internal variables
+const dispatcher = createEventDispatcher();
 
-	onMount(() => {
-		if (iconContainerEl instanceof HTMLSpanElement) {
-			setIcon(iconContainerEl, 'cross', 8);
-		}
-	});
-
-	function onIconClicked() {
-		dispatcher('removed');
+onMount(() => {
+	if (iconContainerEl instanceof HTMLSpanElement) {
+		setIcon(iconContainerEl, "cross", 8);
 	}
+});
+
+function onIconClicked() {
+	dispatcher("removed");
+}
 </script>
 
 <span class="setting-hotkey">

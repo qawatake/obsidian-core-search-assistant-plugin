@@ -4,16 +4,16 @@ import type {
 	HeadingCache,
 	MetadataCache,
 	TFile,
-} from 'obsidian';
+} from "obsidian";
 
 export function generateInternalLinkFrom(app: App, file: TFile): string {
 	const text = getDisplayText(app.metadataCache, file);
-	return app.fileManager.generateMarkdownLink(file, '', undefined, text);
+	return app.fileManager.generateMarkdownLink(file, "", undefined, text);
 }
 
 function getDisplayText(
 	metadataCache: MetadataCache,
-	file: TFile
+	file: TFile,
 ): string | undefined {
 	const cache = metadataCache.getFileCache(file);
 	if (!cache) return undefined;
@@ -34,7 +34,7 @@ function getDisplayText(
 }
 
 function getTitle(frontmatter?: FrontMatterCache): string | undefined {
-	return frontmatter?.['title'];
+	return frontmatter?.title;
 }
 
 function getFirstH1(headings: HeadingCache[] | undefined) {

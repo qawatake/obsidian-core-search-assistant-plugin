@@ -1,19 +1,19 @@
-import type { ViewGeneratorExtension } from 'interfaces/ViewGenerator';
+import type { ViewGeneratorExtension } from "interfaces/ViewGenerator";
 import {
+	type App,
 	MarkdownView,
+	type MarkdownViewModeType,
 	Plugin,
 	TextFileView,
-	type App,
-	type MarkdownViewModeType,
 	type WorkspaceLeaf,
-} from 'obsidian';
-import type { UnknownObject } from 'types/Guards';
+} from "obsidian";
+import type { UnknownObject } from "types/Guards";
 
-const kanbanPluginId = 'obsidian-kanban';
+const kanbanPluginId = "obsidian-kanban";
 // defined in https://github.com/mgmeyers/obsidian-kanban/blob/8a9a734b723b7f396a1c2c1a3ae22c0daab4e98e/src/parsers/common.ts#L8
-const frontMatterKey = 'kanban-plugin';
+const frontMatterKey = "kanban-plugin";
 // defined in https://github.com/mgmeyers/obsidian-kanban/blob/7d6a7fe709b3032b27121a2ec44dd53dedf46b6b/src/KanbanView.tsx#L25
-const kanbanViewType = 'kanban';
+const kanbanViewType = "kanban";
 
 export class KanbanViewGeneratorExtension implements ViewGeneratorExtension {
 	kanban: KanbanPlugin | undefined;
@@ -30,7 +30,7 @@ export class KanbanViewGeneratorExtension implements ViewGeneratorExtension {
 
 	isMine(leaf: WorkspaceLeaf): boolean {
 		const { view } = leaf;
-		if (view.getViewType() == kanbanViewType) return true;
+		if (view.getViewType() === kanbanViewType) return true;
 		if (!(view instanceof TextFileView)) return false;
 		const fileCache = this.app.metadataCache.getFileCache(view.file);
 		const fileIsKanban =
@@ -42,15 +42,15 @@ export class KanbanViewGeneratorExtension implements ViewGeneratorExtension {
 	async setViewMode(leaf: WorkspaceLeaf, mode: MarkdownViewModeType) {
 		const { kanban } = this;
 		if (!kanban) return;
-		if (mode === 'source') {
-			kanban.kanbanFileModes[leaf.id] = 'markdown';
+		if (mode === "source") {
+			kanban.kanbanFileModes[leaf.id] = "markdown";
 			await kanban.setMarkdownView(leaf);
 			await leaf.view.setState(
 				{
 					...leaf.view.getState(),
-					mode: 'source',
+					mode: "source",
 				},
-				{}
+				{},
 			);
 			if (leaf.view instanceof MarkdownView) {
 				leaf.view.editor.blur();
@@ -65,10 +65,7 @@ export class KanbanViewGeneratorExtension implements ViewGeneratorExtension {
 		const { kanban } = this;
 		if (!kanban) return;
 		const mode = kanban.kanbanFileModes[leaf.id];
-		await this.setViewMode(
-			leaf,
-			mode === 'markdown' ? 'preview' : 'source'
-		);
+		await this.setViewMode(leaf, mode === "markdown" ? "preview" : "source");
 	}
 }
 
@@ -83,8 +80,8 @@ function IsKanbanPlugin(plugin: unknown): plugin is KanbanPlugin {
 
 	const { kanbanFileModes, setKanbanView, setMarkdownView } =
 		plugin as UnknownObject<KanbanPlugin>;
-	if (typeof kanbanFileModes !== 'object') return false;
-	if (typeof setMarkdownView !== 'function') return false;
-	if (typeof setKanbanView !== 'function') return false;
+	if (typeof kanbanFileModes !== "object") return false;
+	if (typeof setMarkdownView !== "function") return false;
+	if (typeof setKanbanView !== "function") return false;
 	return true;
 }
