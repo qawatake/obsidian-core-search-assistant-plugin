@@ -34,6 +34,6 @@
 		"skipLibCheck": true,
 		"types": ["svelte", "node"]
 	},
-	"include": ["src/**/*.ts", "src/**/*.svelte"],
+	"include": ["**/*.ts", "src/**/*.svelte"],
 	"exclude": ["node_modules"]
 }

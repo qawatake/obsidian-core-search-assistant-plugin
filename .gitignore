@@ -27,3 +27,6 @@ data.json
 
 # code for dev
 src/obsidiandev.ts
+.obsidian-unpacked
+test-results
+e2e-vault/.obsidian/plugins/obsidian-core-search-assistant

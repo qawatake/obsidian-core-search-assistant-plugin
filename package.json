@@ -3,6 +3,7 @@
 	"version": "0.12.0",
 	"description": "This is a sample plugin for Obsidian (https://obsidian.md)",
 	"main": "main.js",
+	"type": "module",
 	"scripts": {
 		"fix:format": "biome format --write src",
 		"lint:format": "biome format --check src",
@@ -12,16 +13,20 @@
 		"dev": "node esbuild.config.mjs",
 		"sass-build": "sass --no-source-map *.scss styles.css",
 		"esbuild": "node esbuild.config.mjs production",
-		"build": "pnpm esbuild && pnpm sass-build"
+		"build": "pnpm esbuild && pnpm sass-build",
+		"e2e": "npm run build && playwright test"
 	},
 	"keywords": [],
 	"author": "",
 	"license": "MIT",
 	"devDependencies": {
 		"@biomejs/biome": "^1.9.4",
+		"@electron/asar": "^3.4.1",
+		"@playwright/test": "^1.52.0",
 		"@tsconfig/svelte": "^5.0.0",
 		"@types/node": "^20.11.14",
 		"builtin-modules": "^3.3.0",
+		"electron": "^35.2.1",
 		"esbuild": "^0.20.2",
 		"esbuild-svelte": "^0.8.0",
 		"npm-run-all": "^4.1.5",
