@@ -30,3 +30,4 @@ src/obsidiandev.ts
 .obsidian-unpacked
 test-results
 e2e-vault/.obsidian/plugins/obsidian-core-search-assistant
+e2e-vault/.obsidian/workspace.json
