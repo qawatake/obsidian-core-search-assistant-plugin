@@ -2,8 +2,8 @@ import {
 	type CoreSearchAssistantEvents,
 	EVENT_SEARCH_RESULT_ITEM_DETECTED,
 	EVENT_SORT_ORDER_CHANGED,
-} from "Events";
-import type CoreSearchAssistantPlugin from "main";
+} from 'Events';
+import type CoreSearchAssistantPlugin from 'main';
 import {
 	type App,
 	Component,
@@ -14,10 +14,10 @@ import {
 	type SplitDirection,
 	type WorkspaceLeaf,
 	WorkspaceSidedock,
-} from "obsidian";
-import { isSearchView } from "types/Guards";
-import { searchOptions } from "types/Option";
-import { LinkedList } from "utils/LinkedList";
+} from 'obsidian';
+import { isSearchView } from 'types/Guards';
+import { searchOptions } from 'types/Option';
+import { LinkedList } from 'utils/LinkedList';
 
 export class SearchComponentInterface extends Component {
 	private readonly app: App;
@@ -36,14 +36,16 @@ export class SearchComponentInterface extends Component {
 	constructor(
 		app: App,
 		plugin: CoreSearchAssistantPlugin,
-		events: CoreSearchAssistantEvents,
+		events: CoreSearchAssistantEvents
 	) {
 		super();
 		this.app = app;
 		this.plugin = plugin;
 		this.events = events;
 
-		this.observer = new MutationObserver(this.onObservedCallback.bind(this));
+		this.observer = new MutationObserver(
+			this.onObservedCallback.bind(this)
+		);
 	}
 
 	override onload(): void {
@@ -51,7 +53,7 @@ export class SearchComponentInterface extends Component {
 		this.app.workspace.onLayoutReady(() => {
 			this.renewSortOrderInfo();
 
-			this.registerDomEvent(document, "click", () => {
+			this.registerDomEvent(document, 'click', () => {
 				this.renewSortOrderInfo(this.events);
 				// this.plugin.controller?.reset(); // it unexpectedly reloads when clicking close button of modals
 			});
@@ -99,12 +101,12 @@ export class SearchComponentInterface extends Component {
 			return;
 		}
 		item.containerEl.addClass(
-			"core-search-assistant_search-result-items-focus",
+			'core-search-assistant_search-result-items-focus'
 		);
 		item.containerEl.scrollIntoView(
 			this.plugin.settings?.keepSelectedItemsCentered
-				? { block: "center" }
-				: { block: "nearest" },
+				? { block: 'center' }
+				: { block: 'nearest' }
 		);
 	}
 
@@ -112,7 +114,7 @@ export class SearchComponentInterface extends Component {
 		const items = this.resultItems;
 		items.forEach((item) => {
 			item.containerEl.removeClass(
-				"core-search-assistant_search-result-items-focus",
+				'core-search-assistant_search-result-items-focus'
 			);
 		});
 	}
@@ -144,7 +146,8 @@ export class SearchComponentInterface extends Component {
 			return;
 		}
 		const originalContent = this.sortOrderContentEl.textContent;
-		this.sortOrderContentEl.textContent = searchOptions[sortOrder].description;
+		this.sortOrderContentEl.textContent =
+			searchOptions[sortOrder].description;
 		if (
 			events !== undefined &&
 			originalContent !== this.sortOrderContentEl.textContent
@@ -175,11 +178,14 @@ export class SearchComponentInterface extends Component {
 
 	startWatching(events: Events) {
 		// reset
-		this.linkedList = new LinkedList(events, EVENT_SEARCH_RESULT_ITEM_DETECTED);
+		this.linkedList = new LinkedList(
+			events,
+			EVENT_SEARCH_RESULT_ITEM_DETECTED
+		);
 
 		const childrenContainerEl = this.searchView?.dom.childrenEl;
 		if (!(childrenContainerEl instanceof HTMLElement)) {
-			throw "[ERROR in Core Search Assistant] failed to SearchComponentInterface#startWatching: childrenContainerEl is not an instance of HTMLElement";
+			throw '[ERROR in Core Search Assistant] failed to SearchComponentInterface#startWatching: childrenContainerEl is not an instance of HTMLElement';
 		}
 		this.observer.observe(childrenContainerEl, this.observationConfig);
 	}
@@ -191,7 +197,7 @@ export class SearchComponentInterface extends Component {
 	collapseOppositeSidedock() {
 		const sideDock = this.oppositeSidedock;
 		if (sideDock === undefined) {
-			throw "[ERROR in Core Search Assistant] failed to collapseOppositeSidedock: failed to fetch the opposite sidedock";
+			throw '[ERROR in Core Search Assistant] failed to collapseOppositeSidedock: failed to fetch the opposite sidedock';
 		}
 		sideDock.collapse();
 	}
@@ -199,7 +205,7 @@ export class SearchComponentInterface extends Component {
 	expandOppositeSidedock() {
 		const sideDock = this.oppositeSidedock;
 		if (sideDock === undefined) {
-			throw "[ERROR in Core Search Assistant] failed to expandOppositeSidedock: failed to fetch the opposite sidedock";
+			throw '[ERROR in Core Search Assistant] failed to expandOppositeSidedock: failed to fetch the opposite sidedock';
 		}
 		sideDock.expand();
 	}
@@ -207,7 +213,7 @@ export class SearchComponentInterface extends Component {
 	collapseSidedock() {
 		const sideDock = this.sideDock;
 		if (sideDock === undefined) {
-			throw "[ERROR in Core Search Assistant] failed to collapseSidedock: failed to fetch the sidedock";
+			throw '[ERROR in Core Search Assistant] failed to collapseSidedock: failed to fetch the sidedock';
 		}
 		sideDock.collapse();
 	}
@@ -243,10 +249,10 @@ export class SearchComponentInterface extends Component {
 
 	private createSortOrderEls(): void {
 		// create element
-		this.sortOrderContainerEl = createEl("div", {
-			cls: "search-info-container",
+		this.sortOrderContainerEl = createEl('div', {
+			cls: 'search-info-container',
 		});
-		this.sortOrderContentEl = this.sortOrderContainerEl.createEl("div");
+		this.sortOrderContentEl = this.sortOrderContainerEl.createEl('div');
 
 		// insert created element
 		const view = this.searchView;
@@ -266,11 +272,11 @@ export class SearchComponentInterface extends Component {
 
 	isBuiltInElementToOpenFile(el: HTMLElement): boolean {
 		const isFileNameContainerEl =
-			el.tagName === "DIV" && el.hasClass("tree-item-inner");
+			el.tagName === 'DIV' && el.hasClass('tree-item-inner');
 		const isMatchCountContainerEl =
-			el.tagName === "DIV" && el.hasClass("tree-item-flair-outer");
+			el.tagName === 'DIV' && el.hasClass('tree-item-flair-outer');
 		const isMatchContainerEl =
-			el.tagName === "DIV" && el.hasClass("search-result-file-match");
+			el.tagName === 'DIV' && el.hasClass('search-result-file-match');
 		if (
 			isFileNameContainerEl ||
 			isMatchContainerEl ||
@@ -288,7 +294,9 @@ export class SearchComponentInterface extends Component {
 	}
 
 	isShowMoreContextButton(el: HTMLElement): boolean {
-		return el.tagName === "DIV" && el.hasClass("search-result-hover-button");
+		return (
+			el.tagName === 'DIV' && el.hasClass('search-result-hover-button')
+		);
 	}
 
 	// get changeSortOrderButtonEl(): HTMLElement | undefined {
@@ -311,12 +319,12 @@ export class SearchComponentInterface extends Component {
 	}
 
 	get searchLeaf(): WorkspaceLeaf | undefined {
-		return this.app.workspace.getLeavesOfType("search")[0];
+		return this.app.workspace.getLeavesOfType('search')[0];
 	}
 
 	private onObservedCallback: MutationCallback = async (
 		mutations: MutationRecord[],
-		_observer: MutationObserver,
+		_observer: MutationObserver
 	) => {
 		for (const mutation of mutations) {
 			if (mutation.addedNodes.length === 0) {
@@ -331,9 +339,9 @@ export class SearchComponentInterface extends Component {
 					continue;
 				}
 				const isSearchResultItem =
-					node.tagName === "DIV" &&
-					node.hasClass("tree-item") &&
-					node.hasClass("search-result");
+					node.tagName === 'DIV' &&
+					node.hasClass('tree-item') &&
+					node.hasClass('search-result');
 				if (!isSearchResultItem) {
 					continue;
 				}
@@ -342,7 +350,7 @@ export class SearchComponentInterface extends Component {
 				}
 				this.linkedList.structure(
 					node,
-					this.isRootSearchResult(pre) ? undefined : pre,
+					this.isRootSearchResult(pre) ? undefined : pre
 				);
 			}
 		}
@@ -350,9 +358,9 @@ export class SearchComponentInterface extends Component {
 
 	private isRootSearchResult(el: HTMLElement): boolean {
 		return (
-			el.tagName === "DIV" &&
-			!el.hasClass("tree-item") &&
-			!el.hasClass("search-result")
+			el.tagName === 'DIV' &&
+			!el.hasClass('tree-item') &&
+			!el.hasClass('search-result')
 		);
 	}
 

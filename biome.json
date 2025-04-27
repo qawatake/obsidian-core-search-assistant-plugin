@@ -8,7 +8,10 @@
 	"files": {
 		"ignoreUnknown": false,
 		"ignore": [],
-		"include": ["src/**/*.ts", "src/**/*.svelte"]
+		"include": [
+			"src/**/*.ts",
+			"src/**/*.svelte"
+		]
 	},
 	"formatter": {
 		"enabled": true,
