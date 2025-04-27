@@ -1,0 +1,5 @@
+[tagpr]
+    releaseBranch = main
+    vPrefix = false
+    versionFile = manifest.json
+    release = false

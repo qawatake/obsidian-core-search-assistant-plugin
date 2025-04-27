@@ -1,6 +1,6 @@
 import { App, Scope, type Hotkey } from 'obsidian';
 import type { SvelteComponent } from 'svelte';
-import HotkeyEntry from 'ui/HotkeyEntry.svelte';
+import HotkeyEntry from 'ui/HotKeyEntry.svelte';
 import { contain, getHotkey } from 'utils/Keymap';
 
 // must call `unload` when it is not necessary
