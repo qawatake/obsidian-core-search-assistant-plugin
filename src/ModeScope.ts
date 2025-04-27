@@ -16,7 +16,7 @@ export class ModeScope {
 	pop() {
 		this._depth--;
 		if (this.depth < 0) {
-			throw '[ERROR in Core Search Assistant] ModeScope.depth < 0';
+			throw "[ERROR in Core Search Assistant] ModeScope.depth < 0";
 		}
 	}
 

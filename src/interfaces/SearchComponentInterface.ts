@@ -1,23 +1,23 @@
+import {
+	type CoreSearchAssistantEvents,
+	EVENT_SEARCH_RESULT_ITEM_DETECTED,
+	EVENT_SORT_ORDER_CHANGED,
+} from 'Events';
 import type CoreSearchAssistantPlugin from 'main';
 import {
-	App,
+	type App,
 	Component,
-	Events,
+	type Events,
 	type SearchResultItem,
 	type SearchView,
 	type SortOrderInSearch,
 	type SplitDirection,
-	WorkspaceLeaf,
+	type WorkspaceLeaf,
 	WorkspaceSidedock,
 } from 'obsidian';
 import { isSearchView } from 'types/Guards';
 import { searchOptions } from 'types/Option';
 import { LinkedList } from 'utils/LinkedList';
-import {
-	CoreSearchAssistantEvents,
-	EVENT_SEARCH_RESULT_ITEM_DETECTED,
-	EVENT_SORT_ORDER_CHANGED,
-} from 'Events';
 
 export class SearchComponentInterface extends Component {
 	private readonly app: App;
@@ -226,9 +226,8 @@ export class SearchComponentInterface extends Component {
 		const parent = leaf.getRoot();
 		if (parent instanceof WorkspaceSidedock) {
 			return parent;
-		} else {
-			return undefined;
 		}
+		return undefined;
 	}
 
 	get oppositeSidedock(): WorkspaceSidedock | undefined {
@@ -240,12 +239,12 @@ export class SearchComponentInterface extends Component {
 		if (parent === this.app.workspace.leftSplit) {
 			const opposite = this.app.workspace.rightSplit;
 			return opposite instanceof WorkspaceSidedock ? opposite : undefined;
-		} else if (parent === this.app.workspace.rightSplit) {
+		}
+		if (parent === this.app.workspace.rightSplit) {
 			const opposite = this.app.workspace.leftSplit;
 			return opposite instanceof WorkspaceSidedock ? opposite : undefined;
-		} else {
-			return undefined;
 		}
+		return undefined;
 	}
 
 	private createSortOrderEls(): void {
@@ -258,7 +257,7 @@ export class SearchComponentInterface extends Component {
 		// insert created element
 		const view = this.searchView;
 		if (!view) {
-			return undefined;
+			return;
 		}
 		this.sortOrderContainerEl.insertAfter(view.searchInfoEl);
 	}
@@ -289,10 +288,9 @@ export class SearchComponentInterface extends Component {
 		const parentEl = el.parentElement;
 		if (parentEl === null) {
 			return false;
-		} else {
-			// recursive
-			return this.isBuiltInElementToOpenFile(parentEl);
 		}
+		// recursive
+		return this.isBuiltInElementToOpenFile(parentEl);
 	}
 
 	isShowMoreContextButton(el: HTMLElement): boolean {

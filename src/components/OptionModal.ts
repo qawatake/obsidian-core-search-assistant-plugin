@@ -1,7 +1,7 @@
-import type CoreSearchAssistantPlugin from 'main';
-import type { ModeScope } from 'ModeScope';
-import { App, Modal, setIcon } from 'obsidian';
-import { type SearchOptionId, searchOptions } from 'types/Option';
+import type { ModeScope } from "ModeScope";
+import type CoreSearchAssistantPlugin from "main";
+import { type App, Modal, setIcon } from "obsidian";
+import { type SearchOptionId, searchOptions } from "types/Option";
 
 interface OptionItem {
 	id: SearchOptionId;
@@ -17,7 +17,7 @@ export class OptionModal extends Modal {
 	constructor(
 		app: App,
 		plugin: CoreSearchAssistantPlugin,
-		modeScope: ModeScope
+		modeScope: ModeScope,
 	) {
 		super(app);
 		this.plugin = plugin;
@@ -25,8 +25,8 @@ export class OptionModal extends Modal {
 
 		this.items = [
 			{
-				id: 'matchingCase',
-				key: 'a',
+				id: "matchingCase",
+				key: "a",
 				onChoose: () => {
 					this.plugin.searchInterface?.toggleMatchingCase();
 					this.plugin.searchInterface?.renewSortOrderInfo();
@@ -35,34 +35,32 @@ export class OptionModal extends Modal {
 				},
 			},
 			{
-				id: 'explainSearch',
-				key: 's',
+				id: "explainSearch",
+				key: "s",
 				onChoose: () => {
 					this.plugin.searchInterface?.toggleExplainSearch();
 				},
 			},
 			{
-				id: 'collapseAll',
-				key: 'd',
+				id: "collapseAll",
+				key: "d",
 				onChoose: () => {
 					this.plugin.searchInterface?.toggleCollapseAll();
 				},
 			},
 			{
-				id: 'extraContext',
-				key: 'f',
+				id: "extraContext",
+				key: "f",
 				onChoose: () => {
 					this.plugin.searchInterface?.toggleExtraContext();
 				},
 			},
 			{
-				id: 'alphabetical',
-				key: 'g',
+				id: "alphabetical",
+				key: "g",
 				onChoose: () => {
 					const changed =
-						this.plugin.searchInterface?.setSortOrder(
-							'alphabetical'
-						);
+						this.plugin.searchInterface?.setSortOrder("alphabetical");
 					if (changed) {
 						this.plugin.searchInterface?.renewSortOrderInfo();
 						this.plugin.controller?.reset();
@@ -70,11 +68,11 @@ export class OptionModal extends Modal {
 				},
 			},
 			{
-				id: 'alphabeticalReverse',
-				key: 'h',
+				id: "alphabeticalReverse",
+				key: "h",
 				onChoose: () => {
 					const changed = this.plugin.searchInterface?.setSortOrder(
-						'alphabeticalReverse'
+						"alphabeticalReverse",
 					);
 					if (changed) {
 						this.plugin.searchInterface?.renewSortOrderInfo();
@@ -83,13 +81,11 @@ export class OptionModal extends Modal {
 				},
 			},
 			{
-				id: 'byModifiedTime',
-				key: 'j',
+				id: "byModifiedTime",
+				key: "j",
 				onChoose: () => {
 					const changed =
-						this.plugin.searchInterface?.setSortOrder(
-							'byModifiedTime'
-						);
+						this.plugin.searchInterface?.setSortOrder("byModifiedTime");
 					if (changed) {
 						this.plugin.searchInterface?.renewSortOrderInfo();
 						this.plugin.controller?.reset();
@@ -97,11 +93,11 @@ export class OptionModal extends Modal {
 				},
 			},
 			{
-				id: 'byModifiedTimeReverse',
-				key: 'k',
+				id: "byModifiedTimeReverse",
+				key: "k",
 				onChoose: () => {
 					const changed = this.plugin.searchInterface?.setSortOrder(
-						'byModifiedTimeReverse'
+						"byModifiedTimeReverse",
 					);
 					if (changed) {
 						this.plugin.searchInterface?.renewSortOrderInfo();
@@ -110,13 +106,11 @@ export class OptionModal extends Modal {
 				},
 			},
 			{
-				id: 'byCreatedTime',
-				key: 'l',
+				id: "byCreatedTime",
+				key: "l",
 				onChoose: () => {
 					const changed =
-						this.plugin.searchInterface?.setSortOrder(
-							'byCreatedTime'
-						);
+						this.plugin.searchInterface?.setSortOrder("byCreatedTime");
 					if (changed) {
 						this.plugin.searchInterface?.renewSortOrderInfo();
 						this.plugin.controller?.reset();
@@ -124,11 +118,11 @@ export class OptionModal extends Modal {
 				},
 			},
 			{
-				id: 'byCreatedTimeReverse',
-				key: ';',
+				id: "byCreatedTimeReverse",
+				key: ";",
 				onChoose: () => {
 					const changed = this.plugin.searchInterface?.setSortOrder(
-						'byCreatedTimeReverse'
+						"byCreatedTimeReverse",
 					);
 					if (changed) {
 						this.plugin.searchInterface?.renewSortOrderInfo();
@@ -160,22 +154,22 @@ export class OptionModal extends Modal {
 	renderOptions() {
 		const { contentEl } = this;
 		contentEl.empty();
-		this.containerEl.addClass('core-search-assistant_option-modal');
+		this.containerEl.addClass("core-search-assistant_option-modal");
 		this.items.forEach((item) => {
-			const entryEl = contentEl.createEl('div', {
-				cls: 'suggestion-item',
+			const entryEl = contentEl.createEl("div", {
+				cls: "suggestion-item",
 			});
-			const iconEl = entryEl.createEl('span', {
-				cls: 'suggestion-icon',
+			const iconEl = entryEl.createEl("span", {
+				cls: "suggestion-icon",
 			});
 			setIcon(iconEl, searchOptions[item.id].iconId);
-			entryEl.createEl('span', {
+			entryEl.createEl("span", {
 				text: searchOptions[item.id].description,
-				cls: 'suggestion-content',
+				cls: "suggestion-content",
 			});
-			entryEl.createEl('kbd', {
+			entryEl.createEl("kbd", {
 				text: item.key.toUpperCase(),
-				cls: 'suggestion-hotkey',
+				cls: "suggestion-hotkey",
 			});
 		});
 	}

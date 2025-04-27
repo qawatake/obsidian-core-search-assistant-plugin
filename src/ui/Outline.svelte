@@ -1,19 +1,19 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
+import { onMount } from "svelte";
 
-	// props
-	export let lineWidth: number;
+// props
+export let lineWidth: number;
 
-	// bind
-	let el: HTMLElement | undefined;
+// bind
+let el: HTMLElement | undefined;
 
-	onMount(() => {
-		if (!el) return;
-		el.style.outline = `${lineWidth}px solid var(${STYLE_VAR_COLOR_SEARCH_MODE_OUTLINE})`;
-		el.style.outlineOffset = `-${lineWidth}px`;
-	});
+onMount(() => {
+	if (!el) return;
+	el.style.outline = `${lineWidth}px solid var(${STYLE_VAR_COLOR_SEARCH_MODE_OUTLINE})`;
+	el.style.outlineOffset = `-${lineWidth}px`;
+});
 
-	const STYLE_VAR_COLOR_SEARCH_MODE_OUTLINE = '--search-mode-outline';
+const STYLE_VAR_COLOR_SEARCH_MODE_OUTLINE = "--search-mode-outline";
 </script>
 
 <div class="outline-container" bind:this={el} />

@@ -1,4 +1,4 @@
-import type { Editor } from 'obsidian';
+import type { Editor } from "obsidian";
 
 export async function delay(millisecond: number) {
 	await new Promise((resolve) => setTimeout(resolve, millisecond));
@@ -16,8 +16,8 @@ export function scrollIteration(editor: Editor): number | undefined {
 export function lineCount(editor: Editor): number | undefined {
 	// we shoud use ↓, but ↓ always return "1"
 	// return view.editor.lineCount();
-	const line = (editor as any)?.['cm']?.['state']?.['doc']?.length;
-	return typeof line === 'number' ? line : undefined;
+	const line = (editor as any)?.cm?.state?.doc?.length;
+	return typeof line === "number" ? line : undefined;
 }
 
 export async function retry<U>(
@@ -25,7 +25,7 @@ export async function retry<U>(
 	interval: number,
 	trials: number,
 	check: (got: U | undefined) => boolean = (got: U | undefined) =>
-		got !== undefined
+		got !== undefined,
 ): Promise<U | undefined> {
 	for (let i = 0; i < trials; i++) {
 		const got = cb();
@@ -43,9 +43,9 @@ function shallowClone<T>(obj: T): T {
 
 function deepClone<T>(obj: T): T {
 	if (obj === null) return obj;
-	if (typeof obj !== 'object') return obj;
+	if (typeof obj !== "object") return obj;
 
-	if (obj instanceof Array) {
+	if (Array.isArray(obj)) {
 		const clone = new Array(obj.length);
 		obj.forEach((value, id) => {
 			clone[id] = deepClone(value);
@@ -64,7 +64,8 @@ function deepClone<T>(obj: T): T {
 export function deepMerge<T>(a: T, b: T): T {
 	if (b === undefined) {
 		return deepClone(a);
-	} else if (a === undefined) {
+	}
+	if (a === undefined) {
 		return deepClone(b);
 	}
 
@@ -72,20 +73,21 @@ export function deepMerge<T>(a: T, b: T): T {
 		throw new Error(`failed to deepMerge ${a} and ${b}`);
 	}
 
-	if (typeof b !== 'object') return deepClone(b);
+	if (typeof b !== "object") return deepClone(b);
 	if (b === null) {
 		return deepClone(a);
-	} else if (a === null) {
+	}
+	if (a === null) {
 		return deepClone(b);
 	}
 
-	if (b instanceof Array) {
-		if (a instanceof Array) {
+	if (Array.isArray(b)) {
+		if (Array.isArray(a)) {
 			return deepClone(b);
-		} else {
-			throw new Error(`failed to deepMerge ${a} and ${b}`);
 		}
-	} else if (a instanceof Array) {
+		throw new Error(`failed to deepMerge ${a} and ${b}`);
+	}
+	if (Array.isArray(a)) {
 		throw new Error(`failed to deepMerge ${a} and ${b}`);
 	}
 

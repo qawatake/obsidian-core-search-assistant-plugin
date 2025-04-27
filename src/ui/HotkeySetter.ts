@@ -1,7 +1,7 @@
-import { App, Scope, type Hotkey } from 'obsidian';
-import type { SvelteComponent } from 'svelte';
-import HotkeyEntry from 'ui/HotKeyEntry.svelte';
-import { contain, getHotkey } from 'utils/Keymap';
+import { type App, type Hotkey, Scope } from "obsidian";
+import type { SvelteComponent } from "svelte";
+import HotkeyEntry from "ui/HotKeyEntry.svelte";
+import { contain, getHotkey } from "utils/Keymap";
 
 // must call `unload` when it is not necessary
 export class HotkeySetter {
@@ -54,9 +54,9 @@ export class HotkeySetter {
 				hotkeys: this.currentHotkeys,
 			},
 		});
-		component.$on('removed', this.onRemoved);
-		component.$on('restored', this.onRestored);
-		component.$on('start-listening-keys', this.onStartListening);
+		component.$on("removed", this.onRemoved);
+		component.$on("restored", this.onRestored);
+		component.$on("start-listening-keys", this.onStartListening);
 		return component;
 	}
 
@@ -105,7 +105,7 @@ export class HotkeySetter {
 		this.scope.register(null as any, null, (evt) => {
 			evt.preventDefault(); // to prevent scroll
 
-			if (evt.key === 'Escape') {
+			if (evt.key === "Escape") {
 				component.$set({
 					listening: false,
 				});

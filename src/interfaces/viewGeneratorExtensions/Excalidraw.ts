@@ -1,17 +1,17 @@
-import type { ViewGeneratorExtension } from 'interfaces/ViewGenerator';
+import type { ViewGeneratorExtension } from "interfaces/ViewGenerator";
 import {
 	type App,
-	Plugin,
-	type MarkdownViewModeType,
-	type WorkspaceLeaf,
 	MarkdownView,
-} from 'obsidian';
-import type { UnknownObject } from 'types/Guards';
+	type MarkdownViewModeType,
+	Plugin,
+	type WorkspaceLeaf,
+} from "obsidian";
+import type { UnknownObject } from "types/Guards";
 
 // defined in https://github.com/zsviczian/obsidian-excalidraw-plugin/blob/109fe05302bde0e8fe4e97c3bad6ca3f51f6b6b1/src/constants.ts#L15
-const excalidrawPluginId = 'obsidian-excalidraw-plugin';
+const excalidrawPluginId = "obsidian-excalidraw-plugin";
 // defined in https://github.com/zsviczian/obsidian-excalidraw-plugin/blob/109fe05302bde0e8fe4e97c3bad6ca3f51f6b6b1/src/constants.ts#L33
-const excalidrawViewType = 'excalidraw';
+const excalidrawViewType = "excalidraw";
 
 export class ExcalidrawViewGeneratorExtension
 	implements ViewGeneratorExtension
@@ -35,7 +35,7 @@ export class ExcalidrawViewGeneratorExtension
 	async setViewMode(leaf: WorkspaceLeaf, mode: MarkdownViewModeType) {
 		const { excalidraw } = this;
 		if (!excalidraw) return;
-		excalidraw.excalidrawFileModes[leaf.id] = 'markdown';
+		excalidraw.excalidrawFileModes[leaf.id] = "markdown";
 		await excalidraw.setMarkdownView(leaf);
 		if (!(leaf.view instanceof MarkdownView)) return;
 		await leaf.view.setState(
@@ -43,7 +43,7 @@ export class ExcalidrawViewGeneratorExtension
 				...leaf.view.getState(),
 				mode: mode,
 			},
-			{}
+			{},
 		);
 		leaf.view.editor.blur();
 	}
@@ -51,16 +51,16 @@ export class ExcalidrawViewGeneratorExtension
 	async toggleViewMode(leaf: WorkspaceLeaf) {
 		const { excalidraw } = this;
 		if (!excalidraw) return;
-		excalidraw.excalidrawFileModes[leaf.id] = 'markdown';
+		excalidraw.excalidrawFileModes[leaf.id] = "markdown";
 		await excalidraw.setMarkdownView(leaf);
 		if (!(leaf.view instanceof MarkdownView)) return;
 		const mode = leaf.view.getMode();
 		await leaf.view.setState(
 			{
 				...leaf.view.getState(),
-				mode: mode === 'preview' ? 'source' : 'preview',
+				mode: mode === "preview" ? "source" : "preview",
 			},
-			{}
+			{},
 		);
 		leaf.view.editor.blur();
 	}
@@ -76,7 +76,7 @@ function isExcalidrawPlugin(plugin: unknown): plugin is ExcalidrawPlugin {
 
 	const { excalidrawFileModes, setMarkdownView } =
 		plugin as UnknownObject<ExcalidrawPlugin>;
-	if (typeof excalidrawFileModes !== 'object') return false;
-	if (typeof setMarkdownView !== 'function') return false;
+	if (typeof excalidrawFileModes !== "object") return false;
+	if (typeof setMarkdownView !== "function") return false;
 	return true;
 }
