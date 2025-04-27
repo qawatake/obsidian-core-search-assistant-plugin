@@ -1,5 +1,8 @@
 # Changelog
 
+## [0.9.4](https://github.com/qawatake/obsidian-core-search-assistant-plugin/compare/0.9.3...0.9.4) - 2025-04-27
+- Dev environment update (tests, Biome, pnpm) by @qawatake in https://github.com/qawatake/obsidian-core-search-assistant-plugin/pull/69
+
 ## [0.9.3](https://github.com/qawatake/obsidian-core-search-assistant-plugin/compare/0.9.2...0.9.3) - 2025-04-27
 - tagpr by @qawatake in https://github.com/qawatake/obsidian-core-search-assistant-plugin/pull/70
 
