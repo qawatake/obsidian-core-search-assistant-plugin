@@ -1,0 +1,20 @@
+name: ci
+on:
+  pull_request:
+  push:
+    branches: ["main"]
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: jdx/mise-action@v2
+        with:
+          version: 2024.11.3
+          install: true
+          cache: true # [default: true] cache mise using GitHub's cache
+      - name: Install dependencies
+        run: npm install
+      - name: Build
+        run: npm run build
