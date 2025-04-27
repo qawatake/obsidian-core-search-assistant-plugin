@@ -35,8 +35,8 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: |
-		  	main.js
-			manifest.json
-			styles.css
+            main.js
+            manifest.json
+            styles.css
           tag_name: ${{ needs.tagpr.outputs.tagpr-tag }}
           token: ${{ secrets.GITHUB_TOKEN }}
