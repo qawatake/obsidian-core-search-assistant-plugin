@@ -49,6 +49,7 @@ if [[ "$MODE" == "ci" ]]; then
   pattern="Obsidian-*-${ARCH:-x64}.AppImage"
 
   echo "⏬ Downloading Obsidian ($version, pattern=$pattern) via gh CLI"
+  echo ${version:+v$version}
   # tag を省略すると latest、渡せばピン留め
   gh release download ${version:+v$version} \
       -R obsidianmd/obsidian-releases \
