@@ -46,12 +46,12 @@ if [[ "$MODE" == "ci" ]]; then
 
   tmp_dir="$(mktemp -d)"
   version="${OBSIDIAN_VERSION:-latest}"
-  pattern="Obsidian-*-${ARCH:-x64}.AppImage"
+  pattern="Obsidian-*.AppImage"
 
   echo "⏬ Downloading Obsidian ($version, pattern=$pattern) via gh CLI"
   echo ${version:+v$version}
   # tag を省略すると latest、渡せばピン留め
-  gh release download ${version:+v$version} \
+  gh release download \
       -R obsidianmd/obsidian-releases \
       --pattern "$pattern" \
       --dir "$tmp_dir"
