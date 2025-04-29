@@ -1,5 +1,7 @@
 # Core Search Assistant
 
+[![ci](https://github.com/qawatake/obsidian-core-search-assistant-plugin/actions/workflows/ci.yml/badge.svg?branch=main&event=schedule)](https://github.com/qawatake/obsidian-core-search-assistant-plugin/actions/workflows/ci.yml)
+
 This plugin enhances the built-in search function by providing
 - **keyboard interface**,
 - **card view**,
