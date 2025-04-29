@@ -20,7 +20,8 @@ test.beforeEach(async () => {
   app = await electron.launch({
     args: [
       appPath,
-      // `obsidian://open?path=${encodeURIComponent(vaultPath)}`,
+      "open",
+      `obsidian://open?path=${encodeURIComponent(vaultPath)}`,
     ],
   });
 });
@@ -29,7 +30,7 @@ test.afterEach(async () => {
   await app?.close();
 });
 
-test("検索してカードをクリックするとファイルを開ける", async () => {
+test("テスト用vaultの登録を解除する", async () => {
   let window = await app.firstWindow();
 
   // コマンド "Open another vault"を実行

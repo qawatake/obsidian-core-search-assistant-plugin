@@ -5,7 +5,7 @@ on:
     branches: ["main"]
 
 jobs:
-  ci:
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -18,23 +18,35 @@ jobs:
         run: pnpm install
       - name: Build
         run: pnpm build
+
   e2e:
-    runs-on: macos-latest # macos-14 相当
+    runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
-
       - uses: jdx/mise-action@v2
         with:
           version: 2024.11.3
           install: true
           cache: true
-
       - run: pnpm install
-
       - run: ./scripts/setup-obsidian.sh --ci
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
       - run: pnpm e2e:setup
-
       - run: pnpm e2e
+
+  test-e2e-tools:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: jdx/mise-action@v2
+        with:
+          version: 2024.11.3
+          install: true
+          cache: true
+      - run: pnpm install
+      - run: ./scripts/setup-obsidian.sh --ci
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - run: pnpm e2e:setup
+      - run: pnpm e2e:cleanup

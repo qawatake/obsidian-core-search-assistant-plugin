@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 #
 # Obsidian を展開して E2E テスト用ディレクトリを用意するスクリプト（macOS 専用）
+# Reference: https://github.com/proog/obsidian-trash-explorer/blob/4d9bc2c4977d79af116b369904c8f68d1c164b28/e2e-setup.sh
 #
 # - ローカル           : /Applications/Obsidian.app をそのまま展開
 # - GitHub Actions    : GitHub Releases から .dmg を取得して展開

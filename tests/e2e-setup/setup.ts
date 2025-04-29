@@ -26,7 +26,7 @@ test.afterEach(async () => {
   await app?.close();
 });
 
-test("検索してカードをクリックするとファイルを開ける", async () => {
+test("テスト用vaultを開き、Obsidianを開けばすぐにpluginを動かせるようにセットアップする", async () => {
   let window = await app.firstWindow();
 
   // Obsidian 側で 'did-finish-load' が発火するまで待つ
