@@ -56,7 +56,7 @@ if [[ "$MODE" == "ci" ]]; then
       --pattern "$pattern" \
       --dir "$tmp_dir"
 
-  appimage="$tmp_dir/$(ls "$tmp_dir" | grep -E '\.AppImage$')"
+  appimage=$(find "$tmp_dir" -maxdepth 1 -name "*.AppImage" -type f | head -n 1)
   chmod +x "$appimage"
 
   echo "📦 Extracting AppImage squashfs → $unpacked_path"
