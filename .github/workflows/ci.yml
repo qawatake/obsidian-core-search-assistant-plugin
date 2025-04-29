@@ -28,10 +28,10 @@ jobs:
           install: true
           cache: true # [default: true] cache mise using GitHub's cache
       - name: Install dependencies
-        run: pnpm install
+        run: npm install
         env:
           PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: 1
-      - run: pnpm exec playwright install --with-deps chromium
+      - run: npx playwright install --with-deps chromium
 
       - name: Setup Obsidian & plugin
         run: |
@@ -41,7 +41,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Run Playwright tests
         run: |
-          xvfb-run --auto-servernum --server-args="-screen 0 1920x1080x24" -- pnpm e2e:setup
+          xvfb-run --auto-servernum --server-args="-screen 0 1920x1080x24" -- npx playwright test tests/e2e-setup/setup.ts --project e2e-setup
         env:
           OBSIDIAN_BINARY: ${{ github.workspace }}/Obsidian.AppImage
       - if: failure()
