@@ -31,7 +31,7 @@ test.afterEach(async () => {
 });
 
 test("検索してカードをクリックするとファイルを開ける", async () => {
-	const window = await app.firstWindow();
+	let window = await app.firstWindow();
 
 	// Obsidian 側で 'did-finish-load' が発火するまで待つ
 	await window.waitForEvent("domcontentloaded");
@@ -58,14 +58,28 @@ test("検索してカードをクリックするとファイルを開ける", as
 	await new Promise((resolve) => setTimeout(resolve, 1000));
 	const openButton = window.getByRole("button", { name: "Open" });
 	await openButton.waitFor({ state: "visible" });
-	await openButton.click();
+	// await openButton.click();
 	console.log("😀🥵");
 	await new Promise((resolve) => setTimeout(resolve, 1000));
 	console.log(app.windows().length);
 	await new Promise((resolve) => setTimeout(resolve, 1000));
 
+	const x = await Promise.all([
+		app.waitForEvent("window"), // ❶ 'window' イベントは新しい Page を返す :contentReference[oaicite:0]{index=0}
+		openButton.click(),
+	]);
+	window = x[0];
+	console.log("🥶");
+
+	// 古い win1 はもう不要。以降は win2 で操作する
+	await window.waitForLoadState("domcontentloaded");
+	console.log("🥵");
+
 	// Trust the author of the vault
-	await window.getByRole("button", { name: /trust author/i }).click();
+	console.log(window.url(), window.innerHTML);
+	await window
+		.getByRole("button", { name: "Trust author and enable plugins" })
+		.click();
 	// const vaultInput = await window.waitForSelector("input");
 	// console.log(vaultInput);
 	await new Promise((resolve) => setTimeout(resolve, 500000));
