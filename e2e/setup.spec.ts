@@ -53,12 +53,16 @@ test("検索してカードをクリックするとファイルを開ける", as
 			return [fakePath];
 		};
 	}, vaultPath);
+
 	// ---------------
-	await new Promise((resolve) => setTimeout(resolve, 4000));
+	await new Promise((resolve) => setTimeout(resolve, 1000));
 	const openButton = window.getByRole("button", { name: "Open" });
 	await openButton.waitFor({ state: "visible" });
 	await openButton.click();
 	console.log("😀🥵");
+	await new Promise((resolve) => setTimeout(resolve, 1000));
+	console.log(app.windows().length);
+	await new Promise((resolve) => setTimeout(resolve, 1000));
 
 	// Trust the author of the vault
 	await window.getByRole("button", { name: /trust author/i }).click();
