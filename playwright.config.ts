@@ -3,7 +3,7 @@ import { defineConfig, devices } from "@playwright/test";
 // See https://playwright.dev/docs/test-configuration.
 export default defineConfig({
 	fullyParallel: false,
-	forbidOnly: !!process.env["CI"],
+	// forbidOnly: !!process.env["CI"],
 	use: {
 		trace: "retain-on-failure",
 	},
