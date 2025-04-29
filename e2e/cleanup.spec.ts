@@ -33,42 +33,38 @@ test.afterEach(async () => {
 test("検索してカードをクリックするとファイルを開ける", async () => {
 	let window = await app.firstWindow();
 
-	// コマンドパレットを開く
-	await window.getByLabel("Open command palette", { exact: true }).click();
+	// コマンド "Open another vault"を実行
+	{
+		// コマンドパレットを開く
+		await window
+			.getByLabel("Open command palette", { exact: true })
+			.click();
 
-	// コマンドパレットに入力
-	const commandPalette = window.locator(":focus");
-	await commandPalette.fill("open another vault");
-	// await commandPalette.press("Enter");
-
-	const x = await Promise.all([
-		app.waitForEvent("window"), // ❶ 'window' イベントは新しい Page を返す :contentReference[oaicite:0]{index=0}
-		commandPalette.press("Enter"), // ❷ 'Enter' キーを押す :contentReference[oaicite:0]{index=1}
-	]);
-	window = x[0];
-	console.log(app.windows().length);
-	for (const w of app.windows()) {
-		console.log(w.url());
+		// コマンドパレットに入力
+		const commandPalette = window.locator(":focus");
+		await commandPalette.fill("open another vault");
+		await commandPalette.press("Enter");
 	}
-	const w = app.windows().find((w) => w.url().includes("starter"));
-	if (!w) {
-		throw new Error("not found");
-	}
-	// const se
-	// const originalWindow = window;
-	// await originalWindow.close();
-	window = w;
-	// window
 
-	const originalWindow = app
-		.windows()
-		.find((w) => !w.url().includes("starter"));
-	await originalWindow?.close();
-	await window
-		.getByLabel("obsidian-core-search-assistant-plugin/e2e-vault")
-		.getByLabel("More options", { exact: true })
-		.click();
-	await window.getByText("Remove from list").click();
-	// await window.getByLabel("More options", { exact: true }).click();
-	// await new Promise((resolve) => setTimeout(resolve, 100 * 1000));
+	// 新規windowが開くまで待つ
+	window = await app.waitForEvent("window", (w) =>
+		w.url().includes("starter")
+	);
+
+	// もともと開いていたウィンドウを閉じる
+	{
+		const originalWindow = app
+			.windows()
+			.find((w) => !w.url().includes("starter"));
+		await originalWindow?.close();
+	}
+
+	// 登録されていたvaultを削除
+	{
+		await window
+			.getByLabel("obsidian-core-search-assistant-plugin/e2e-vault")
+			.getByLabel("More options", { exact: true })
+			.click();
+		await window.getByText("Remove from list").click();
+	}
 });
