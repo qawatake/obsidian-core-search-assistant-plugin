@@ -62,7 +62,7 @@ test("検索してカードをクリックするとファイルを開ける", as
 	// 登録されていたvaultを削除
 	{
 		await window
-			.getByLabel("obsidian-core-search-assistant-plugin/e2e-vault")
+			.getByLabel(vaultPath)
 			.getByLabel("More options", { exact: true })
 			.click();
 		await window.getByText("Remove from list").click();

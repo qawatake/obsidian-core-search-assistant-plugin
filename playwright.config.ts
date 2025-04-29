@@ -11,7 +11,6 @@ export default defineConfig({
 		{
 			name: "e2e",
 			testDir: "./tests/e2e",
-			// use: { ...devices['Desktop Chrome'] },
 		},
 		{
 			name: "e2e-setup",
