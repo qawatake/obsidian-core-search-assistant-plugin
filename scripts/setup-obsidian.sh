@@ -1,12 +1,17 @@
 #!/usr/bin/env bash
 #
-# macOS では既存の /Applications/Obsidian.app を、
-# CI (Linux) では GitHub Releases から最新 AppImage を取ってきて unpack する。
+# Obsidian を展開して E2E テスト用ディレクトリを用意するスクリプト（macOS 専用）
 #
-# USAGE (macOS) : ./scripts/setup-obsidian.sh
-# USAGE (CI)    : ./scripts/setup-obsidian.sh --ci
-# 環境変数      : OBSIDIAN_VERSION=1.8.0 のように渡すと固定バージョンで落とす
-
+# - ローカル           : /Applications/Obsidian.app をそのまま展開
+# - GitHub Actions    : GitHub Releases から .dmg を取得して展開
+#
+# USAGE (local) : ./scripts/setup-obsidian.sh
+# USAGE (ci)    : ./scripts/setup-obsidian.sh --ci
+#
+# 環境変数
+#   OBSIDIAN_VERSION  固定バージョンを指定（例 1.8.10）。未設定なら latest
+#   OBSIDIAN_PATH     ローカルの Obsidian.app のパスを上書き
+#
 set -euo pipefail
 
 root_path="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -14,71 +19,79 @@ vault_path="$root_path/e2e-vault"
 unpacked_path="$root_path/.obsidian-unpacked"
 plugin_path="$vault_path/.obsidian/plugins/obsidian-core-search-assistant"
 
-# ---- 引数パース -------------------------------------------------------------
-MODE="local"   # default
+# ------------------------------------------------------------------------------
+# 1. 引数パース
+# ------------------------------------------------------------------------------
+MODE="local"
 while [[ $# -gt 0 ]]; do
   case "$1" in
-    --ci) MODE="ci"; shift ;;
-    *) echo "Unknown arg: $1"; exit 1 ;;
+    --ci) MODE="ci";;
+    *)    echo "Unknown arg: $1" >&2; exit 1;;
   esac
+  shift
 done
-# ---------------------------------------------------------------------------
 
-# ==== 1. Obsidian の入手 / 展開 =============================================
+# ------------------------------------------------------------------------------
+# 2. Obsidian.app の取得
+# ------------------------------------------------------------------------------
 if [[ "$MODE" == "local" ]]; then
-  obsidian_app_path="${OBSIDIAN_PATH:-/Applications/Obsidian.app}"
-
-  if [[ ! -d "$obsidian_app_path" ]]; then
-    echo "❌  $obsidian_app_path が見つかりません。Obsidian をインストールしてください。"
+  obsidian_app="${OBSIDIAN_PATH:-/Applications/Obsidian.app}"
+  [[ -d "$obsidian_app" ]] || {
+    echo "❌ $obsidian_app が見つかりません。Obsidian をインストールしてください。" >&2
     exit 1
-  fi
-
-  echo "⏬ Unpacking Obsidian.app → $unpacked_path"
-  rm -rf "$unpacked_path"
-  npx --yes @electron/asar extract \
-      "$obsidian_app_path/Contents/Resources/app.asar" "$unpacked_path"
-  cp -f "$obsidian_app_path/Contents/Resources/obsidian.asar" \
-        "$unpacked_path/obsidian.asar"
-fi
-
-if [[ "$MODE" == "ci" ]]; then
-  sudo apt-get update -y && sudo apt-get install -y gh   # ← GH CLI を入れる
-
+  }
+else
   tmp_dir="$(mktemp -d)"
   version="${OBSIDIAN_VERSION:-latest}"
-  pattern="Obsidian-*.AppImage"
+  pattern="Obsidian-*.dmg"
 
-  echo "⏬ Downloading Obsidian ($version, pattern=$pattern) via gh CLI"
-  echo ${version:+v$version}
-  # tag を省略すると latest、渡せばピン留め
-  gh release download \
-      -R obsidianmd/obsidian-releases \
-      --pattern "$pattern" \
-      --dir "$tmp_dir"
+  echo "⏬ Downloading Obsidian ($version) dmg via gh CLI"
+  if [[ "$version" == "latest" ]]; then
+    gh release download -R obsidianmd/obsidian-releases \
+      --pattern "$pattern" --dir "$tmp_dir"
+  else
+    gh release download -R obsidianmd/obsidian-releases \
+      --pattern "$pattern" --dir "$tmp_dir" --tag "v${version}"
+  fi
 
-  appimage=$(find "$tmp_dir" -maxdepth 1 -name "*.AppImage" -type f | head -n 1)
-  chmod +x "$appimage"
+  dmg_path="$(find "$tmp_dir" -name '*.dmg' -type f | head -n1)"
+  [[ -n "$dmg_path" ]] || { echo "❌ .dmg が見つかりません" >&2; exit 1; }
 
-  echo "📦 Extracting AppImage squashfs → $unpacked_path"
-  (cd "$tmp_dir" && "$appimage" --appimage-extract >/dev/null)
+  echo "📦 Mounting $(basename "$dmg_path")"
+  mnt_dir="$tmp_dir/mnt"
+  mkdir "$mnt_dir"
+  hdiutil attach "$dmg_path" -mountpoint "$mnt_dir" -nobrowse -quiet
+  trap 'hdiutil detach "$mnt_dir" -quiet || true' EXIT
 
-  rm -rf "$unpacked_path"
-  npx --yes @electron/asar extract \
-      "$tmp_dir/squashfs-root/resources/app.asar" "$unpacked_path"
-  cp "$tmp_dir/squashfs-root/resources/obsidian.asar" \
-     "$unpacked_path/obsidian.asar"
+  cp -R "$mnt_dir/Obsidian.app" "$tmp_dir/Obsidian.app"
+  obsidian_app="$tmp_dir/Obsidian.app"
+
+  hdiutil detach "$mnt_dir" -quiet
+  trap - EXIT
 fi
 
-echo "✅ Unpack done."
+# ------------------------------------------------------------------------------
+# 3. app.asar を展開してテスト用フォルダ構築
+# ------------------------------------------------------------------------------
+echo "🔓 Unpacking $obsidian_app → $unpacked_path"
+rm -rf "$unpacked_path"
+npx --yes @electron/asar extract \
+    "$obsidian_app/Contents/Resources/app.asar" "$unpacked_path"
+cp "$obsidian_app/Contents/Resources/obsidian.asar" \
+   "$unpacked_path/obsidian.asar"
 
-# ==== 2. プラグインビルド ====================================================
+echo "✅ Obsidian unpacked"
+
+# ------------------------------------------------------------------------------
+# 4. プラグインをビルドして Vault にリンク
+# ------------------------------------------------------------------------------
 echo "🔧 Building plugin…"
 npm run build --silent
 echo "✅ Build done."
 
-# ==== 3. Vault へリンク ======================================================
 echo "🔗 Linking plugin → $plugin_path"
 mkdir -p "$plugin_path"
 ln -fs "$root_path/manifest.json" "$plugin_path/manifest.json"
 ln -fs "$root_path/main.js"       "$plugin_path/main.js"
-echo "🎉 All set!"
+
+echo "🎉 setup-obsidian.sh finished!"
