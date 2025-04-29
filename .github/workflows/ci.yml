@@ -34,6 +34,8 @@ jobs:
         run: |
           sudo apt-get update && sudo apt-get -y install jq
           ./scripts/setup-obsidian.sh --ci
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Run Playwright tests
         run: |
           xvfb-run --auto-servernum -- Obsidian.AppImage --version

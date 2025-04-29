@@ -43,7 +43,6 @@ fi
 
 if [[ "$MODE" == "ci" ]]; then
   sudo apt-get update -y && sudo apt-get install -y gh   # ← GH CLI を入れる
-  echo "$GITHUB_TOKEN" | gh auth login --with-token       # ← レート制限回避用
 
   tmp_dir="$(mktemp -d)"
   version="${OBSIDIAN_VERSION:-latest}"
