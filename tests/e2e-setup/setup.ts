@@ -19,10 +19,10 @@ test.beforeEach(async () => {
 
   app = await electron.launch({
     args: [appPath, "open"],
-    env: {
-      ...process.env,
-      NODE_ENV: 'development",',
-    },
+    // env: {
+    //   ...process.env,
+    //   NODE_ENV: 'development",',
+    // },
   });
 });
 

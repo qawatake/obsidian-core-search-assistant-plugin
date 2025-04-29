@@ -34,8 +34,8 @@ jobs:
       - name: Install Node deps
         run: pnpm install
 
-      - name: Install Playwright browsers (Chromium only)
-        run: npx playwright install chromium
+      # - name: Install Playwright browsers (Chromium only)
+      #   run: npx playwright install chromium
 
       # macOS ランナーには jq がプリインストール
       # 必要なら `brew install jq` も可
@@ -46,7 +46,7 @@ jobs:
 
       # ── Playwright セットアップ用のシード test ──
       - name: Run Playwright pre-setup test
-        run: npx playwright test tests/e2e-setup/setup.ts --project=e2e-setup
+        run: pnpm e2e:setup
 
       # ── 本番 E2E ──
       - name: Run full E2E suite
