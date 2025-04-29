@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.9.5](https://github.com/qawatake/obsidian-core-search-assistant-plugin/compare/0.9.4...0.9.5) - 2025-04-29
+- Run e2e tests in CI by @qawatake in https://github.com/qawatake/obsidian-core-search-assistant-plugin/pull/73
+- cron CI by @qawatake in https://github.com/qawatake/obsidian-core-search-assistant-plugin/pull/75
+
 ## [0.9.4](https://github.com/qawatake/obsidian-core-search-assistant-plugin/compare/0.9.3...0.9.4) - 2025-04-27
 - Dev environment update (tests, Biome, pnpm) by @qawatake in https://github.com/qawatake/obsidian-core-search-assistant-plugin/pull/69
 
