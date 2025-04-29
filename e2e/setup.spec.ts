@@ -40,14 +40,14 @@ test("検索してカードをクリックするとファイルを開ける", as
 		// const { dialog } = require("electron");
 		console.log("hoge");
 		// const { dialog } = require("electron") as typeof import("electron");
-		dialog.showOpenDialog = async () => {
-			// sleep 3s
-			console.log("😍");
-			return Promise.resolve({
-				canceled: false,
-				filePaths: [fakePath],
-			});
-		};
+		// dialog.showOpenDialog = async () => {
+		// 	// sleep 3s
+		// 	console.log("😍");
+		// 	return Promise.resolve({
+		// 		canceled: false,
+		// 		filePaths: [fakePath],
+		// 	});
+		// };
 		dialog.showOpenDialogSync = () => {
 			console.log("😌");
 			return [fakePath];
