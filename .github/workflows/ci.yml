@@ -20,8 +20,6 @@ jobs:
         run: pnpm build
   e2e:
     runs-on: macos-latest # macos-14 相当
-    env:
-      PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1" # 先に deps を入れる
     steps:
       - uses: actions/checkout@v4
 
@@ -31,23 +29,12 @@ jobs:
           install: true
           cache: true
 
-      - name: Install Node deps
-        run: pnpm install
+      - run: pnpm install
 
-      # - name: Install Playwright browsers (Chromium only)
-      #   run: npx playwright install chromium
-
-      # macOS ランナーには jq がプリインストール
-      # 必要なら `brew install jq` も可
-      - name: Setup Obsidian & plugin
-        run: ./scripts/setup-obsidian.sh --ci
+      - run: ./scripts/setup-obsidian.sh --ci
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # ── Playwright セットアップ用のシード test ──
-      - name: Run Playwright pre-setup test
-        run: pnpm e2e:setup
+      - run: pnpm e2e:setup
 
-      # ── 本番 E2E ──
-      - name: Run full E2E suite
-        run: pnpm e2e
+      - run: pnpm e2e

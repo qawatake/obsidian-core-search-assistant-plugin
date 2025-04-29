@@ -11,19 +11,11 @@ export default defineConfig({
     {
       name: "e2e",
       testDir: "./tests/e2e",
-      // use: {
-      //   browserName: "chromium",
-      //   headless: false,
-      // },
     },
     {
       name: "e2e-setup",
       testDir: "./tests/e2e-setup",
       testMatch: "**/*.ts",
-      // use: {
-      //   browserName: "chromium",
-      //   headless: false,
-      // },
     },
   ],
   timeout: 300 * 1000,
