@@ -1,17 +1,22 @@
-import { defineConfig, devices } from '@playwright/test';
+import { defineConfig, devices } from "@playwright/test";
 
 // See https://playwright.dev/docs/test-configuration.
 export default defineConfig({
-	testDir: './e2e',
 	fullyParallel: false,
-	forbidOnly: !!process.env['CI'],
+	forbidOnly: !!process.env["CI"],
 	use: {
-		trace: 'retain-on-failure',
+		trace: "retain-on-failure",
 	},
 	projects: [
 		{
-			name: 'obsidian',
-			use: { ...devices['Desktop Chrome'] },
+			name: "e2e",
+			testDir: "./tests/e2e",
+			// use: { ...devices['Desktop Chrome'] },
+		},
+		{
+			name: "e2e-setup",
+			testDir: "./tests/e2e-setup",
+			testMatch: "**/*.ts",
 		},
 	],
 	timeout: 300 * 1000,

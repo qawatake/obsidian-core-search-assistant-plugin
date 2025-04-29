@@ -40,13 +40,3 @@ mkdir -p "$plugin_path"
 ln -fs "$root_path/manifest.json" "$plugin_path/manifest.json"
 ln -fs "$root_path/main.js" "$plugin_path/main.js"
 echo "Done."
-
-echo
-echo "Obsidian will now start. Please"
-echo "  - open $vault_path as a vault,"
-echo "  - enable community plugins,"
-echo "then close Obsidian."
-echo
-# read -rp "Press [ENTER] to continue..."
-npx electron "$obsidian_unpacked_path/main.js" &>/dev/null
-echo "Done."
