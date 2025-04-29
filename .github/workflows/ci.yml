@@ -29,7 +29,18 @@ jobs:
           cache: true # [default: true] cache mise using GitHub's cache
       - name: Install dependencies
         run: pnpm install
-      - name: Run E2E tests
-        run: pnpm e2e:setup
-      - name: Run E2E tests
-        run: pnpm e2e:run
+
+      - name: Setup Obsidian & plugin
+        run: |
+          sudo apt-get update && sudo apt-get -y install jq
+          ./scripts/setup-obsidian.sh --ci
+      - name: Run Playwright tests
+        run: |
+          xvfb-run --auto-servernum -- Obsidian.AppImage --version
+          pnpm e2e:setup
+        env:
+          OBSIDIAN_BINARY: ${{ github.workspace }}/Obsidian.AppImage
+      - name: Run Playwright tests
+        run: |
+          xvfb-run --auto-servernum -- Obsidian.AppImage --version
+          pnpm e2e
