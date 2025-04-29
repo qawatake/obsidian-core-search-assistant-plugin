@@ -39,33 +39,36 @@ if [[ "$MODE" == "local" ]]; then
       "$obsidian_app_path/Contents/Resources/app.asar" "$unpacked_path"
   cp -f "$obsidian_app_path/Contents/Resources/obsidian.asar" \
         "$unpacked_path/obsidian.asar"
+fi
 
-else   # ---- CI / Linux ------------------------------------------------------
+if [[ "$MODE" == "ci" ]]; then
+  sudo apt-get update -y && sudo apt-get install -y gh   # ← GH CLI を入れる
+  echo "$GITHUB_TOKEN" | gh auth login --with-token       # ← レート制限回避用
+
   tmp_dir="$(mktemp -d)"
   version="${OBSIDIAN_VERSION:-latest}"
+  pattern="Obsidian-*-${ARCH:-x64}.AppImage"
 
-  echo "⏬ Downloading Obsidian ($version, AppImage)…"
-  if [[ "$version" == "latest" ]]; then
-    api="https://api.github.com/repos/obsidianmd/obsidian-releases/releases/latest"
-  else
-    api="https://api.github.com/repos/obsidianmd/obsidian-releases/releases/tags/v${version}"
-  fi
+  echo "⏬ Downloading Obsidian ($version, pattern=$pattern) via gh CLI"
+  # tag を省略すると latest、渡せばピン留め
+  gh release download ${version:+v$version} \
+      -R obsidianmd/obsidian-releases \
+      --pattern "$pattern" \
+      --dir "$tmp_dir"
 
-  asset_url=$(curl -sL "$api" |
-    jq -r '.assets[] | select(.name|test("^Obsidian-.*\\.AppImage$")) |
-           .browser_download_url')
-
-  curl -L "$asset_url" -o "$tmp_dir/Obsidian.AppImage"
-  chmod +x "$tmp_dir/Obsidian.AppImage"
+  appimage="$tmp_dir/$(ls "$tmp_dir" | grep -E '\.AppImage$')"
+  chmod +x "$appimage"
 
   echo "📦 Extracting AppImage squashfs → $unpacked_path"
-  (cd "$tmp_dir" && ./Obsidian.AppImage --appimage-extract >/dev/null)
-  # squashfs-root/resources/{app.asar,obsidian.asar}
+  (cd "$tmp_dir" && "$appimage" --appimage-extract >/dev/null)
+
   rm -rf "$unpacked_path"
   npx --yes @electron/asar extract \
       "$tmp_dir/squashfs-root/resources/app.asar" "$unpacked_path"
-  cp "$tmp_dir/squashfs-root/resources/obsidian.asar" "$unpacked_path/obsidian.asar"
+  cp "$tmp_dir/squashfs-root/resources/obsidian.asar" \
+     "$unpacked_path/obsidian.asar"
 fi
+
 echo "✅ Unpack done."
 
 # ==== 2. プラグインビルド ====================================================
