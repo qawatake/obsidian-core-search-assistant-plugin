@@ -38,9 +38,12 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Run Playwright tests
         run: |
-          xvfb-run --auto-servernum pnpm e2e:setup
+          xvfb-run -a pnpm e2e:setup
         env:
           OBSIDIAN_BINARY: ${{ github.workspace }}/Obsidian.AppImage
+      - if: failure()
+        run: |
+          pnpm exec playwright show-trace test-results/setup.ts-検索してカードをクリックするとファイルを開ける-e2e-setup/trace.zip
       - name: Run Playwright tests
         run: |
           xvfb-run --auto-servernum -- Obsidian.AppImage --version
