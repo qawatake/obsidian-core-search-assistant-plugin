@@ -38,7 +38,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Run Playwright tests
         run: |
-          xvfb-run -a pnpm e2e:setup
+          xvfb-run --auto-servernum --server-args="-screen 0 1920x1080x24" -- pnpm e2e:setup
         env:
           OBSIDIAN_BINARY: ${{ github.workspace }}/Obsidian.AppImage
       - if: failure()
