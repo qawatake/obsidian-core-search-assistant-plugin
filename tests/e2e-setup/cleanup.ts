@@ -33,19 +33,21 @@ test.afterEach(async () => {
 test("テスト用vaultの登録を解除する", async () => {
   let window = await app.firstWindow();
 
-  // コマンド "Open another vault"を実行
-  {
-    // コマンドパレットを開く
-    await window.getByLabel("Open command palette", { exact: true }).click();
+  // vault chooserを開く。コマンド名がObsidianのバージョンによって変わる
+  // ("Open another vault" -> "Manage vaults...") ため、安定しているid経由で実行する
+  // @ts-expect-error app is a global in the Obsidian renderer
+  await window.waitForFunction(() => window.app?.commands != null);
+  await window.evaluate(() => {
+    // @ts-expect-error app is a global in the Obsidian renderer
+    window.app.commands.executeCommandById("app:open-vault");
+  });
 
-    // コマンドパレットに入力
-    const commandPalette = window.locator(":focus");
-    await commandPalette.fill("open another vault");
-    await commandPalette.press("Enter");
-  }
-
-  // 新規windowが開くまで待つ
-  window = await app.waitForEvent("window", (w) => w.url().includes("starter"));
+  // vault chooserウィンドウを待つ。waitForEvent("window")だとリスナー登録前に
+  // ウィンドウが開いた場合を取りこぼすため、app.windows()をポーリングする
+  await expect
+    .poll(() => app.windows().some((w) => w.url().includes("starter")))
+    .toBe(true);
+  window = app.windows().find((w) => w.url().includes("starter"))!;
 
   // もともと開いていたウィンドウを閉じる
   {
