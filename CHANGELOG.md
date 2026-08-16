@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.9.7](https://github.com/qawatake/obsidian-core-search-assistant-plugin/compare/0.9.6...0.9.7) - 2026-08-16
+
+- Reinstate Svelte 5 migration by @qawatake in https://github.com/qawatake/obsidian-core-search-assistant-plugin/pull/87
+
 ## [0.9.6](https://github.com/qawatake/obsidian-core-search-assistant-plugin/compare/0.9.5...0.9.6) - 2026-08-16
 
 - Wait for the app:open-vault command to be registered by @qawatake in https://github.com/qawatake/obsidian-core-search-assistant-plugin/pull/83
