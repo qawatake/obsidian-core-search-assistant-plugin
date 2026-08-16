@@ -33,16 +33,12 @@ test.afterEach(async () => {
 test("テスト用vaultの登録を解除する", async () => {
   let window = await app.firstWindow();
 
-  // コマンド "Open another vault"を実行
-  {
-    // コマンドパレットを開く
-    await window.getByLabel("Open command palette", { exact: true }).click();
-
-    // コマンドパレットに入力
-    const commandPalette = window.locator(":focus");
-    await commandPalette.fill("open another vault");
-    await commandPalette.press("Enter");
-  }
+  // vault chooserを開く。コマンド名がObsidianのバージョンによって変わる
+  // ("Open another vault" -> "Manage vaults...") ため、安定しているid経由で実行する
+  await window.evaluate(() => {
+    // @ts-expect-error app is a global in the Obsidian renderer
+    window.app.commands.executeCommandById("app:open-vault");
+  });
 
   // 新規windowが開くまで待つ
   window = await app.waitForEvent("window", (w) => w.url().includes("starter"));
