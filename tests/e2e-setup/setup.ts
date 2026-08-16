@@ -36,11 +36,15 @@ test.beforeEach(async () => {
 test.afterEach(async () => {
   // app.close() can hang if Obsidian blocks shutdown (observed with the
   // latest Obsidian in CI), so bound it and force-kill as a fallback.
+  if (!app) return;
+  // Grab the process handle first: after a successful close() the
+  // ElectronApplication object is disposed and process() throws.
+  const obsidianProcess = app.process();
   await Promise.race([
-    app?.close(),
+    app.close(),
     new Promise((resolve) => setTimeout(resolve, 15_000)),
   ]);
-  app?.process().kill();
+  obsidianProcess.kill();
 });
 
 test("テスト用vaultを開き、Obsidianを開けばすぐにpluginを動かせるようにセットアップする", async () => {
