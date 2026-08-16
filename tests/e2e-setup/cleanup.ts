@@ -35,8 +35,13 @@ test("テスト用vaultの登録を解除する", async () => {
 
   // vault chooserを開く。コマンド名がObsidianのバージョンによって変わる
   // ("Open another vault" -> "Manage vaults...") ため、安定しているid経由で実行する
-  // @ts-expect-error app is a global in the Obsidian renderer
-  await window.waitForFunction(() => window.app?.commands != null);
+  // コマンド登録の完了を待つ。commands registry自体はworkspace初期化前から
+  // 存在するため、個別コマンドの登録まで確認しないとexecuteが空振りする
+  await window.waitForFunction(
+    () =>
+      // @ts-expect-error app is a global in the Obsidian renderer
+      window.app?.commands?.findCommand?.("app:open-vault") != null,
+  );
   await window.evaluate(() => {
     // @ts-expect-error app is a global in the Obsidian renderer
     window.app.commands.executeCommandById("app:open-vault");
