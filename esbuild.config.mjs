@@ -31,11 +31,6 @@ const context = await esbuild.context({
 			compilerOptions: {
 				css: 'injected',
 				preserveComments: !prod,
-				// Keep the Svelte 4 class component API (new Component(), $set,
-				// $destroy) working under Svelte 5.
-				compatibility: {
-					componentApi: 4,
-				},
 			},
 		}),
 	],
