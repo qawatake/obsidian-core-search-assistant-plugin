@@ -42,8 +42,12 @@ test("テスト用vaultの登録を解除する", async () => {
     window.app.commands.executeCommandById("app:open-vault");
   });
 
-  // 新規windowが開くまで待つ
-  window = await app.waitForEvent("window", (w) => w.url().includes("starter"));
+  // vault chooserウィンドウを待つ。waitForEvent("window")だとリスナー登録前に
+  // ウィンドウが開いた場合を取りこぼすため、app.windows()をポーリングする
+  await expect
+    .poll(() => app.windows().some((w) => w.url().includes("starter")))
+    .toBe(true);
+  window = app.windows().find((w) => w.url().includes("starter"))!;
 
   // もともと開いていたウィンドウを閉じる
   {
