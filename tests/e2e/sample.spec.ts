@@ -38,7 +38,13 @@ test.beforeEach(async () => {
 });
 
 test.afterEach(async () => {
-	await app?.close();
+	// app.close() can hang if Obsidian blocks shutdown (observed with the
+	// latest Obsidian in CI), so bound it and force-kill as a fallback.
+	await Promise.race([
+		app?.close(),
+		new Promise((resolve) => setTimeout(resolve, 15_000)),
+	]);
+	app?.process().kill();
 });
 
 test('検索してカードをクリックするとファイルを開ける', async () => {
