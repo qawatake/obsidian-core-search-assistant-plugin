@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.9.6](https://github.com/qawatake/obsidian-core-search-assistant-plugin/compare/0.9.5...0.9.6) - 2026-08-16
+
+- Wait for the app:open-vault command to be registered by @qawatake in https://github.com/qawatake/obsidian-core-search-assistant-plugin/pull/83
+- Revert Svelte 5 migration (broken rendering in card-view-switcher; same migration here) by @qawatake in https://github.com/qawatake/obsidian-core-search-assistant-plugin/pull/85
+
 ## [0.9.5](https://github.com/qawatake/obsidian-core-search-assistant-plugin/compare/0.9.4...0.9.5) - 2026-08-16
 
 - Run e2e tests in CI by @qawatake in https://github.com/qawatake/obsidian-core-search-assistant-plugin/pull/73
