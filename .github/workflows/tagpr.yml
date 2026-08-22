@@ -28,9 +28,9 @@ jobs:
           install: true
           cache: true # [default: true] cache mise using GitHub's cache
       - name: Install dependencies
-        run: npm install
+        run: pnpm install --frozen-lockfile
       - name: Build
-        run: npm run build
+        run: pnpm build
       - name: Upload build artifact to release
         uses: softprops/action-gh-release@v1
         with:
