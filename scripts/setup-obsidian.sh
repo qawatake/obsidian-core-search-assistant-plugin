@@ -46,14 +46,21 @@ else
   version="${OBSIDIAN_VERSION:-latest}"
   pattern="Obsidian-*.dmg"
 
-  echo "⏬ Downloading Obsidian ($version) dmg via gh CLI"
   if [[ "$version" == "latest" ]]; then
-    gh release download -R obsidianmd/obsidian-releases \
-      --pattern "$pattern" --dir "$tmp_dir"
+    # The newest release does not always ship desktop assets (e.g. a mobile-only
+    # release carries just an .apk), so pick the newest stable release that
+    # actually has a macOS dmg instead of trusting GitHub's "latest".
+    tag="$(gh api "repos/obsidianmd/obsidian-releases/releases?per_page=30" \
+      --jq "[.[] | select(.draft | not) | select(.prerelease | not)
+             | select(any(.assets[].name; test(\"^Obsidian-.*\\\\.dmg$\")))][0].tag_name // empty")"
+    [[ -n "$tag" ]] || { echo "❌ no stable release with a macOS dmg found" >&2; exit 1; }
   else
-    gh release download -R obsidianmd/obsidian-releases \
-      --pattern "$pattern" --dir "$tmp_dir" --tag "v${version}"
+    tag="v${version}"
   fi
+
+  echo "⏬ Downloading Obsidian ($tag) dmg via gh CLI"
+  gh release download "$tag" -R obsidianmd/obsidian-releases \
+    --pattern "$pattern" --dir "$tmp_dir"
 
   dmg_path="$(find "$tmp_dir" -name '*.dmg' -type f | head -n1)"
   [[ -n "$dmg_path" ]] || { echo "❌ .dmg が見つかりません" >&2; exit 1; }
