@@ -7,6 +7,9 @@ on:
 #  schedule:
 #    - cron: "0 18 * * *" # JST 3:00（UTC 18:00）
 
+permissions:
+  contents: read
+
 jobs:
   build:
     runs-on: ubuntu-latest

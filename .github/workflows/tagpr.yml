@@ -6,6 +6,9 @@ on:
 jobs:
   tagpr:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
     outputs:
       tagpr-tag: ${{ steps.tagpr.outputs.tag }}
     steps:
@@ -20,6 +23,8 @@ jobs:
     needs: [tagpr]
     if: needs.tagpr.outputs.tagpr-tag != ''
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
       - uses: jdx/mise-action@v2
