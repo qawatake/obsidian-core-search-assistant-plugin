@@ -59,8 +59,8 @@ else
   fi
 
   echo "⏬ Downloading Obsidian ($tag) dmg via gh CLI"
-  gh release download -R obsidianmd/obsidian-releases \
-    --pattern "$pattern" --dir "$tmp_dir" --tag "$tag"
+  gh release download "$tag" -R obsidianmd/obsidian-releases \
+    --pattern "$pattern" --dir "$tmp_dir"
 
   dmg_path="$(find "$tmp_dir" -name '*.dmg' -type f | head -n1)"
   [[ -n "$dmg_path" ]] || { echo "❌ .dmg が見つかりません" >&2; exit 1; }
