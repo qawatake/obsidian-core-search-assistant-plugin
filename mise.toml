@@ -1,3 +1,17 @@
 [tools]
 node = "22"
 pnpm = "10.9"
+pinact = "4.1.1"
+
+# Pin GitHub Actions to commit SHAs so a re-pointed tag can't run code we never reviewed.
+[tasks.pin-actions]
+description = "Pin GitHub Actions in .github/workflows to commit SHAs"
+run = "pinact run"
+
+[tasks."pin-actions:update"]
+description = "Update pinned GitHub Actions to their latest versions (keeps SHA pins)"
+run = "pinact run --update"
+
+[tasks."pin-actions:check"]
+description = "Fail if any GitHub Action is not pinned to a commit SHA"
+run = "pinact run --check"
