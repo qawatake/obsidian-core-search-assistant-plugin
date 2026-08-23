@@ -27,11 +27,11 @@
 	"license": "MIT",
 	"devDependencies": {
 		"@biomejs/biome": "2.5.8",
-		"@electron/asar": "^3.4.1",
+		"@electron/asar": "4.2.1",
 		"@playwright/test": "^1.59.1",
 		"@tsconfig/svelte": "^5.0.8",
-		"@types/node": "^20.19.43",
-		"builtin-modules": "^3.3.0",
+		"@types/node": "24.13.3",
+		"builtin-modules": "5.3.0",
 		"electron": "39.8.10",
 		"esbuild": "0.28.2",
 		"esbuild-svelte": "^0.9.5",
@@ -41,6 +41,6 @@
 		"svelte": "^5.56.8",
 		"svelte-preprocess": "^6.0.5",
 		"tslib": "^2.8.1",
-		"typescript": "^5.9.3"
+		"typescript": "5.9.3"
 	}
 }
