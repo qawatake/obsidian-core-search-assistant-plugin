@@ -1,4 +1,11 @@
+# Shapes the notes that action-gh-release generates (generate_release_notes: true).
+# https://docs.github.com/en/repositories/releasing-projects-on-github/automatically-generated-release-notes
 changelog:
   exclude:
-    labels:
-      - tagpr
+    authors:
+      - dependabot
+      - github-actions
+  categories:
+    - title: Changes
+      labels:
+        - "*"
