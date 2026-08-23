@@ -1,5 +1,28 @@
 # Changelog
 
+## [0.9.8](https://github.com/qawatake/obsidian-core-search-assistant-plugin/compare/0.9.7...0.9.8) - 2026-08-23
+
+### Changes
+- ci: declare least-privilege GITHUB_TOKEN permissions by @qawatake in https://github.com/qawatake/obsidian-core-search-assistant-plugin/pull/89
+- ci: build release with pnpm --frozen-lockfile by @qawatake in https://github.com/qawatake/obsidian-core-search-assistant-plugin/pull/90
+- e2e: download the newest Obsidian release that ships a dmg by @qawatake in https://github.com/qawatake/obsidian-core-search-assistant-plugin/pull/92
+- ci: pin GitHub Actions to commit SHAs with pinact by @qawatake in https://github.com/qawatake/obsidian-core-search-assistant-plugin/pull/93
+- ci: run on pull_request/push and weekly schedule by @qawatake in https://github.com/qawatake/obsidian-core-search-assistant-plugin/pull/94
+- e2e: survive a confirmation modal at startup; disable auto-update in CI by @qawatake in https://github.com/qawatake/obsidian-core-search-assistant-plugin/pull/95
+- build: harden pnpm settings (minimum-release-age, exact pins, pinned pnpm) by @qawatake in https://github.com/qawatake/obsidian-core-search-assistant-plugin/pull/96
+- ci: add Dependabot version updates with a 7-day cooldown by @qawatake in https://github.com/qawatake/obsidian-core-search-assistant-plugin/pull/97
+- build: move to Node 24 (current Active LTS) by @qawatake in https://github.com/qawatake/obsidian-core-search-assistant-plugin/pull/103
+- ci: bump pinned mise to 2026.8.3 by @qawatake in https://github.com/qawatake/obsidian-core-search-assistant-plugin/pull/104
+- Bump actions/checkout from 4.4.0 to 7.0.1 by @dependabot[bot] in https://github.com/qawatake/obsidian-core-search-assistant-plugin/pull/100
+- Bump softprops/action-gh-release from 2.6.2 to 3.0.2 by @dependabot[bot] in https://github.com/qawatake/obsidian-core-search-assistant-plugin/pull/99
+- Bump jdx/mise-action from 2.4.4 to 4.2.5 by @dependabot[bot] in https://github.com/qawatake/obsidian-core-search-assistant-plugin/pull/98
+- Bump the npm-minor-patch group with 3 updates by @dependabot[bot] in https://github.com/qawatake/obsidian-core-search-assistant-plugin/pull/101
+- build: upgrade Biome 1.9 -> 2.5 and clear new lint findings by @qawatake in https://github.com/qawatake/obsidian-core-search-assistant-plugin/pull/105
+- deps: update build-time dependencies to current majors by @qawatake in https://github.com/qawatake/obsidian-core-search-assistant-plugin/pull/107
+- ci: stop Dependabot proposing majors we pin on purpose by @qawatake in https://github.com/qawatake/obsidian-core-search-assistant-plugin/pull/108
+- ci: run lint in CI (and build on every PR) by @qawatake in https://github.com/qawatake/obsidian-core-search-assistant-plugin/pull/109
+- ci: generate GitHub release notes on release by @qawatake in https://github.com/qawatake/obsidian-core-search-assistant-plugin/pull/110
+
 ## [0.9.7](https://github.com/qawatake/obsidian-core-search-assistant-plugin/compare/0.9.6...0.9.7) - 2026-08-16
 
 - Reinstate Svelte 5 migration by @qawatake in https://github.com/qawatake/obsidian-core-search-assistant-plugin/pull/87
