@@ -1,5 +1,5 @@
 <script lang="ts">
-import { ViewGenerator, fileTypeMap } from "interfaces/ViewGenerator";
+import { fileTypeMap, ViewGenerator } from "interfaces/ViewGenerator";
 import { ExcalidrawViewGeneratorExtension } from "interfaces/viewGeneratorExtensions/Excalidraw";
 import { KanbanViewGeneratorExtension } from "interfaces/viewGeneratorExtensions/Kanban";
 import { MarkdownViewGeneratorExtension } from "interfaces/viewGeneratorExtensions/Markdown";

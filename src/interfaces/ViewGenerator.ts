@@ -3,8 +3,8 @@ import {
 	type EditorRange,
 	MarkdownView,
 	type MarkdownViewModeType,
-	type SearchMatchPart,
 	type SearchMatches,
+	type SearchMatchPart,
 	type TFile,
 	WorkspaceLeaf,
 } from "obsidian";

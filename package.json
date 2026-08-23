@@ -11,9 +11,9 @@
 	"scripts": {
 		"fix:format": "biome format --write src",
 		"lint:format": "biome format --check src",
-		"fix:lint": "biome lint --apply src",
+		"fix:lint": "biome lint --write src",
 		"lint": "biome check src",
-		"fix": "biome check --apply src",
+		"fix": "biome check --write src",
 		"dev": "node esbuild.config.mjs",
 		"sass-build": "sass --no-source-map *.scss styles.css",
 		"esbuild": "node esbuild.config.mjs production",
@@ -26,7 +26,7 @@
 	"author": "",
 	"license": "MIT",
 	"devDependencies": {
-		"@biomejs/biome": "^1.9.4",
+		"@biomejs/biome": "2.5.8",
 		"@electron/asar": "^3.4.1",
 		"@playwright/test": "^1.59.1",
 		"@tsconfig/svelte": "^5.0.8",
