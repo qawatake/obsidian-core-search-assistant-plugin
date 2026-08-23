@@ -73,4 +73,12 @@ test("テスト用vaultを開き、Obsidianを開けばすぐにpluginを動か�
 
   // Close a modal for community plugins
   await window.keyboard.press("Escape");
+
+  // Turn off Obsidian's auto-updater for this (throw-away) install: CI must
+  // test the version it downloaded, not whatever the updater fetches, and the
+  // update flow must not pop UI over the tests. Persisted in the app config.
+  const updatesDisabled = await window.evaluate(() =>
+    require("electron").ipcRenderer.sendSync("disable-update", true),
+  );
+  expect(updatesDisabled).toBe(true);
 });
