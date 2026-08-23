@@ -1,5 +1,5 @@
 [tools]
-node = "22"
+node = "24"
 pnpm = "10.33.2"
 
 # Pin GitHub Actions to commit SHAs so a re-pointed tag can't run code we never reviewed.
