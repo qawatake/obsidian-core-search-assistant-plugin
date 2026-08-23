@@ -1,6 +1,6 @@
 [tools]
 node = "22"
-pnpm = "10.9"
+pnpm = "10.33.2"
 
 # Pin GitHub Actions to commit SHAs so a re-pointed tag can't run code we never reviewed.
 # pinact is scoped to these tasks (not [tools]) so CI's `mise install` doesn't pull it in.
