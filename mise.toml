@@ -1,3 +1,20 @@
 [tools]
 node = "22"
 pnpm = "10.9"
+
+# Pin GitHub Actions to commit SHAs so a re-pointed tag can't run code we never reviewed.
+# pinact is scoped to these tasks (not [tools]) so CI's `mise install` doesn't pull it in.
+[tasks.pin-actions]
+description = "Pin GitHub Actions in .github/workflows to commit SHAs"
+tools = { pinact = "4.1.1" }
+run = "pinact run"
+
+[tasks."pin-actions:update"]
+description = "Update pinned GitHub Actions to their latest versions (keeps SHA pins)"
+tools = { pinact = "4.1.1" }
+run = "pinact run --update"
+
+[tasks."pin-actions:check"]
+description = "Fail if any GitHub Action is not pinned to a commit SHA"
+tools = { pinact = "4.1.1" }
+run = "pinact run --check"
