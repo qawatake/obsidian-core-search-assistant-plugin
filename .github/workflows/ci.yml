@@ -1,11 +1,12 @@
 name: ci
 on:
   workflow_dispatch:
-#  pull_request:
-#  push:
-#    branches: ["main"]
-#  schedule:
-#    - cron: "0 18 * * *" # JST 3:00（UTC 18:00）
+  pull_request:
+  push:
+    branches: ["main"]
+  schedule:
+    # Weekly, Monday 06:00 JST (Sunday 21:00 UTC): catch breakage from new Obsidian releases.
+    - cron: "0 21 * * 0"
 
 permissions:
   contents: read
