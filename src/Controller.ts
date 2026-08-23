@@ -10,7 +10,7 @@ import { PreviewModal } from "components/PreviewModal";
 import type { SearchComponentInterface } from "interfaces/SearchComponentInterface";
 import type CoreSearchAssistantPlugin from "main";
 import * as obsidian from "obsidian";
-import { type Debouncer, Notice, type TFile, debounce } from "obsidian";
+import { type Debouncer, debounce, Notice, type TFile } from "obsidian";
 import CardViewComponent from "ui/CardViewComponent.svelte";
 import Outline from "ui/Outline.svelte";
 import WorkspacePreview from "ui/WorkspacePreview.svelte";

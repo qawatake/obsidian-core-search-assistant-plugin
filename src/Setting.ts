@@ -130,7 +130,7 @@ export class CoreSearchAssistantSettingTab extends PluginSettingTab {
 						validOutlineWidth(this.plugin.settings?.outlineWidth).toString(),
 					)
 					.onChange((value) => {
-						const width = Number.parseInt(value);
+						const width = Number.parseInt(value, 10);
 						if (!this.plugin.settings) {
 							return;
 						}
@@ -330,7 +330,9 @@ export class CoreSearchAssistantSettingTab extends PluginSettingTab {
 
 	override hide() {
 		super.hide();
-		this.hotkeySetters.forEach((s) => s.unload());
+		this.hotkeySetters.forEach((s) => {
+			s.unload();
+		});
 		this.hotkeySetters = [];
 	}
 }
@@ -350,7 +352,7 @@ export function validOutlineWidth(width: unknown): AvailableOutlineWidth {
 
 export function parseCardLayout(layout: AvailableCardLayout): [number, number] {
 	const [row, column] = layout.split("x");
-	return [Number.parseInt(row ?? "0"), Number.parseInt(column ?? "0")];
+	return [Number.parseInt(row ?? "0", 10), Number.parseInt(column ?? "0", 10)];
 }
 
 const SEARCH_MODE_HOTKEY_ACTION_IDS = [

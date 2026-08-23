@@ -10,9 +10,8 @@ export class HotkeySetter {
 	private readonly text: string;
 	private currentHotkeys: Hotkey[];
 	private readonly defaultHotkeys: Hotkey[];
-	private shouldReflect: (renewed: Hotkey[], added?: Hotkey) => boolean = (
-		_
-	) => true;
+	private shouldReflect: (renewed: Hotkey[], added?: Hotkey) => boolean = (_) =>
+		true;
 
 	private scope: Scope | undefined;
 	private component: SvelteComponent;
@@ -22,7 +21,7 @@ export class HotkeySetter {
 		containerEl: HTMLElement,
 		text: string,
 		currentHotkeys: Hotkey[],
-		defaultHotkeys: Hotkey[]
+		defaultHotkeys: Hotkey[],
 	) {
 		this.app = app;
 		this.containerEl = containerEl;
@@ -39,9 +38,7 @@ export class HotkeySetter {
 	/**
 	 * @param cb : should return true if you want to adopt the current change
 	 */
-	onChanged(
-		cb: (renewed: Hotkey[], added?: Hotkey) => boolean
-	): HotkeySetter {
+	onChanged(cb: (renewed: Hotkey[], added?: Hotkey) => boolean): HotkeySetter {
 		this.shouldReflect = cb;
 		return this;
 	}
