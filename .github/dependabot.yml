@@ -4,17 +4,25 @@ updates:
     directory: /
     schedule:
       interval: weekly
-    # Dependabot resolves versions itself, so .npmrc's minimum-release-age does
-    # not apply to its PRs. Mirror it: wait 7 days after a release before proposing it.
+    # Security updates bypass cooldown and arrive as soon as an advisory is published.
+    # Version updates wait for a release to age: patches barely (they rarely break, and
+    # batching them only grows the diff), minors until they have matured.
     cooldown:
-      default-days: 7
+      semver-patch-days: 7
+      semver-minor-days: 30
+      semver-major-days: 60
 
   - package-ecosystem: npm
     directory: /
     schedule:
       interval: weekly
+    # Security updates bypass cooldown and arrive as soon as an advisory is published.
+    # Version updates wait for a release to age: patches barely (they rarely break, and
+    # batching them only grows the diff), minors until they have matured.
     cooldown:
-      default-days: 7
+      semver-patch-days: 7
+      semver-minor-days: 30
+      semver-major-days: 60
     # Majors we bump by hand, on purpose:
     ignore:
       # 7.x is the Go-based rewrite (tsgo); stay on the 5.x line until tooling catches up.
