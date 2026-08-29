@@ -79,6 +79,27 @@ else
 fi
 
 # ------------------------------------------------------------------------------
+# 2b. Electron drift check
+# ------------------------------------------------------------------------------
+# The e2e tests run Obsidian's sources on the npm `electron` binary, not on the
+# one inside Obsidian.app, so the devDependency should track the major that
+# Obsidian bundles. Dependabot bumps majors on its own (after cooldown); this
+# only warns when the two have drifted apart so a human can decide.
+obsidian_electron="$(plutil -extract CFBundleVersion raw -o - \
+  "$obsidian_app/Contents/Frameworks/Electron Framework.framework/Resources/Info.plist")"
+our_electron="$(node -p "require('electron/package.json').version")"
+if [[ "${obsidian_electron%%.*}" != "${our_electron%%.*}" ]]; then
+  msg="Electron major mismatch: Obsidian $(defaults read "$obsidian_app/Contents/Info.plist" CFBundleShortVersionString) bundles Electron $obsidian_electron but devDependency electron is $our_electron. Consider bumping electron to ${obsidian_electron%%.*}.x in package.json."
+  if [[ "$MODE" == "ci" ]]; then
+    echo "::warning title=Electron drift::$msg"
+  else
+    echo "⚠️  $msg" >&2
+  fi
+else
+  echo "✅ Electron $our_electron matches Obsidian's bundled major ($obsidian_electron)"
+fi
+
+# ------------------------------------------------------------------------------
 # 3. app.asar を展開してテスト用フォルダ構築
 # ------------------------------------------------------------------------------
 echo "🔓 Unpacking $obsidian_app → $unpacked_path"

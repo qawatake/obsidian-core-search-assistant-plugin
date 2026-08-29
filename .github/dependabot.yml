@@ -31,9 +31,6 @@ updates:
       # Must match the Node major we run (mise.toml), not the newest available.
       - dependency-name: "@types/node"
         update-types: ["version-update:semver-major"]
-      # Must match the Electron bundled in current Obsidian, which the e2e tests emulate.
-      - dependency-name: electron
-        update-types: ["version-update:semver-major"]
     groups:
       npm-minor-patch:
         update-types:
