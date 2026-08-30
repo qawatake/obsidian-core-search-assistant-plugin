@@ -1,6 +1,8 @@
 import test, {
+  type Dialog,
   expect,
   type ElectronApplication,
+  type Page,
   _electron as electron,
 } from "@playwright/test";
 import fs from "node:fs/promises";
@@ -28,8 +30,8 @@ test.beforeEach(async () => {
   // Handle JS dialogs (e.g. beforeunload on app close) explicitly.
   // Playwright's implicit auto-dismiss races with Obsidian closing its own
   // dialogs ("No dialog is showing" protocol error), which hangs teardown.
-  const handleDialogs = (page) => {
-    page.on("dialog", (dialog) => dialog.accept().catch(() => {}));
+  const handleDialogs = (page: Page) => {
+    page.on("dialog", (dialog: Dialog) => dialog.accept().catch(() => {}));
   };
   app.on("window", handleDialogs);
   for (const page of app.windows()) {

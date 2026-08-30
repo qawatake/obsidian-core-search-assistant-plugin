@@ -32,6 +32,7 @@ export class KanbanViewGeneratorExtension implements ViewGeneratorExtension {
 		const { view } = leaf;
 		if (view.getViewType() === kanbanViewType) return true;
 		if (!(view instanceof TextFileView)) return false;
+		if (!view.file) return false;
 		const fileCache = this.app.metadataCache.getFileCache(view.file);
 		const fileIsKanban =
 			!!fileCache?.frontmatter && !!fileCache.frontmatter[frontMatterKey];
@@ -50,7 +51,7 @@ export class KanbanViewGeneratorExtension implements ViewGeneratorExtension {
 					...leaf.view.getState(),
 					mode: "source",
 				},
-				{},
+				{ history: false },
 			);
 			if (leaf.view instanceof MarkdownView) {
 				leaf.view.editor.blur();

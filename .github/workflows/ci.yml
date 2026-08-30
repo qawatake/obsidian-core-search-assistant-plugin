@@ -23,6 +23,7 @@ jobs:
           cache: true # [default: true] cache mise using GitHub's cache
       - run: pnpm install --frozen-lockfile
       - run: pnpm lint
+      - run: pnpm typecheck
       - run: pnpm build
 
   e2e:

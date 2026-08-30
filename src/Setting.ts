@@ -94,7 +94,7 @@ export class CoreSearchAssistantSettingTab extends PluginSettingTab {
 		this.hotkeySetters = [];
 	}
 
-	display(): void {
+	override display(): void {
 		this.hide();
 		const { containerEl } = this;
 		containerEl.empty();

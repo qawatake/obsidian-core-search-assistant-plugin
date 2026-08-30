@@ -16,7 +16,7 @@ export class MarkdownViewGeneratorExtension implements ViewGeneratorExtension {
 				...leaf.view.getState(),
 				mode: mode,
 			},
-			{},
+			{ history: false },
 		);
 	}
 
