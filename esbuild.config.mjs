@@ -1,6 +1,6 @@
 import esbuild from 'esbuild';
+import { builtinModules } from 'node:module';
 import process from 'process';
-import builtins from 'builtin-modules';
 import sveltePlugin from 'esbuild-svelte';
 import sveltePreprocess from 'svelte-preprocess';
 
@@ -18,7 +18,7 @@ const context = await esbuild.context({
 	},
 	entryPoints: ['src/main.ts'],
 	bundle: true,
-	external: ['obsidian', 'electron', ...builtins],
+	external: ['obsidian', 'electron', ...builtinModules],
 	format: 'cjs',
 	target: 'es2020',
 	logLevel: 'info',
