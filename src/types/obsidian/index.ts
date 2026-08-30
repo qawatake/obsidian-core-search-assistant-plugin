@@ -1,4 +1,3 @@
-import type { Plugin } from "obsidian";
 import type { SORT_ORDER_IN_SEARCH } from "types/Guards";
 
 export * from "obsidian";

@@ -1,9 +1,9 @@
+import { ModeScope } from "ModeScope";
 import {
 	type CoreSearchAssistantEvents,
 	EVENT_SEARCH_RESULT_ITEM_DETECTED,
 	EVENT_SORT_ORDER_CHANGED,
-} from "Events";
-import { ModeScope } from "ModeScope";
+} from "SearchEvents";
 import { parseCardLayout } from "Setting";
 import { OptionModal } from "components/OptionModal";
 import { PreviewModal } from "components/PreviewModal";
@@ -35,7 +35,7 @@ export class Controller extends obsidian.Component {
 	private workspacePreviewComponent: WorkspacePreview | undefined;
 
 	// debouncer
-	private cardViewCheckDebouncer: Debouncer<[]>;
+	private cardViewCheckDebouncer: Debouncer<[], void>;
 
 	// state variables
 	private currentFocusId: number | undefined;
@@ -106,7 +106,7 @@ export class Controller extends obsidian.Component {
 		}
 		this.forget();
 		this.unfocus();
-		this.cardViewComponent?.detachCards();
+		this.cardViewComponent?.["detachCards"]();
 		this.countSearchItemDetected = 0;
 	}
 
@@ -137,7 +137,7 @@ export class Controller extends obsidian.Component {
 			return;
 		}
 		this.searchInterface.focusOn(this.currentFocusId);
-		this.cardViewComponent?.focusOn(this.currentFocusId);
+		this.cardViewComponent?.["focusOn"](this.currentFocusId);
 	}
 
 	open(direction?: obsidian.SplitDirection) {
@@ -150,10 +150,10 @@ export class Controller extends obsidian.Component {
 	async renewCardViewPage() {
 		if (this.plugin.settings?.autoPreviewMode !== "cardView") return;
 
-		this.cardViewComponent?.detachCards();
-		this.cardViewComponent?.renderPage(this.filesToBeRendered());
+		this.cardViewComponent?.["detachCards"]();
+		this.cardViewComponent?.["renderPage"](this.filesToBeRendered());
 		if (this.currentFocusId !== undefined) {
-			this.cardViewComponent?.focusOn(this.currentFocusId ?? 0);
+			this.cardViewComponent?.["focusOn"](this.currentFocusId);
 		}
 	}
 
@@ -621,14 +621,14 @@ export class Controller extends obsidian.Component {
 			}
 
 			if (this.countSearchItemDetected === 0) {
-				this.cardViewComponent?.detachCards();
+				this.cardViewComponent?.["detachCards"]();
 			}
 
 			const item = this.searchInterface.getResultItemAt(
 				this.countSearchItemDetected,
 			);
 			if (!item) return;
-			this.cardViewComponent?.addCard(item.file);
+			this.cardViewComponent?.["addCard"](item.file);
 			this.cardViewCheckDebouncer();
 			this.countSearchItemDetected++;
 		};
@@ -715,11 +715,11 @@ export class Controller extends obsidian.Component {
 		return !this.searchInterface.sideDock?.containerEl.contains(targetEl);
 	}
 
-	private get onCheckCardView(): () => any {
+	private get onCheckCardView(): () => void {
 		return () => {
 			const { cardViewComponent } = this;
 			if (!cardViewComponent) return;
-			const ok = cardViewComponent.checkCardsRenderedCorrectly(
+			const ok = cardViewComponent["checkCardsRenderedCorrectly"](
 				this.filesToBeRendered(),
 			);
 			if (!ok) {

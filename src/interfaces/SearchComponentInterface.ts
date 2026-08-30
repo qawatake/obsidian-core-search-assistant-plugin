@@ -2,7 +2,7 @@ import {
 	type CoreSearchAssistantEvents,
 	EVENT_SEARCH_RESULT_ITEM_DETECTED,
 	EVENT_SORT_ORDER_CHANGED,
-} from "Events";
+} from "SearchEvents";
 import type CoreSearchAssistantPlugin from "main";
 import {
 	type App,
@@ -127,6 +127,9 @@ export class SearchComponentInterface extends Component {
 			direction === undefined
 				? this.app.workspace.getMostRecentLeaf()
 				: this.app.workspace.splitActiveLeaf(direction);
+		if (!leaf) {
+			return;
+		}
 		await leaf.openFile(file);
 		this.app.workspace.setActiveLeaf(leaf, true, true);
 	}
@@ -253,7 +256,10 @@ export class SearchComponentInterface extends Component {
 		if (!view) {
 			return;
 		}
-		this.sortOrderContainerEl.insertAfter(view.searchInfoEl);
+		view.searchInfoEl.parentElement?.insertBefore(
+			this.sortOrderContainerEl,
+			view.searchInfoEl.nextSibling,
+		);
 	}
 
 	get matchingCaseButtonEl(): HTMLElement | undefined {

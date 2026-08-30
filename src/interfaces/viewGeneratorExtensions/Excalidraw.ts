@@ -43,7 +43,7 @@ export class ExcalidrawViewGeneratorExtension
 				...leaf.view.getState(),
 				mode: mode,
 			},
-			{},
+			{ history: false },
 		);
 		leaf.view.editor.blur();
 	}
@@ -60,7 +60,7 @@ export class ExcalidrawViewGeneratorExtension
 				...leaf.view.getState(),
 				mode: mode === "preview" ? "source" : "preview",
 			},
-			{},
+			{ history: false },
 		);
 		leaf.view.editor.blur();
 	}

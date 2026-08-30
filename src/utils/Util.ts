@@ -91,12 +91,14 @@ export function deepMerge<T>(a: T, b: T): T {
 		throw new Error(`failed to deepMerge ${a} and ${b}`);
 	}
 
-	const clone = shallowClone(a);
-	for (const key in a) {
-		clone[key] = deepMerge(a[key], b[key]);
+	const clone = shallowClone(a) as Record<string, unknown>;
+	const aRecord = a as T & Record<string, unknown>;
+	const bRecord = b as T & Record<string, unknown>;
+	for (const key in aRecord) {
+		clone[key] = deepMerge(aRecord[key], bRecord[key]);
 	}
-	for (const key in b) {
-		clone[key] = deepMerge(a[key], b[key]);
+	for (const key in bRecord) {
+		clone[key] = deepMerge(aRecord[key], bRecord[key]);
 	}
-	return clone;
+	return clone as T;
 }

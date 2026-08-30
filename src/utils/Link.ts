@@ -34,7 +34,8 @@ function getDisplayText(
 }
 
 function getTitle(frontmatter?: FrontMatterCache): string | undefined {
-	return frontmatter?.title;
+	const title = frontmatter?.["title"];
+	return typeof title === "string" ? title : undefined;
 }
 
 function getFirstH1(headings: HeadingCache[] | undefined) {

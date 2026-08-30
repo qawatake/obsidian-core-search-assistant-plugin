@@ -1,5 +1,5 @@
 import { Controller } from "Controller";
-import { CoreSearchAssistantEvents } from "Events";
+import { CoreSearchAssistantEvents } from "SearchEvents";
 import {
 	type CoreSearchAssistantPluginSettings,
 	CoreSearchAssistantSettingTab,
@@ -11,7 +11,7 @@ import * as store from "ui/store";
 import { deepMerge } from "utils/Util";
 
 export default class CoreSearchAssistantPlugin extends Plugin {
-	settings: CoreSearchAssistantPluginSettings | undefined;
+	override settings: CoreSearchAssistantPluginSettings | undefined;
 	events: CoreSearchAssistantEvents | undefined;
 	searchInterface: SearchComponentInterface | undefined;
 	controller: Controller | undefined;

@@ -13,6 +13,7 @@
 		"lint:format": "biome format --check src",
 		"fix:lint": "biome lint --write src",
 		"lint": "biome check src",
+		"typecheck": "tsc --noEmit",
 		"fix": "biome check --write src",
 		"dev": "node esbuild.config.mjs",
 		"sass-build": "sass --no-source-map *.scss styles.css",

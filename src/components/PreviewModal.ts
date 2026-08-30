@@ -104,7 +104,7 @@ export class PreviewModal extends Modal {
 					return;
 				}
 				this.currentFocus = cyclicId(++this.currentFocus, numMatches);
-				this.previewContent?.focusOn(this.currentFocus, true);
+				this.previewContent?.["focusOn"](this.currentFocus, true);
 			});
 		});
 
@@ -116,7 +116,7 @@ export class PreviewModal extends Modal {
 					return;
 				}
 				this.currentFocus = cyclicId(--this.currentFocus, numMatches);
-				this.previewContent?.focusOn(this.currentFocus, true);
+				this.previewContent?.["focusOn"](this.currentFocus, true);
 			});
 		});
 
@@ -124,7 +124,7 @@ export class PreviewModal extends Modal {
 			this.scope.register(hotkey.modifiers, hotkey.key, (evt) => {
 				(async () => {
 					evt.preventDefault();
-					await this.previewContent?.toggleViewMode();
+					await this.previewContent?.["toggleViewMode"]();
 				})();
 			});
 		});
@@ -186,6 +186,9 @@ export class PreviewModal extends Modal {
 			direction === undefined
 				? this.app.workspace.getMostRecentLeaf()
 				: this.app.workspace.splitActiveLeaf(direction);
+		if (!leaf) {
+			return;
+		}
 		await leaf.openFile(item.file);
 		this.app.workspace.setActiveLeaf(leaf, true, true);
 
