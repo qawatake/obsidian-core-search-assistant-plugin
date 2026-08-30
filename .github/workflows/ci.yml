@@ -39,7 +39,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: pnpm e2e:setup
-      - run: pnpm e2e
+      - run: pnpm e2e:test
 
   test-e2e-tools:
     runs-on: macos-latest

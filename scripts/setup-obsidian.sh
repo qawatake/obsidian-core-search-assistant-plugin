@@ -104,7 +104,7 @@ fi
 # ------------------------------------------------------------------------------
 echo "🔓 Unpacking $obsidian_app → $unpacked_path"
 rm -rf "$unpacked_path"
-npx --yes @electron/asar extract \
+pnpm exec asar extract \
     "$obsidian_app/Contents/Resources/app.asar" "$unpacked_path"
 cp "$obsidian_app/Contents/Resources/obsidian.asar" \
    "$unpacked_path/obsidian.asar"
@@ -115,12 +115,13 @@ echo "✅ Obsidian unpacked"
 # 4. プラグインをビルドして Vault にリンク
 # ------------------------------------------------------------------------------
 echo "🔧 Building plugin…"
-npm run build --silent
+pnpm build --silent
 echo "✅ Build done."
 
 echo "🔗 Linking plugin → $plugin_path"
 mkdir -p "$plugin_path"
 ln -fs "$root_path/manifest.json" "$plugin_path/manifest.json"
 ln -fs "$root_path/main.js"       "$plugin_path/main.js"
+ln -fs "$root_path/styles.css"    "$plugin_path/styles.css"
 
 echo "🎉 setup-obsidian.sh finished!"
