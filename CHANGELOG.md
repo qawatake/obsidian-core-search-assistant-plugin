@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.9.9](https://github.com/qawatake/obsidian-core-search-assistant-plugin/compare/0.9.8...0.9.9) - 2026-08-30
+
+### Changes
+- ci: tier Dependabot cooldown by semver level by @qawatake in https://github.com/qawatake/obsidian-core-search-assistant-plugin/pull/111
+- build: bump electron to 43.3.0 (matches Obsidian 1.13.7) by @qawatake in https://github.com/qawatake/obsidian-core-search-assistant-plugin/pull/113
+- ci: let Dependabot bump electron majors; warn on drift from Obsidian's Electron by @qawatake in https://github.com/qawatake/obsidian-core-search-assistant-plugin/pull/114
+- build(deps-dev): bump the npm-minor-patch group with 5 updates by @dependabot[bot] in https://github.com/qawatake/obsidian-core-search-assistant-plugin/pull/115
+- ci: add release guardrails by @qawatake in https://github.com/qawatake/obsidian-core-search-assistant-plugin/pull/116
+- ci: align e2e commands with pnpm by @qawatake in https://github.com/qawatake/obsidian-core-search-assistant-plugin/pull/117
+- ci: add typecheck by @qawatake in https://github.com/qawatake/obsidian-core-search-assistant-plugin/pull/118
+- ci: bound job runtimes by @qawatake in https://github.com/qawatake/obsidian-core-search-assistant-plugin/pull/119
+- build: reduce dev dependencies by @qawatake in https://github.com/qawatake/obsidian-core-search-assistant-plugin/pull/121
+
 ## [0.9.8](https://github.com/qawatake/obsidian-core-search-assistant-plugin/compare/0.9.7...0.9.8) - 2026-08-23
 
 ### Changes
