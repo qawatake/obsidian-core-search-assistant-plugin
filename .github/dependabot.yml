@@ -4,6 +4,9 @@ updates:
     directory: /
     schedule:
       interval: weekly
+      day: saturday
+      time: "03:00"
+      timezone: Asia/Tokyo
     # Security updates bypass cooldown and arrive as soon as an advisory is published.
     # Version updates wait for a release to age: patches barely (they rarely break, and
     # batching them only grows the diff), minors until they have matured.
@@ -16,6 +19,9 @@ updates:
     directory: /
     schedule:
       interval: weekly
+      day: saturday
+      time: "03:00"
+      timezone: Asia/Tokyo
     # Security updates bypass cooldown and arrive as soon as an advisory is published.
     # Version updates wait for a release to age: patches barely (they rarely break, and
     # batching them only grows the diff), minors until they have matured.
