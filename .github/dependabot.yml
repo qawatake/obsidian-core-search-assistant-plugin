@@ -8,12 +8,10 @@ updates:
       time: "03:00"
       timezone: Asia/Tokyo
     # Security updates bypass cooldown and arrive as soon as an advisory is published.
-    # Version updates wait for a release to age: patches barely (they rarely break, and
-    # batching them only grows the diff), minors until they have matured.
+    # github-actions does not support per-semver cooldown (semver-*-days are ignored and
+    # Dependabot silently falls back to its 3-day default), so use a flat one-week cooldown.
     cooldown:
-      semver-patch-days: 7
-      semver-minor-days: 30
-      semver-major-days: 60
+      default-days: 7
 
   - package-ecosystem: npm
     directory: /
