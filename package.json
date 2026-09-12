@@ -5,7 +5,7 @@
 	"main": "main.js",
 	"packageManager": "pnpm@10.33.2",
 	"engines": {
-		"node": ">=22"
+		"node": ">=24.0.0"
 	},
 	"type": "module",
 	"scripts": {
@@ -22,7 +22,8 @@
 		"e2e:setup": "playwright test tests/e2e-setup/setup.ts --project e2e-setup",
 		"e2e:cleanup": "playwright test tests/e2e-setup/cleanup.ts --project e2e-setup",
 		"e2e:test": "playwright test --project e2e",
-		"e2e": "pnpm build && pnpm e2e:test"
+		"e2e": "pnpm build && pnpm e2e:test",
+		"check": "node scripts/check-toolchain.mjs && node scripts/check-actions-pinned.mjs && pnpm lint && pnpm typecheck && pnpm build"
 	},
 	"keywords": [],
 	"author": "",
