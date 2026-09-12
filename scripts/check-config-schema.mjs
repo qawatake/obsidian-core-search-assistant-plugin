@@ -6,9 +6,9 @@
 //
 //   node scripts/check-config-schema.mjs          # repo root (script の 1 つ上) を検査
 //   node scripts/check-config-schema.mjs <dir>    # 指定 dir を検査 (scan-repos.sh 用)
-import { readFileSync, readdirSync } from "node:fs";
-import { pathToFileURL } from "node:url";
+import { readdirSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
+import { pathToFileURL } from "node:url";
 
 const root = process.argv[2]
   ? pathToFileURL(`${resolve(process.argv[2])}/`)
