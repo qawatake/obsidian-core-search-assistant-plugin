@@ -15,10 +15,10 @@ importers:
         specifier: 4.3.0
         version: 4.3.0
       '@playwright/test':
-        specifier: ^1.59.1
+        specifier: 1.63.0
         version: 1.63.0
       '@tsconfig/svelte':
-        specifier: ^5.0.8
+        specifier: 5.0.8
         version: 5.0.8
       '@types/node':
         specifier: 24.13.3
@@ -30,16 +30,16 @@ importers:
         specifier: 0.28.2
         version: 0.28.2
       esbuild-svelte:
-        specifier: ^0.9.5
+        specifier: 0.9.5
         version: 0.9.5(esbuild@0.28.2)(svelte@5.57.0)
       obsidian:
-        specifier: ^1.13.1
+        specifier: 1.13.1
         version: 1.13.1(@codemirror/state@6.5.0)(@codemirror/view@6.38.6)
       sass:
-        specifier: ^1.102.0
+        specifier: 1.104.0
         version: 1.104.0
       svelte:
-        specifier: ^5.56.8
+        specifier: 5.57.0
         version: 5.57.0
       typescript:
         specifier: 5.9.3
