@@ -1,5 +1,33 @@
 # Changelog
 
+## [0.9.9](https://github.com/qawatake/obsidian-core-search-assistant-plugin/compare/0.9.8...0.9.9) - 2026-09-12
+
+### Changes
+- ci: tier Dependabot cooldown by semver level by @qawatake in https://github.com/qawatake/obsidian-core-search-assistant-plugin/pull/111
+- build: bump electron to 43.3.0 (matches Obsidian 1.13.7) by @qawatake in https://github.com/qawatake/obsidian-core-search-assistant-plugin/pull/113
+- ci: let Dependabot bump electron majors; warn on drift from Obsidian's Electron by @qawatake in https://github.com/qawatake/obsidian-core-search-assistant-plugin/pull/114
+- build(deps-dev): bump the npm-minor-patch group with 5 updates by @dependabot[bot] in https://github.com/qawatake/obsidian-core-search-assistant-plugin/pull/115
+- ci: add release guardrails by @qawatake in https://github.com/qawatake/obsidian-core-search-assistant-plugin/pull/116
+- ci: align e2e commands with pnpm by @qawatake in https://github.com/qawatake/obsidian-core-search-assistant-plugin/pull/117
+- ci: add typecheck by @qawatake in https://github.com/qawatake/obsidian-core-search-assistant-plugin/pull/118
+- ci: bound job runtimes by @qawatake in https://github.com/qawatake/obsidian-core-search-assistant-plugin/pull/119
+- build: reduce dev dependencies by @qawatake in https://github.com/qawatake/obsidian-core-search-assistant-plugin/pull/121
+- chore: schedule Dependabot on Saturday 03:00 JST by @qawatake in https://github.com/qawatake/obsidian-core-search-assistant-plugin/pull/126
+- chore: use flat 7-day cooldown for github-actions by @qawatake in https://github.com/qawatake/obsidian-core-search-assistant-plugin/pull/127
+- build(deps): bump jdx/mise-action from 4.2.5 to 4.3.0 by @dependabot[bot] in https://github.com/qawatake/obsidian-core-search-assistant-plugin/pull/124
+- build(deps-dev): bump @biomejs/biome from 2.5.10 to 2.5.11 in the npm-minor-patch group across 1 directory by @dependabot[bot] in https://github.com/qawatake/obsidian-core-search-assistant-plugin/pull/128
+- build(deps): bump Songmu/tagpr from 1.20.1 to 1.20.2 by @dependabot[bot] in https://github.com/qawatake/obsidian-core-search-assistant-plugin/pull/122
+- build(deps): bump softprops/action-gh-release from 3.0.2 to 3.0.3 by @dependabot[bot] in https://github.com/qawatake/obsidian-core-search-assistant-plugin/pull/123
+- build(deps): bump Songmu/tagpr from 1.20.2 to 1.20.3 by @dependabot[bot] in https://github.com/qawatake/obsidian-core-search-assistant-plugin/pull/129
+- build(deps-dev): bump @biomejs/biome from 2.5.11 to 2.5.12 in the npm-minor-patch group by @dependabot[bot] in https://github.com/qawatake/obsidian-core-search-assistant-plugin/pull/130
+- Tighten Dependabot and CI supply-chain policy by @qawatake in https://github.com/qawatake/obsidian-core-search-assistant-plugin/pull/131
+- Point biome.jsonc at the installed Biome schema by @qawatake in https://github.com/qawatake/obsidian-core-search-assistant-plugin/pull/134
+- build(deps-dev): bump svelte from 5.56.10 to 5.57.0 by @dependabot[bot] in https://github.com/qawatake/obsidian-core-search-assistant-plugin/pull/133
+- build(deps-dev): bump the npm-minor-patch group with 3 updates by @dependabot[bot] in https://github.com/qawatake/obsidian-core-search-assistant-plugin/pull/132
+- Check that config $schema versions match package.json by @qawatake in https://github.com/qawatake/obsidian-core-search-assistant-plugin/pull/136
+- Align check-config-schema.mjs imports with Biome's order by @qawatake in https://github.com/qawatake/obsidian-core-search-assistant-plugin/pull/137
+- Pin dependency ranges to the resolved versions by @qawatake in https://github.com/qawatake/obsidian-core-search-assistant-plugin/pull/138
+
 ## [0.9.8](https://github.com/qawatake/obsidian-core-search-assistant-plugin/compare/0.9.7...0.9.8) - 2026-08-23
 
 ### Changes
