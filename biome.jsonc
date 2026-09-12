@@ -1,5 +1,5 @@
 {
-	"$schema": "https://biomejs.dev/schemas/2.5.8/schema.json",
+	"$schema": "https://biomejs.dev/schemas/2.5.12/schema.json",
 	"vcs": {
 		"enabled": false,
 		"clientKind": "git",
@@ -7,10 +7,7 @@
 	},
 	"files": {
 		"ignoreUnknown": false,
-		"includes": [
-			"**/src/**/*.ts",
-			"**/src/**/*.svelte"
-		]
+		"includes": ["**/src/**/*.ts", "**/src/**/*.svelte"]
 	},
 	"formatter": {
 		"enabled": true,
@@ -48,9 +45,7 @@
 		// Biome only sees the <script> block of .svelte files, so anything used
 		// only in the template looks unused. Don't flag that.
 		{
-			"includes": [
-				"**/*.svelte"
-			],
+			"includes": ["**/*.svelte"],
 			"linter": {
 				"rules": {
 					"correctness": {
