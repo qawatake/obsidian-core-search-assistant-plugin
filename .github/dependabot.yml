@@ -7,9 +7,8 @@ updates:
       day: saturday
       time: "03:00"
       timezone: Asia/Tokyo
-    # Security updates bypass cooldown and arrive as soon as an advisory is published.
     # github-actions does not support per-semver cooldown (semver-*-days are ignored and
-    # Dependabot silently falls back to its 3-day default), so use a flat one-week cooldown.
+    # Dependabot silently falls back to its 3-day default), so use a flat cooldown.
     cooldown:
       default-days: 7
 
@@ -20,13 +19,22 @@ updates:
       day: saturday
       time: "03:00"
       timezone: Asia/Tokyo
-    # Security updates bypass cooldown and arrive as soon as an advisory is published.
-    # Version updates wait for a release to age: patches barely (they rarely break, and
-    # batching them only grows the diff), minors until they have matured.
+    # Cooldown applies to version updates only. Security updates skip it, but they still
+    # have to pass `minimum-release-age` in .npmrc, which pnpm enforces when Dependabot
+    # regenerates the lockfile: a fix version younger than that gate fails to resolve and
+    # the security PR errors. That is deliberate. A fix version gets no special trust; wait
+    # for it to age unless the advisory is severe and the vulnerable path is actually reachable
+    # from this plugin. In that case bump by hand with `--config.minimum-release-age=0` and say
+    # so in the PR body.
+    #
+    # Days are chosen by the bump type from the *installed* version to the candidate, so from
+    # 1.2.0 both 1.3.0 and 1.3.1 count as minor. A longer minor cooldown therefore never
+    # picks the patched 1.3.1 over 1.3.0 (1.3.1 is always younger); it only delays 1.3.0.
+    # So keep patch and minor at the same length as the .npmrc age gate (7 days), and delay
+    # majors only to leave time for peer dependencies to catch up and to plan the migration.
     cooldown:
-      semver-patch-days: 7
-      semver-minor-days: 30
-      semver-major-days: 60
+      default-days: 7
+      semver-major-days: 30
     # Majors we bump by hand, on purpose:
     ignore:
       # 7.x is the Go-based rewrite (tsgo); stay on the 5.x line until tooling catches up.
@@ -35,11 +43,18 @@ updates:
       # Must match the Node major we run (mise.toml), not the newest available.
       - dependency-name: "@types/node"
         update-types: ["version-update:semver-major"]
+      # Must match the Electron bundled in current Obsidian, which the e2e tests emulate.
+      - dependency-name: electron
+        update-types: ["version-update:semver-major"]
     groups:
       npm-minor-patch:
         update-types:
           - minor
           - patch
+        # Bundled into main.js and shipped to users' vaults: review individually.
+        exclude-patterns:
+          - svelte
+          - "svelte-*"
       npm-major:
         update-types:
           - major

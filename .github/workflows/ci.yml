@@ -27,6 +27,12 @@ jobs:
           install: true
           cache: true # [default: true] cache mise using GitHub's cache
       - run: pnpm install --frozen-lockfile
+      # mise.toml と package.json (packageManager / engines / @types/node) の pnpm・Node version がずれていないか
+      - run: node scripts/check-toolchain.mjs
+      # 全 action が commit SHA に pin されているか (tag 参照を新しく足すと落ちる)
+      - run: node scripts/check-actions-pinned.mjs
+      # dev 依存を含む全体は大きな依存木 (playwright, electron 等) のノイズを避けて high 以上
+      - run: pnpm audit --audit-level=high
       - run: pnpm lint
       - run: pnpm typecheck
       - run: pnpm build
