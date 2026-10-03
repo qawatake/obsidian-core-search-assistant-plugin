@@ -83,8 +83,10 @@ fi
 # ------------------------------------------------------------------------------
 # The e2e tests run Obsidian's sources on the npm `electron` binary, not on the
 # one inside Obsidian.app, so the devDependency should track the major that
-# Obsidian bundles. Dependabot bumps majors on its own (after cooldown); this
-# only warns when the two have drifted apart so a human can decide.
+# Obsidian bundles. Dependabot does not bump electron majors: they are ignored in
+# .github/dependabot.yml for exactly this reason, so a new major is a manual bump
+# made when Obsidian moves to it. This check is the signal for that bump: it only
+# warns when the two majors have drifted apart, so a human can decide.
 obsidian_electron="$(plutil -extract CFBundleVersion raw -o - \
   "$obsidian_app/Contents/Frameworks/Electron Framework.framework/Resources/Info.plist")"
 our_electron="$(node -p "require('electron/package.json').version")"
