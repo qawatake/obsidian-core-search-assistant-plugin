@@ -7,6 +7,7 @@ import test, {
 } from "@playwright/test";
 import fs from "node:fs/promises";
 import path from "node:path";
+import { settleVaultWindow } from "../support/obsidian";
 
 const appPath = path.resolve("./.obsidian-unpacked/main.js");
 const vaultPath = path.resolve("./e2e-vault");
@@ -50,37 +51,49 @@ test.afterEach(async () => {
 });
 
 test("テスト用vaultを開き、Obsidianを開けばすぐにpluginを動かせるようにセットアップする", async () => {
-  let window = await app.firstWindow();
+	const starter = await app.firstWindow();
 
-  // Obsidian 側で 'did-finish-load' が発火するまで待つ
-  await window.waitForEvent("domcontentloaded");
+	// Wait for 'did-finish-load' event on Obsidian side
+	await starter.waitForEvent("domcontentloaded");
 
-  // ファイルピッカーをstub
-  await app.evaluate(async ({ dialog }, fakePath) => {
-    dialog.showOpenDialogSync = () => {
-      return [fakePath];
-    };
-  }, vaultPath);
+	// Done in the main process, before any vault window exists, so nothing in
+	// a renderer can race with it:
+	// - stub the file picker used by the "Open" button;
+	// - turn off Obsidian's auto-updater for this (throw-away) install: CI must
+	//   test the version it downloaded, not whatever the updater fetches, and
+	//   the update flow must not pop UI over the tests. This dispatches the
+	//   same "disable-update" IPC the *Automatic updates* toggle sends; the
+	//   handler only flips the flag and writes obsidian.json synchronously.
+	// The callback is synchronous on purpose: it hands no promise back to the
+	// inspector, so there is nothing for it to wait on or lose.
+	const updatesDisabled = await app.evaluate(
+		({ dialog, ipcMain }, fakePath) => {
+			dialog.showOpenDialogSync = () => [fakePath];
+			const event = { returnValue: undefined as unknown };
+			ipcMain.emit("disable-update", event, true);
+			return event.returnValue;
+		},
+		vaultPath,
+	);
+	expect(updatesDisabled).toBe(true);
 
-  const openButton = window.getByRole("button", { name: "Open" });
-  await openButton.click();
+	const [window] = await Promise.all([
+		app.waitForEvent("window"),
+		starter.getByRole("button", { name: "Open" }).click(),
+	]);
 
-  // windowを読み直す
-  window = await app.waitForEvent("window");
+	// A fresh vault shows the trust prompt; accept it and close the Settings
+	// window Obsidian opens afterwards (see settleVaultWindow).
+	await settleVaultWindow(app, window);
 
-  // Trust the author of the vault
-  await window
-    .getByRole("button", { name: "Trust author and enable plugins" })
-    .click();
-
-  // Close a modal for community plugins
-  await window.keyboard.press("Escape");
-
-  // Turn off Obsidian's auto-updater for this (throw-away) install: CI must
-  // test the version it downloaded, not whatever the updater fetches, and the
-  // update flow must not pop UI over the tests. Persisted in the app config.
-  const updatesDisabled = await window.evaluate(() =>
-    require("electron").ipcRenderer.sendSync("disable-update", true),
-  );
-  expect(updatesDisabled).toBe(true);
+	// The trust decision (`enable-plugin-<appId>`, set synchronously by the
+	// click above) lives in the vault window's localStorage, which Chromium
+	// writes to disk lazily. Ask for the write now so it is on disk before the
+	// app is closed; otherwise the next launch (pnpm e2e:test) can see the
+	// prompt again.
+	await app.evaluate(({ webContents }) => {
+		for (const wc of webContents.getAllWebContents()) {
+			wc.session.flushStorageData();
+		}
+	});
 });
