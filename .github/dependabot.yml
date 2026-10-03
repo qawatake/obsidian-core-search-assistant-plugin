@@ -47,15 +47,16 @@ updates:
       # Must match the Electron bundled in current Obsidian, which the e2e tests emulate.
       - dependency-name: electron
         update-types: ["version-update:semver-major"]
+    # Only development-scoped deps are grouped. Packages in `dependencies` are the ones bundled
+    # into main.js and shipped to users' vaults (scripts/check-bundled-deps.mjs keeps it that
+    # way), so they come as individual PRs to review on their own, majors included.
     groups:
       npm-minor-patch:
+        dependency-type: development
         update-types:
           - minor
           - patch
-        # Bundled into main.js and shipped to users' vaults: review individually.
-        exclude-patterns:
-          - svelte
-          - "svelte-*"
       npm-major:
+        dependency-type: development
         update-types:
           - major

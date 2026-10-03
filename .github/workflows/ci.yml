@@ -38,6 +38,9 @@ jobs:
       - run: pnpm lint
       - run: pnpm typecheck
       - run: pnpm build
+      # main.js に bundle された package が dependencies から辿れるか。devDependencies のままだと
+      # GitHub の preset rule が development-scoped として alert を auto-dismiss する
+      - run: node scripts/check-bundled-deps.mjs
 
   e2e:
     runs-on: macos-latest

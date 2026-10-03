@@ -31,3 +31,6 @@ src/obsidiandev.ts
 test-results
 e2e-vault/.obsidian/plugins/obsidian-core-search-assistant
 e2e-vault/.obsidian/workspace.json
+
+# esbuild metafile written by `pnpm build`, read by scripts/check-bundled-deps.mjs
+meta.json

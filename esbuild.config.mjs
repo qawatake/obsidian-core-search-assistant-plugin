@@ -1,4 +1,5 @@
 import esbuild from 'esbuild';
+import { writeFileSync } from 'node:fs';
 import { builtinModules } from 'node:module';
 import process from 'process';
 import sveltePlugin from 'esbuild-svelte';
@@ -24,6 +25,8 @@ const context = await esbuild.context({
 	sourcemap: prod ? false : 'inline',
 	treeShaking: true,
 	outfile: 'main.js',
+	// Lists every input bundled into main.js; scripts/check-bundled-deps.mjs reads it.
+	metafile: true,
 	plugins: [
 		sveltePlugin({
 			compilerOptions: {
@@ -40,7 +43,8 @@ const context = await esbuild.context({
 });
 
 if (prod) {
-	await context.rebuild();
+	const result = await context.rebuild();
+	writeFileSync('meta.json', JSON.stringify(result.metafile));
 	await context.dispose();
 } else {
 	await context.watch();
