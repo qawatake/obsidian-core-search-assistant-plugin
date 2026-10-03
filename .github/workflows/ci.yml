@@ -58,6 +58,14 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: pnpm e2e:setup
       - run: pnpm e2e:test
+      # Playwright の trace / error-context を失敗時だけ残す (flaky の原因調査用)
+      - if: failure()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: e2e-test-results-attempt-${{ github.run_attempt }}
+          path: test-results/
+          retention-days: 7
+          if-no-files-found: ignore
 
   test-e2e-tools:
     runs-on: macos-latest
@@ -75,3 +83,11 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: pnpm e2e:setup
       - run: pnpm e2e:cleanup
+      # Playwright の trace / error-context を失敗時だけ残す (flaky の原因調査用)
+      - if: failure()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: test-e2e-tools-test-results-attempt-${{ github.run_attempt }}
+          path: test-results/
+          retention-days: 7
+          if-no-files-found: ignore
