@@ -23,11 +23,14 @@
 		"e2e:cleanup": "playwright test tests/e2e-setup/cleanup.ts --project e2e-setup",
 		"e2e:test": "playwright test --project e2e",
 		"e2e": "pnpm build && pnpm e2e:test",
-		"check": "node scripts/check-toolchain.mjs && node scripts/check-actions-pinned.mjs && node scripts/check-config-schema.mjs && pnpm lint && pnpm typecheck && pnpm build"
+		"check": "node scripts/check-toolchain.mjs && node scripts/check-actions-pinned.mjs && node scripts/check-config-schema.mjs && pnpm lint && pnpm typecheck && pnpm build && node scripts/check-bundled-deps.mjs"
 	},
 	"keywords": [],
 	"author": "",
 	"license": "MIT",
+	"dependencies": {
+		"svelte": "5.57.1"
+	},
 	"devDependencies": {
 		"@biomejs/biome": "2.5.14",
 		"@electron/asar": "4.3.0",
@@ -39,7 +42,6 @@
 		"esbuild-svelte": "0.9.5",
 		"obsidian": "1.13.1",
 		"sass": "1.105.0",
-		"svelte": "5.57.1",
 		"typescript": "5.9.3"
 	}
 }

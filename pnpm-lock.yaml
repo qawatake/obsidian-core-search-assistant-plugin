@@ -7,6 +7,10 @@ settings:
 importers:
 
   .:
+    dependencies:
+      svelte:
+        specifier: 5.57.1
+        version: 5.57.1
     devDependencies:
       '@biomejs/biome':
         specifier: 2.5.14
@@ -38,9 +42,6 @@ importers:
       sass:
         specifier: 1.105.0
         version: 1.105.0
-      svelte:
-        specifier: 5.57.1
-        version: 5.57.1
       typescript:
         specifier: 5.9.3
         version: 5.9.3
