@@ -33,12 +33,12 @@
 		"@electron/asar": "4.3.0",
 		"@playwright/test": "1.63.0",
 		"@tsconfig/svelte": "5.0.8",
-		"@types/node": "24.13.5",
-		"electron": "43.7.3",
+		"@types/node": "24.19.0",
+		"electron": "43.7.5",
 		"esbuild": "0.28.2",
 		"esbuild-svelte": "0.9.5",
 		"obsidian": "1.13.1",
-		"sass": "1.104.1",
+		"sass": "1.105.0",
 		"svelte": "5.57.1",
 		"typescript": "5.9.3"
 	}
