@@ -203,7 +203,7 @@ export async function settleVaultWindow(
 }
 
 /** The window showing Obsidian's Settings modal, if any. */
-async function findSettingsWindow(
+export async function findSettingsWindow(
 	app: ElectronApplication,
 ): Promise<Page | undefined> {
 	for (const w of app.windows()) {

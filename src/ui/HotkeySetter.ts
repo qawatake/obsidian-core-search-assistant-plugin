@@ -59,9 +59,7 @@ export class HotkeySetter {
 
 	private onunload() {
 		this.component?.$destroy();
-		if (this.scope) {
-			this.app.keymap.popScope(this.scope);
-		}
+		this.stopListening();
 	}
 
 	private onRestored = () => {
@@ -97,6 +95,8 @@ export class HotkeySetter {
 		component.$set({
 			listening: true,
 		});
+		// pressing the button again while listening must not leave the previous scope behind
+		this.stopListening();
 		this.scope = new Scope();
 		this.app.keymap.pushScope(this.scope);
 		this.scope.register(null as any, null, (evt) => {
@@ -106,7 +106,7 @@ export class HotkeySetter {
 				component.$set({
 					listening: false,
 				});
-				if (this.scope) this.app.keymap.popScope(this.scope);
+				this.stopListening();
 				return;
 			}
 
@@ -125,7 +125,13 @@ export class HotkeySetter {
 			component.$set({
 				listening: false,
 			});
-			if (this.scope) this.app.keymap.popScope(this.scope);
+			this.stopListening();
 		});
 	};
+
+	private stopListening() {
+		if (!this.scope) return;
+		this.app.keymap.popScope(this.scope);
+		this.scope = undefined;
+	}
 }
