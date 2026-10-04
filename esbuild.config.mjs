@@ -1,5 +1,5 @@
 import esbuild from 'esbuild';
-import { writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
 import { builtinModules } from 'node:module';
 import process from 'process';
 import sveltePlugin from 'esbuild-svelte';
@@ -11,6 +11,8 @@ if you want to view the source, please visit the github repository of this plugi
 `;
 
 const prod = process.argv[2] === 'production';
+
+const PLUGIN_ID = JSON.parse(readFileSync('manifest.json', 'utf8')).id;
 
 const context = await esbuild.context({
 	banner: {
@@ -31,6 +33,14 @@ const context = await esbuild.context({
 		sveltePlugin({
 			compilerOptions: {
 				css: 'injected',
+				// Svelte's default scope class is `svelte-${hash(filename)}`, where
+				// filename is relative to the repo root (e.g. src/ui/CardContainer.svelte).
+				// Sibling plugins with the same file layout (card-view-switcher) get the
+				// same hash, and since injected styles are deduplicated by that id, the
+				// plugin that renders second silently uses the other's CSS (#149).
+				// Prefix with the plugin id so the scope class is unique to this plugin.
+				cssHash: ({ hash, filename, css }) =>
+					`${PLUGIN_ID}-${hash(filename === '(unknown)' ? css : (filename ?? css))}`,
 				preserveComments: !prod,
 				// Keep the Svelte 4 class component API (new Component(), $set,
 				// $destroy) working under Svelte 5.

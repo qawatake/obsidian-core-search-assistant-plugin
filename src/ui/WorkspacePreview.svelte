@@ -70,13 +70,13 @@ function highlightMatches() {
 
 	.core-search-assistant_workspace-preview_container
 		:global(.highlight-search-match) {
-		color: var(--highlight-search-match);
-		background-color: var(--highlight-search-match-bg);
+		color: var(--core-search-assistant-highlight-search-match);
+		background-color: var(--core-search-assistant-highlight-search-match-bg);
 	}
 
 	.core-search-assistant_workspace-preview_container
 		:global(.focus-search-match) {
-		background-color: var(--focus-search-match-bg);
+		background-color: var(--core-search-assistant-focus-search-match-bg);
 	}
 
 	/*

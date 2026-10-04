@@ -188,7 +188,7 @@
 /* outline on search mode */
 // outline color
 body {
-	--search-mode-outline: var(--interactive-accent);
+	--core-search-assistant-search-mode-outline: var(--interactive-accent);
 }
 // div.core-search-assistant_search-mode-outline {
 // 	/* outline: 5px solid var(--interactive-accent);
@@ -420,13 +420,13 @@ body {
 	text color
 */
 span {
-	--highlight-search-match: var(--text-normal);
+	--core-search-assistant-highlight-search-match: var(--text-normal);
 }
 
 /*
 	background color
 */
 span {
-	--highlight-search-match-bg: var(--text-highlight-bg);
-	--focus-search-match-bg: #ff9633;
+	--core-search-assistant-highlight-search-match-bg: var(--text-highlight-bg);
+	--core-search-assistant-focus-search-match-bg: #ff9633;
 }

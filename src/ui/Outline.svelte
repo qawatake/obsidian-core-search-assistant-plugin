@@ -13,7 +13,8 @@ onMount(() => {
 	el.style.outlineOffset = `-${lineWidth}px`;
 });
 
-const STYLE_VAR_COLOR_SEARCH_MODE_OUTLINE = "--search-mode-outline";
+const STYLE_VAR_COLOR_SEARCH_MODE_OUTLINE =
+	"--core-search-assistant-search-mode-outline";
 </script>
 
 <div class="outline-container" bind:this={el} />
