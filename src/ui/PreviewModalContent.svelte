@@ -89,8 +89,44 @@ function highlightMatches() {
 />
 
 <style>
+	/*
+		Widen the modal: Obsidian sizes it to --dialog-width (about 560px),
+		which is too narrow for a note preview. The modal is the scroll
+		container, so it must never scroll sideways.
+	*/
+	/* phones already use a full-screen modal */
+	:global(body:not(.is-phone) .modal.core-search-assistant_preview-modal) {
+		width: min(1000px, 90vw);
+		max-width: 90vw;
+	}
+
+	/*
+		Fit the content to the modal instead of forcing a width wider than it:
+		long words wrap, media shrink, and code blocks and tables scroll on
+		their own.
+	*/
 	.core-search-assistant_preview-modal_view-container {
-		min-width: 700px;
+		min-width: 0;
+		max-width: 100%;
+		overflow-wrap: anywhere;
+	}
+
+	.core-search-assistant_preview-modal_view-container :global(img),
+	.core-search-assistant_preview-modal_view-container :global(video) {
+		max-width: 100%;
+		height: auto;
+	}
+
+	.core-search-assistant_preview-modal_view-container :global(pre) {
+		max-width: 100%;
+		overflow-x: auto;
+	}
+
+	.core-search-assistant_preview-modal_view-container
+		:global(.markdown-rendered table) {
+		display: block;
+		max-width: 100%;
+		overflow-x: auto;
 	}
 
 	.core-search-assistant_preview-modal_view-container
