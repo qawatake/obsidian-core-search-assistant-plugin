@@ -35,9 +35,20 @@ const tmpDirs = new WeakMap<ElectronApplication, string>();
  * The vault is copied too, so that what Obsidian writes into it (workspace,
  * core plugin list, ...) neither dirties the repository nor leaks into the
  * next test.
+ *
+ * `dir`: put the vault and the user data dir under this existing directory
+ * instead of a fresh temporary one. The caller owns it: closeObsidian leaves
+ * it in place.
+ * `pluginSource`: install the plugin by copying main.js, manifest.json and
+ * styles.css from this directory, instead of keeping the vault's symlinks to
+ * this checkout's build output.
  */
-export async function launchObsidian(): Promise<ElectronApplication> {
-	const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "obsidian-e2e-"));
+export async function launchObsidian(
+	options: { dir?: string; pluginSource?: string } = {},
+): Promise<ElectronApplication> {
+	const tmpDir =
+		options.dir ??
+		(await fs.mkdtemp(path.join(os.tmpdir(), "obsidian-e2e-")));
 	const userDataDir = path.join(tmpDir, "user-data");
 	const vaultPath = path.join(tmpDir, "vault");
 	// The plugin files in the vault are symlinks to the build output
@@ -46,6 +57,18 @@ export async function launchObsidian(): Promise<ElectronApplication> {
 	await fs.rm(path.join(vaultPath, ".obsidian", "workspace.json"), {
 		force: true,
 	});
+	if (options.pluginSource !== undefined) {
+		const pluginsPath = path.join(vaultPath, ".obsidian", "plugins");
+		const pluginPath = path.join(pluginsPath, PLUGIN_ID);
+		await fs.rm(pluginsPath, { recursive: true, force: true });
+		await fs.mkdir(pluginPath, { recursive: true });
+		for (const file of ["main.js", "manifest.json", "styles.css"]) {
+			await fs.copyFile(
+				path.join(options.pluginSource, file),
+				path.join(pluginPath, file),
+			);
+		}
+	}
 	await fs.mkdir(userDataDir);
 	await fs.writeFile(
 		path.join(userDataDir, "obsidian.json"),
@@ -66,7 +89,7 @@ export async function launchObsidian(): Promise<ElectronApplication> {
 	const app = await electron.launch({
 		args: [appPath, `--user-data-dir=${userDataDir}`],
 	});
-	tmpDirs.set(app, tmpDir);
+	if (options.dir === undefined) tmpDirs.set(app, tmpDir);
 
 	// Handle JS dialogs (e.g. beforeunload on app close) explicitly.
 	// Playwright's implicit auto-dismiss races with Obsidian closing its own
@@ -81,7 +104,10 @@ export async function launchObsidian(): Promise<ElectronApplication> {
 	return app;
 }
 
-/** Close an Obsidian started by launchObsidian and remove its vault copy and user data dir. */
+/**
+ * Close an Obsidian started by launchObsidian and remove its vault copy and
+ * user data dir, unless they were put under a caller-owned `dir`.
+ */
 export async function closeObsidian(app: ElectronApplication) {
 	// app.close() can hang if Obsidian blocks shutdown, so bound it and
 	// force-kill as a fallback. The process handle must be grabbed before
