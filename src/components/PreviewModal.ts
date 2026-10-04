@@ -23,6 +23,8 @@ export class PreviewModal extends Modal {
 
 	currentFocus: number;
 	private previewContent: PreviewModalContent | undefined;
+	// where an ongoing smooth scroll is heading
+	private scrollTarget: number | undefined;
 
 	constructor(
 		app: App,
@@ -38,6 +40,9 @@ export class PreviewModal extends Modal {
 	}
 
 	override async onOpen() {
+		this.modalEl.addEventListener("scrollend", () => {
+			this.scrollTarget = undefined;
+		});
 		await this.renderView();
 
 		this.modeScope.push();
@@ -169,11 +174,21 @@ export class PreviewModal extends Modal {
 	}
 
 	private scroll(direction: ScrollDirection, px?: number) {
-		const { containerEl, contentEl } = this;
+		const { containerEl, modalEl } = this;
 		const move =
 			(px ?? containerEl.clientHeight / 2) * (direction === "up" ? -1 : 1);
-		contentEl.scrollBy({
-			top: move,
+		// The scroll container is modalEl: contentEl just grows with its content.
+		// A new smooth scroll cancels the ongoing one, so start from where that
+		// one is heading; otherwise repeated keys would not add up.
+		const maxTop = modalEl.scrollHeight - modalEl.clientHeight;
+		const from = this.scrollTarget ?? modalEl.scrollTop;
+		const target = Math.min(Math.max(from + move, 0), maxTop);
+		// No scroll happens (e.g. at the edge, or before the content is laid
+		// out), so no scrollend comes to clear the target: do not keep it.
+		this.scrollTarget =
+			Math.abs(target - modalEl.scrollTop) < 1 ? undefined : target;
+		modalEl.scrollTo({
+			top: target,
 			behavior: "smooth",
 		});
 	}
