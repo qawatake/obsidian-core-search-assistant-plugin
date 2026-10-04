@@ -1,10 +1,103 @@
-import { type ElectronApplication, expect, type Page } from "@playwright/test";
+import { randomBytes } from "node:crypto";
+import fs from "node:fs/promises";
+import os from "node:os";
+import path from "node:path";
+import {
+	type Dialog,
+	type ElectronApplication,
+	_electron as electron,
+	expect,
+	type Page,
+} from "@playwright/test";
 
 export const PLUGIN_ID = "obsidian-core-search-assistant-plugin";
 
 type ObsidianGlobal = {
 	app?: { plugins?: { plugins?: Record<string, unknown> } };
 };
+
+const appPath = path.resolve("./.obsidian-unpacked/main.js");
+const vaultTemplatePath = path.resolve("./e2e-vault");
+
+const tmpDirs = new WeakMap<ElectronApplication, string>();
+
+/**
+ * Launch Obsidian on a copy of the test vault with a throw-away user data dir.
+ *
+ * The npm `electron` binary runs Obsidian under the app name "obsidian", so by
+ * default it shares `~/Library/Application Support/obsidian` with the
+ * Obsidian you use every day: its vault list, the vault last opened, the
+ * auto-update setting. Pointing `--user-data-dir` at a fresh directory keeps
+ * the tests away from that, and lets each test register the vault itself:
+ * Obsidian reads the vault list and `updateDisabled` from `obsidian.json` at
+ * startup and opens the vault marked `open`.
+ *
+ * The vault is copied too, so that what Obsidian writes into it (workspace,
+ * core plugin list, ...) neither dirties the repository nor leaks into the
+ * next test.
+ */
+export async function launchObsidian(): Promise<ElectronApplication> {
+	const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "obsidian-e2e-"));
+	const userDataDir = path.join(tmpDir, "user-data");
+	const vaultPath = path.join(tmpDir, "vault");
+	// The plugin files in the vault are symlinks to the build output
+	// (scripts/setup-obsidian.sh); copied as they are, they keep pointing there.
+	await fs.cp(vaultTemplatePath, vaultPath, { recursive: true });
+	await fs.rm(path.join(vaultPath, ".obsidian", "workspace.json"), {
+		force: true,
+	});
+	await fs.mkdir(userDataDir);
+	await fs.writeFile(
+		path.join(userDataDir, "obsidian.json"),
+		JSON.stringify({
+			vaults: {
+				[randomBytes(8).toString("hex")]: {
+					path: vaultPath,
+					ts: Date.now(),
+					open: true,
+				},
+			},
+			// The tests must run the version setup-obsidian.sh unpacked, and the
+			// update flow must not pop UI over them.
+			updateDisabled: true,
+		}),
+	);
+
+	const app = await electron.launch({
+		args: [appPath, `--user-data-dir=${userDataDir}`],
+	});
+	tmpDirs.set(app, tmpDir);
+
+	// Handle JS dialogs (e.g. beforeunload on app close) explicitly.
+	// Playwright's implicit auto-dismiss races with Obsidian closing its own
+	// dialogs ("No dialog is showing" protocol error), which hangs teardown.
+	const handleDialogs = (page: Page) => {
+		page.on("dialog", (dialog: Dialog) => dialog.accept().catch(() => {}));
+	};
+	app.on("window", handleDialogs);
+	for (const page of app.windows()) {
+		handleDialogs(page);
+	}
+	return app;
+}
+
+/** Close an Obsidian started by launchObsidian and remove its vault copy and user data dir. */
+export async function closeObsidian(app: ElectronApplication) {
+	// app.close() can hang if Obsidian blocks shutdown, so bound it and
+	// force-kill as a fallback. The process handle must be grabbed before
+	// close(): a disposed ElectronApplication throws from process().
+	const obsidianProcess = app.process();
+	await Promise.race([
+		app.close(),
+		new Promise((resolve) => setTimeout(resolve, 15_000)),
+	]);
+	obsidianProcess.kill();
+
+	const tmpDir = tmpDirs.get(app);
+	if (tmpDir) {
+		await fs.rm(tmpDir, { recursive: true, force: true });
+	}
+}
 
 /**
  * Bring a freshly opened vault window to a quiet state: the plugin is loaded,
