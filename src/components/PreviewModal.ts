@@ -40,6 +40,7 @@ export class PreviewModal extends Modal {
 	}
 
 	override async onOpen() {
+		this.modalEl.addClass("core-search-assistant_preview-modal");
 		this.modalEl.addEventListener("scrollend", () => {
 			this.scrollTarget = undefined;
 		});
