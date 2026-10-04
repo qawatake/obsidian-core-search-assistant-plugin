@@ -94,7 +94,8 @@ function highlightMatches() {
 		which is too narrow for a note preview. The modal is the scroll
 		container, so it must never scroll sideways.
 	*/
-	:global(.modal.core-search-assistant_preview-modal) {
+	/* phones already use a full-screen modal */
+	:global(body:not(.is-phone) .modal.core-search-assistant_preview-modal) {
 		width: min(1000px, 90vw);
 		max-width: 90vw;
 	}
