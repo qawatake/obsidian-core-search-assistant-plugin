@@ -29,6 +29,17 @@ async function previewScrollOffset(window: Page): Promise<number> {
 	}, PREVIEW_CONTENT);
 }
 
+/** The scroll offset once the preview has stopped moving. */
+async function settledScrollOffset(window: Page): Promise<number> {
+	let last = await previewScrollOffset(window);
+	for (;;) {
+		await window.waitForTimeout(200);
+		const current = await previewScrollOffset(window);
+		if (Math.abs(current - last) < 1) return current;
+		last = current;
+	}
+}
+
 for (const { name, down, up } of [
 	{ name: '↓ / ↑', down: 'ArrowDown', up: 'ArrowUp' },
 	{ name: 'Ctrl+N / Ctrl+P', down: 'Control+n', up: 'Control+p' },
@@ -68,7 +79,9 @@ for (const { name, down, up } of [
 				message: `${down} should scroll the preview down`,
 			})
 			.toBeGreaterThan(initial + 100);
-		const scrolled = await previewScrollOffset(window);
+		// The scroll is smooth: wait for it to finish before taking the position
+		// the way back is measured from.
+		const scrolled = await settledScrollOffset(window);
 
 		for (let i = 0; i < 5; i++) {
 			await window.keyboard.press(up);
@@ -78,5 +91,13 @@ for (const { name, down, up } of [
 				message: `${up} should scroll the preview up`,
 			})
 			.toBeLessThan(scrolled - 100);
+		// As many presses up as down come back to the top. The keys must not
+		// reach the editor in the preview: it would move its cursor and scroll
+		// the cursor into view, stopping the scroll partway.
+		await expect
+			.poll(() => settledScrollOffset(window), {
+				message: `${up} should scroll back to where ${down} started`,
+			})
+			.toBeCloseTo(initial, 0);
 	});
 }

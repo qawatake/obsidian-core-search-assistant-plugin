@@ -78,27 +78,35 @@ export class PreviewModal extends Modal {
 			});
 		});
 
+		// The scroll handlers return false so that Obsidian calls
+		// preventDefault: otherwise the key also reaches the editor in the
+		// preview, which moves its cursor (↑↓, and Ctrl+N/P on macOS) and then
+		// scrolls the cursor back into view, cutting the smooth scroll short.
 		hotkeyMap.bigScrollDown.forEach((hotkey) => {
 			this.scope.register(hotkey.modifiers, hotkey.key, () => {
 				this.scroll("down");
+				return false;
 			});
 		});
 
 		hotkeyMap.bigScrollUp.forEach((hotkey) => {
 			this.scope.register(hotkey.modifiers, hotkey.key, () => {
 				this.scroll("up");
+				return false;
 			});
 		});
 
 		hotkeyMap.scrollDown.forEach((hotkey) => {
 			this.scope.register(hotkey.modifiers, hotkey.key, () => {
 				this.scroll("down", SCROLL_AMOUNT);
+				return false;
 			});
 		});
 
 		hotkeyMap.scrollUp.forEach((hotkey) => {
 			this.scope.register(hotkey.modifiers, hotkey.key, () => {
 				this.scroll("up", SCROLL_AMOUNT);
+				return false;
 			});
 		});
 
