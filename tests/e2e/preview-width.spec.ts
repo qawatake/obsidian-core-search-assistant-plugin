@@ -40,21 +40,37 @@ test('長い行・コードブロック・表・画像があっても preview �
 	await window.keyboard.press('ArrowDown');
 	await window.keyboard.press('Control+Space');
 	await expect(window.locator(PREVIEW_CONTENT)).toContainText('wide note');
-	await expect(window.locator(`${PREVIEW_CONTENT} .internal-embed img`).first()).toBeVisible();
 
-	await expect
-		.poll(() => horizontalOverflow(window), {
-			message: 'the preview should not scroll sideways (editing view)',
-		})
-		.toBeLessThanOrEqual(0);
+	// The editor only renders the lines near the viewport, so in a small window
+	// the table and the image at the end of the note are not in the DOM yet.
+	// Check the top of the note, then scroll to the end and check that too.
+	await expectNoHorizontalOverflow(window, 'editing view, top');
+	await scrollPreviewToBottom(window);
+	await expect(window.locator(`${PREVIEW_CONTENT} .internal-embed img`).first()).toBeVisible();
+	await expectNoHorizontalOverflow(window, 'editing view, bottom');
 
 	// 閲覧モードに切り替えても横にスクロールしない
 	await window.keyboard.press('Control+e');
+	await expect(window.locator(`${PREVIEW_CONTENT} .markdown-reading-view`)).toBeVisible();
+	await scrollPreviewToBottom(window);
 	await expect(window.locator(`${PREVIEW_CONTENT} .markdown-reading-view table`)).toBeVisible();
 	await expect(window.locator(`${PREVIEW_CONTENT} .markdown-reading-view .internal-embed img`).first()).toBeVisible();
+	await expectNoHorizontalOverflow(window, 'reading view');
+});
+
+async function expectNoHorizontalOverflow(window: Page, where: string) {
 	await expect
 		.poll(() => horizontalOverflow(window), {
-			message: 'the preview should not scroll sideways (reading view)',
+			message: `the preview should not scroll sideways (${where})`,
 		})
 		.toBeLessThanOrEqual(0);
-});
+}
+
+/** Scroll the preview modal (the scroll container) to the end of the note. */
+async function scrollPreviewToBottom(window: Page) {
+	await window.evaluate(() => {
+		const modal = document.querySelector('.modal-container .modal');
+		if (!modal) throw new Error('preview modal not found');
+		modal.scrollTop = modal.scrollHeight;
+	});
+}
