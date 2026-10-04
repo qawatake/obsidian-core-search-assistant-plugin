@@ -81,6 +81,8 @@ export class Controller extends obsidian.Component {
 		if (this.modeScope.inSearchMode) {
 			return;
 		}
+		// enter search mode before awaiting so that focus + input in a row does not enter twice and leak a hotkey scope
+		this.modeScope.push();
 		this.setHotkeys();
 		this.addChildren();
 		if (this.plugin.settings?.autoToggleSidebar) {
@@ -93,11 +95,10 @@ export class Controller extends obsidian.Component {
 			this.searchInterface.startWatching(this.events);
 			// delay to render cards after expanding sidebar
 			await delay(DELAY_TO_RENDER_CARD_VIEW_ON_ENTRY_IN_MILLISECOND);
+			if (!this.modeScope.inSearchMode) return;
 			this.renewCardViewPage();
 			this.cardViewCheckDebouncer();
 		}
-
-		this.modeScope.push();
 	}
 
 	reset() {
@@ -508,6 +509,7 @@ export class Controller extends obsidian.Component {
 	}
 
 	private setHotkeys() {
+		this.detachHotkeys();
 		const hotkeyMap = this.plugin.settings?.searchModeHotkeys;
 		if (!hotkeyMap) return;
 
@@ -607,6 +609,7 @@ export class Controller extends obsidian.Component {
 		if (detachHotkeys === undefined) {
 			return;
 		}
+		this._detachHotkeys = undefined;
 		detachHotkeys();
 	}
 
