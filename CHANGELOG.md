@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.9.10](https://github.com/qawatake/obsidian-core-search-assistant-plugin/compare/0.9.9...0.9.10) - 2026-10-04
+
+### Changes
+- fix: stop hotkeys from dying after Esc when typing right after focusing search by @qawatake in https://github.com/qawatake/obsidian-core-search-assistant-plugin/pull/155
+- fix: stop keys from dying in Settings after pressing the add-hotkey button twice by @qawatake in https://github.com/qawatake/obsidian-core-search-assistant-plugin/pull/156
+
 ## [0.9.9](https://github.com/qawatake/obsidian-core-search-assistant-plugin/compare/0.9.8...0.9.9) - 2026-10-04
 
 ### Changes
