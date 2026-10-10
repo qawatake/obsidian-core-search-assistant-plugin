@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.9.11](https://github.com/qawatake/obsidian-core-search-assistant-plugin/compare/0.9.10...0.9.11) - 2026-10-10
+
+### Changes
+- build(deps-dev): bump the npm-minor-patch group with 4 updates by @dependabot[bot] in https://github.com/qawatake/obsidian-core-search-assistant-plugin/pull/160
+- build(deps): bump Songmu/tagpr from 1.21.0 to 1.21.1 by @dependabot[bot] in https://github.com/qawatake/obsidian-core-search-assistant-plugin/pull/159
+- build(deps): bump jdx/mise-action from 4.3.0 to 5.0.1 by @dependabot[bot] in https://github.com/qawatake/obsidian-core-search-assistant-plugin/pull/158
+
 ## [0.9.10](https://github.com/qawatake/obsidian-core-search-assistant-plugin/compare/0.9.9...0.9.10) - 2026-10-04
 
 ### Changes
