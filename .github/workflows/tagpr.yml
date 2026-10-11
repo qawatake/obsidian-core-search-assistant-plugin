@@ -19,6 +19,23 @@ jobs:
         uses: Songmu/tagpr@967f2ab22be958948fb5bd439bfa3d404dd9dee8 # v1.21.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # 含まれる PR に needs-release が 1 つでもあれば tagpr の PR にも付ける。
+      # PR は積み増されるだけなので、外す処理は持たない
+      - name: Propagate needs-release label
+        if: steps.tagpr.outputs.pull_request != ''
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PULL_REQUEST: ${{ steps.tagpr.outputs.pull_request }}
+        run: |
+          number=$(jq -r .number <<<"$PULL_REQUEST")
+          prs=$(jq -r .body <<<"$PULL_REQUEST" | grep -oE "github\.com/${GITHUB_REPOSITORY}/pull/[0-9]+" | grep -oE '[0-9]+$' | sort -u)
+          for pr in $prs; do
+            if gh pr view "$pr" --json labels -q '.labels[].name' | grep -qx needs-release; then
+              echo "#$pr has needs-release"
+              gh pr edit "$number" --add-label needs-release
+              break
+            fi
+          done
   release:
     needs: [tagpr]
     if: needs.tagpr.outputs.tagpr-tag != ''
