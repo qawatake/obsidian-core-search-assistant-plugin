@@ -92,3 +92,4 @@ In the preview modal, the following hotkeys are available.
 ### Hotkeys do not work after a search ([issue #44](https://github.com/qawatake/obsidian-core-search-assistant-plugin/issues/44))
 Please reload Obsidian.
 If that does not help you, enable the *Render cards manually* option in the setting tab.
+<!-- release-label-apply test -->
