@@ -42,5 +42,12 @@
 		"obsidian": "1.13.1",
 		"sass": "1.105.1",
 		"typescript": "5.9.3"
+	},
+	"hardenDeps": {
+		"artifact": [
+			"main.js",
+			"manifest.json",
+			"styles.css"
+		]
 	}
 }

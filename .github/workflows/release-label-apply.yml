@@ -1,0 +1,40 @@
+name: release-label-apply
+# release-label.yml の判定結果を PR の label に反映する。
+# workflow_run は default branch の定義で動くので、dependabot の PR にも書き込める
+on:
+  workflow_run:
+    workflows: [release-label]
+    types: [completed]
+
+permissions: {}
+
+jobs:
+  apply:
+    if: github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      actions: read
+      pull-requests: write
+    steps:
+      - env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          RUN_ID: ${{ github.event.workflow_run.id }}
+          HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          # tagpr の PR では判定 job が skip されて artifact が無い
+          gh run download "$RUN_ID" -n release-label -D result || { echo "no result"; exit 0; }
+          read -r pr label < result/label
+          # artifact は PR 側の code が書いたものなので、形と対象 PR を確かめてから使う
+          [[ "$pr" =~ ^[0-9]+$ ]] || { echo "invalid PR number: $pr"; exit 1; }
+          case "$label" in
+            needs-release) other=no-release ;;
+            no-release) other=needs-release ;;
+            *) echo "invalid label: $label"; exit 1 ;;
+          esac
+          if [ "$(gh pr view "$pr" --json headRefOid -q .headRefOid)" != "$HEAD_SHA" ]; then
+            echo "#$pr has moved on from $HEAD_SHA; skip"
+            exit 0
+          fi
+          gh pr edit "$pr" --add-label "$label" --remove-label "$other"

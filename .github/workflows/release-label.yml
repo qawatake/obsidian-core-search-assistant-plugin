@@ -1,0 +1,50 @@
+name: release-label
+# PR が配布物 (package.json の hardenDeps.artifact) を変えるかを base と head のビルド比較で判定する。
+# dependabot の PR では token が read-only になるので、label 付けは release-label-apply.yml に任せる
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  artifact-diff:
+    # tagpr の PR は含まれる PR から needs-release を引き継ぐ (tagpr.yml)
+    if: ${{ !startsWith(github.head_ref, 'tagpr-from-') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+      - uses: jdx/mise-action@7a4e45a543138629540c9a1616d08632b893e492 # v5.0.1
+        with:
+          version: 2026.8.3
+          install: true
+          cache: true
+      - name: Compare artifacts between base and head
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          # base.sha は main の先端なので、PR 以外の変更を拾わないよう分岐点と比べる
+          base=$(git merge-base "$BASE_SHA" "$HEAD_SHA")
+          code=0
+          node scripts/artifact-diff.mjs . --base "$base" --head "$HEAD_SHA" || code=$?
+          case $code in
+            0) label=no-release ;;
+            1) label=needs-release ;;
+            *) exit 1 ;;
+          esac
+          mkdir -p result
+          echo "$PR_NUMBER $label" > result/label
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: release-label
+          path: result/
+          retention-days: 1
