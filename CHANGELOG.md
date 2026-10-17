@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.9.11](https://github.com/qawatake/obsidian-core-search-assistant-plugin/compare/0.9.10...0.9.11) - 2026-10-17
+
+### Changes
+- build(deps-dev): bump the npm-minor-patch group with 4 updates by @dependabot[bot] in https://github.com/qawatake/obsidian-core-search-assistant-plugin/pull/160
+- build(deps): bump Songmu/tagpr from 1.21.0 to 1.21.1 by @dependabot[bot] in https://github.com/qawatake/obsidian-core-search-assistant-plugin/pull/159
+- build(deps): bump jdx/mise-action from 4.3.0 to 5.0.1 by @dependabot[bot] in https://github.com/qawatake/obsidian-core-search-assistant-plugin/pull/158
+- ci: propagate needs-release label to the tagpr PR by @qawatake in https://github.com/qawatake/obsidian-core-search-assistant-plugin/pull/162
+- ci: label PRs needs-release / no-release by diffing built artifacts by @qawatake in https://github.com/qawatake/obsidian-core-search-assistant-plugin/pull/163
+- build(deps-dev): bump the npm-minor-patch group with 3 updates by @dependabot[bot] in https://github.com/qawatake/obsidian-core-search-assistant-plugin/pull/168
+- build(deps): bump jdx/mise-action from 5.0.1 to 5.1.1 by @dependabot[bot] in https://github.com/qawatake/obsidian-core-search-assistant-plugin/pull/165
+- build(deps): bump actions/upload-artifact from 7.0.1 to 7.0.2 by @dependabot[bot] in https://github.com/qawatake/obsidian-core-search-assistant-plugin/pull/166
+- build(deps): bump Songmu/tagpr from 1.21.1 to 1.21.2 by @dependabot[bot] in https://github.com/qawatake/obsidian-core-search-assistant-plugin/pull/167
+- build(deps): bump svelte from 5.57.1 to 5.57.2 by @dependabot[bot] in https://github.com/qawatake/obsidian-core-search-assistant-plugin/pull/169
+
 ## [0.9.10](https://github.com/qawatake/obsidian-core-search-assistant-plugin/compare/0.9.9...0.9.10) - 2026-10-04
 
 ### Changes
