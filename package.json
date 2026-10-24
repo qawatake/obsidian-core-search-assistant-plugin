@@ -33,14 +33,14 @@
 	"devDependencies": {
 		"@biomejs/biome": "2.5.15",
 		"@electron/asar": "4.3.1",
-		"@playwright/test": "1.64.0",
+		"@playwright/test": "1.64.1",
 		"@tsconfig/svelte": "5.0.8",
-		"@types/node": "24.19.1",
-		"electron": "43.7.9",
+		"@types/node": "24.19.2",
+		"electron": "43.8.0",
 		"esbuild": "0.28.2",
 		"esbuild-svelte": "0.9.5",
 		"obsidian": "1.14.4",
-		"sass": "1.105.1",
+		"sass": "1.105.2",
 		"typescript": "5.9.3"
 	},
 	"hardenDeps": {
