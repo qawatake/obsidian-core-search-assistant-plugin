@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.9.12](https://github.com/qawatake/obsidian-core-search-assistant-plugin/compare/0.9.11...0.9.12) - 2026-10-31
+
+### Changes
+- chore: bump pnpm 10.33.2 -> 10.34.7 by @qawatake in https://github.com/qawatake/obsidian-core-search-assistant-plugin/pull/174
+- build(deps): bump Songmu/tagpr from 1.21.2 to 1.21.3 by @dependabot[bot] in https://github.com/qawatake/obsidian-core-search-assistant-plugin/pull/171
+- build(deps-dev): bump the npm-minor-patch group with 4 updates by @dependabot[bot] in https://github.com/qawatake/obsidian-core-search-assistant-plugin/pull/173
+- build(deps): bump jdx/mise-action from 5.1.1 to 5.2.0 by @dependabot[bot] in https://github.com/qawatake/obsidian-core-search-assistant-plugin/pull/172
+- build(deps-dev): bump electron from 43.8.0 to 43.8.1 by @dependabot[bot] in https://github.com/qawatake/obsidian-core-search-assistant-plugin/pull/176
+- build(deps): bump Songmu/tagpr from 1.21.3 to 1.21.4 by @dependabot[bot] in https://github.com/qawatake/obsidian-core-search-assistant-plugin/pull/177
+- build(deps): bump jdx/mise-action from 5.2.0 to 5.2.3 by @dependabot[bot] in https://github.com/qawatake/obsidian-core-search-assistant-plugin/pull/178
+- test: fix flaky preview-width e2e (embedded image not rendered after scrolling) by @qawatake in https://github.com/qawatake/obsidian-core-search-assistant-plugin/pull/180
+- build(deps-dev): bump the npm-minor-patch group across 1 directory with 3 updates by @dependabot[bot] in https://github.com/qawatake/obsidian-core-search-assistant-plugin/pull/179
+
 ## [0.9.11](https://github.com/qawatake/obsidian-core-search-assistant-plugin/compare/0.9.10...0.9.11) - 2026-10-17
 
 ### Changes
