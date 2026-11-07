@@ -40,7 +40,7 @@
 		"esbuild": "0.28.2",
 		"esbuild-svelte": "0.9.5",
 		"obsidian": "1.14.4",
-		"sass": "1.107.0",
+		"sass": "1.107.1",
 		"typescript": "5.9.3"
 	},
 	"hardenDeps": {
