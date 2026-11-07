@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       svelte:
-        specifier: 5.57.2
-        version: 5.57.2
+        specifier: 5.57.3
+        version: 5.57.3
     devDependencies:
       '@biomejs/biome':
         specifier: 2.6.4
@@ -35,7 +35,7 @@ importers:
         version: 0.28.2
       esbuild-svelte:
         specifier: 0.9.5
-        version: 0.9.5(esbuild@0.28.2)(svelte@5.57.2)
+        version: 0.9.5(esbuild@0.28.2)(svelte@5.57.3)
       obsidian:
         specifier: 1.14.4
         version: 1.14.4(@codemirror/state@6.7.6)(@codemirror/view@6.43.13)
@@ -409,8 +409,8 @@ packages:
   '@types/codemirror@5.60.8':
     resolution: {integrity: sha512-VjFgDF/eB+Aklcy15TtOTLQeMjTo07k7KAjql8OK5Dirr7a6sJY4T1uVBDuTVG9VEmn1uUsohOpYnVfgC6/jyw==}
 
-  '@types/estree@1.0.9':
-    resolution: {integrity: sha512-GhdPgy1el4/ImP05X05Uw4cw2/M93BCUmnEvWZNStlCzEKME4Fkk+YpoA5OiHNQmoS7Cafb8Xa3Pya8m1Qrzeg==}
+  '@types/estree@1.0.10':
+    resolution: {integrity: sha512-lTyOMnOcmRBzdCv6/4zUZCrEhV0xrqQiUZBZtVcbmLHBXKLnN8q89v/wKRF/Q0HbwVsqbIG3o5HDoFl9sduM+g==}
 
   '@types/node@24.19.2':
     resolution: {integrity: sha512-93d49wCWJkCyN87MxLpNN6KXPCwFw7bVUg79mGUV1OS40JGWwVCr8n61DXCSqz7CV6/VfPkb7xec7uP2M+QHWQ==}
@@ -599,8 +599,8 @@ packages:
     resolution: {integrity: sha512-MvjXzkz/BOfyVDkG0oFOtBxHX2u3gKbMHIF/dXblZsgD3BWOFLmHovIpZY7BykJdAjcqRCBi1WYBNdEC9yI7vg==}
     engines: {node: '>= 8.0'}
 
-  svelte@5.57.2:
-    resolution: {integrity: sha512-1YiPCAXT0Ct6g1vOMmSLa0Nsc3QRMvtDF32ihgglGVrugIuIK38RyDiFNXVDhtQ81TJjSO57NdMw6DyYLqSGDQ==}
+  svelte@5.57.3:
+    resolution: {integrity: sha512-5mAftM3SoDV9X0zdF386F9p2pv8iKOwi/KfBS1XnBAkVCKFzVOLHUoa8iGWAt4buoicLmyWVRpuuD5wplXOQsg==}
     engines: {node: '>=18'}
 
   typescript@5.9.3:
@@ -867,7 +867,7 @@ snapshots:
     dependencies:
       '@types/tern': 0.23.9
 
-  '@types/estree@1.0.9': {}
+  '@types/estree@1.0.10': {}
 
   '@types/node@24.19.2':
     dependencies:
@@ -875,7 +875,7 @@ snapshots:
 
   '@types/tern@0.23.9':
     dependencies:
-      '@types/estree': 1.0.9
+      '@types/estree': 1.0.10
 
   acorn@8.19.0: {}
 
@@ -916,11 +916,11 @@ snapshots:
 
   env-paths@3.0.0: {}
 
-  esbuild-svelte@0.9.5(esbuild@0.28.2)(svelte@5.57.2):
+  esbuild-svelte@0.9.5(esbuild@0.28.2)(svelte@5.57.3):
     dependencies:
       '@jridgewell/trace-mapping': 0.3.31
       esbuild: 0.28.2
-      svelte: 5.57.2
+      svelte: 5.57.3
 
   esbuild@0.28.2:
     optionalDependencies:
@@ -977,7 +977,7 @@ snapshots:
 
   is-reference@3.0.3:
     dependencies:
-      '@types/estree': 1.0.9
+      '@types/estree': 1.0.10
 
   locate-character@3.0.0: {}
 
@@ -1045,12 +1045,12 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  svelte@5.57.2:
+  svelte@5.57.3:
     dependencies:
       '@jridgewell/remapping': 2.3.5
       '@jridgewell/sourcemap-codec': 1.6.0
       '@sveltejs/acorn-typescript': 1.0.13(acorn@8.19.0)
-      '@types/estree': 1.0.9
+      '@types/estree': 1.0.10
       acorn: 8.19.0
       aria-query: 5.3.1
       axobject-query: 4.1.0
