@@ -28,7 +28,7 @@
 	"author": "",
 	"license": "MIT",
 	"dependencies": {
-		"svelte": "5.57.2"
+		"svelte": "5.57.3"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "2.6.4",
