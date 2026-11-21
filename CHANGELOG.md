@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.9.13](https://github.com/qawatake/obsidian-core-search-assistant-plugin/compare/0.9.12...0.9.13) - 2026-11-21
+
+### Changes
+- Make dependabot.yml security-only; version updates move to tsugiki by @qawatake in https://github.com/qawatake/obsidian-core-search-assistant-plugin/pull/185
+- Weekly dependency updates (2026-11-07, 2 commits) by @qawatake in https://github.com/qawatake/obsidian-core-search-assistant-plugin/pull/187
+- chore(deps-dev): bump @electron/asar from 4.3.1 to 4.3.2 by @qawatake in https://github.com/qawatake/obsidian-core-search-assistant-plugin/pull/188
+
 ## [0.9.12](https://github.com/qawatake/obsidian-core-search-assistant-plugin/compare/0.9.11...0.9.12) - 2026-11-07
 
 ### Changes
